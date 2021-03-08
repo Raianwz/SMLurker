@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM Lurker</title>
+    <link rel="stylesheet" href="../src/css/index.css">
+    <link rel="stylesheet" href="../src/css/main.css">
+</head>
+
+<body>
+    <!----Login---->
+    <div class="container">
+        <header>
+            <h1>SM Twitch Lurker</h1>
+            <div class="window-buttons">
+                <svg onclick="hideWindow()" class="hideWindow" viewBox="0 0 24 24" width="24">
+                    <title>Esconder</title>
+                    <path desc="oi" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 
+                            3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 
+                            7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 
+                            3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 
+                            0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 
+                            0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                </svg>
+                <svg onclick="minWindow()" class="minimizeWindow" viewBox="0 0 492 492" width="20" height="20">
+                    <title>Minimizar</title>
+                    <path d="M465.064,207.562H26.908C12.076,207.562,0,219.698,0,234.53v22.804c0,14.832,12.072,27.104,26.908,27.104h438.156
+                    c14.84,0,26.936-12.272,26.936-27.104V234.53C492,219.698,479.904,207.562,465.064,207.562z" />
+                </svg>
+                <svg onclick="closeWindow()" class="closeWindow" viewBox="0 0 492 492" width="20" height="20">
+                    <title>Fechar</title>
+                    <path d="M300.188,246L484.14,62.04c5.06-5.064,7.852-11.82,7.86-19.024c0-7.208-2.792-13.972-7.86-19.028L468.02,7.872
+                    c-5.068-5.076-11.824-7.856-19.036-7.856c-7.2,0-13.956,2.78-19.024,7.856L246.008,191.82L62.048,7.872
+                    c-5.06-5.076-11.82-7.856-19.028-7.856c-7.2,0-13.96,2.78-19.02,7.856L7.872,23.988c-10.496,10.496-10.496,27.568,0,38.052
+                    L191.828,246L7.872,429.952c-5.064,5.072-7.852,11.828-7.852,19.032c0,7.204,2.788,13.96,7.852,19.028l16.124,16.116
+                    c5.06,5.072,11.824,7.856,19.02,7.856c7.208,0,13.968-2.784,19.028-7.856l183.96-183.952l183.952,183.952
+                    c5.068,5.072,11.824,7.856,19.024,7.856h0.008c7.204,0,13.96-2.784,19.028-7.856l16.12-16.116
+                    c5.06-5.064,7.852-11.824,7.852-19.028c0-7.204-2.792-13.96-7.852-19.028L300.188,246z" />
+                </svg>
+            </div>
+        </header>
+    </div>
+    <div class="mainBox">
+        <div class="loginBox">
+            <div id="LoginBox">
+                <p>Twitch Username</p>
+            <input type="text" placeholder="DarkJunin123456" id="username">
+            <p>Twitch OAuth</p>
+            <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
+            <div class="help">
+                <a href="https://twitchapps.com/tmi/">
+                    <p>Gerar Twitch OAuth</p>
+                </a>
+            </div>
+        </div>
+        <div id="UserBox"></div>
+            <p id="msgStatus"></p>
+            <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
+        </div>
+        <div id="cMng" class="channelsManager">
+            <p class="title">Gerenciar Canais</p>
+            <input class="material-icons add" onclick="addCanal()" title="Adicionar Canal" type="button" value="add">
+                <input type="text" placeholder="Nome do Canal" id="txtCanal" />
+                <input class="material-icons remove" onclick="removerCanal()" title="Remover Canal" type="button" value="remove">
+                <div style="display: -webkit-inline-box;">
+                    <div class="cnFile" onclick="loadChannelsFromFile()">Carregar Arquivo<i class="material-icons">file_upload</i></div> 
+                </div>
+                <input class="material-icons cached" onclick="reloadWindow()" title="Atualizar Lista de canais" type="button" value="cached">
+                <p class="status" id="canalLog"></p>
+        </div>
+        <div id="PingBox" class="hide" style="display: none;">
+            <p>Menções</p>
+            <textarea name="pTable" id="pTable" cols="49" rows="9" disabled></textarea>
+            <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">
+            <span id="Ptotal">Total: 0/2000</span>
+        </div>
+    </div>
+    <!---Scripts--->
+    <script src="../src/components/window/controlls.js"></script>
+    <script src="../src/components/twitch/client.js"></script>
+    <script src="../src/components/twitch/channels.js"></script>
+</body>
+
+</html>

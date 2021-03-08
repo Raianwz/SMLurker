@@ -1,0 +1,56 @@
+{
+  "name": "SMLurker",
+  "version": "0.1.0",
+  "description": "Twich Lurker app",
+  "main": "main.js",
+  "author": "Raianwz",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "build": "electron-builder --ia32",
+    "release": "electron-builder --ia32 --publish always"
+  },
+  "devDependencies": {
+    "electron": "^11.2.3",
+    "electron-builder": "^22.9.1",
+    "electron-updater": "^4.3.5"
+  },
+  "build": {
+    "appId": "com.smlurker",
+    "productName": "SMLurker",
+    "copyright": "Copyright © 2021 ${author}",
+    "directories": {
+      "buildResources": "src/assets",
+      "output": "releases"
+    },
+    "extraResources": [
+      {
+        "from": "./src/assets/",
+        "to": "assets",
+        "filter": [
+          "**/*",
+          "!icon.ico"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "raianwz",
+      "repo": "SMLurker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "tmi.js": "^1.7.1"
+  }
+}

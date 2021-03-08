@@ -1,0 +1,348 @@
+/*Reset*/
+*{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+    font-family: 'OpenSans' ;
+    font-weight: normal;
+}
+
+*{
+    --fundo:#282b30;
+    --disable: #747f8d;
+    --text:#ffffff;
+    --blue: #0099ff;
+    --red:#f04747;
+    --purple: #9148ff;
+}
+html{
+    background-color: var(--fundo);
+    color: var(--text);
+}
+.container{
+    padding: 0;  
+}
+.hide{
+    opacity: 1%;
+    transition: .5s;
+    visibility: hidden;
+    height: 0;
+}
+.show{
+    opacity: 100%;
+    transition: .5s;
+    visibility: visible;
+}
+.warn {
+    box-shadow: 0px 0px 2px 1px #ff5555;
+}
+/*******************************************************************************************************
+*****************************************[Windows Title & Buttons]**************************************
+*******************************************************************************************************/
+
+header{
+    display: flex;
+    flex-direction: row;
+    background-color: #202225;
+}
+
+header h1{
+    text-align: center;
+    font-size: 1.25rem;
+    width: 88%;
+    font-weight: bold;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+header div.window-buttons {
+    display: inline-flex;
+    fill: var(--text);
+    margin-top: 6px;
+}
+
+/********************************
+***********[Buttons]************
+********************************/
+.hideWindow,
+.minimizeWindow,
+.closeWindow{
+    margin: 0 6px 0;
+    cursor: pointer;
+    box-shadow: 0px 0px 0px 0px #ffffff00;
+}
+
+.hideWindow{
+    width: 30px;
+    height: 20px;
+    padding-bottom: 3px;
+}
+
+.minimizeWindow{
+    width: 25px;
+    padding-bottom: 4px;;
+}
+.closeWindow{
+    width: 30px;
+    padding-bottom: 4px;
+}
+
+.hideWindow:hover{
+    transition: .05s;
+    background-color: var(--purple);
+    box-shadow:  2px -3px 0px 3px var(--purple), -3px -3px 0px 3px var(--purple);
+}
+
+.minimizeWindow:hover{
+    transition: .05s;
+    background-color: var(--blue);
+    box-shadow:  2px -3px 0px 3px var(--blue), -3px -3px 0px 3px var(--blue);
+}
+
+.closeWindow:hover{
+    transition: .05s;
+    background-color: var(--red);
+    box-shadow:  3px -3px 0px 3px var(--red), -3px -3px 0px 3px var(--red);
+}
+
+/********************************
+***********[Login Box]************
+********************************/
+div.mainBox{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100vw;
+}
+
+div.loginBox{
+    margin-top: 20px;
+    width: 57%;
+    text-align: center;
+}
+
+.loading,
+.loading:hover {
+  background-color: #44475a !important;
+  border-color: #44475a !important;
+  background-image: url("./extra/loading.svg");
+  background-size: 25px 25px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  cursor: default;
+}
+.conectado {
+    background-color: var(--red) !important;
+    border: 1px solid var(--red) !important;
+    color: #ffffff !important;
+    font-weight: bold;
+  }
+  
+.conectado:hover {
+    background-color: var(--red) !important;
+    border: 1px solid var(--red) !important;
+    color: #f8f8f2 !important;
+}
+
+.loginBox p{
+    margin-top: 12px;
+    font-weight: bold;
+}
+.loginBox input[type='password']:focus,
+.loginBox input[type='text']:focus{
+    box-shadow: 0px 0px 10px 2px var(--blue);
+}
+.loginBox input[type='password'],
+.loginBox input[type='text']{
+    margin-top: 4px;
+    border-radius: 20px;
+    width: 68%;
+    height: 25px;
+    padding: 2px 10px 2px 10px;
+    font-size: 16px;
+}
+.loginBox .help{
+    display: flex;
+    flex-direction: row-reverse;
+    width: 82%;
+}
+
+.loginBox .help p{
+    margin-top: 3px;
+    font-size: 13.5px;
+    text-align: center;
+    color: var(--blue);
+    font-weight: 200;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.loginBox .help a{
+    text-decoration: none;
+}
+.loginBox .help a:hover>p{
+    color: var(--purple);
+    text-decoration: underline;
+}
+/************************************************
+********************[Botão Login]***************
+************************************************/
+.loginBox input[type="button"]{
+    color:#FFF;
+    border: 1px solid  #0173be;
+    background-color: #0173be;
+    border-radius: 15px;
+    font-size: 18px;
+    width: 25%;
+    height: 30px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition:  .5s;
+}
+.loginBox input[type=button]:hover{
+    color:#FFF;
+    background-color:  #0184db;
+    border: 1x solid  #42b3ff;
+    cursor: pointer;
+    transition: .5s;
+  }
+
+/**************************************************
+******** Gerenciar Canais *************************
+**************************************************/
+.channelsManager{
+    text-align: center;
+    width: 39%;
+    height: 160px;
+
+    margin-top: 15px;
+    border-radius: 10px;
+    background-color:#202124;
+    border: .1px solid #9148ff34;
+    transition: .5s;
+}
+.channelsManager:hover{
+    border: 1px solid var(--purple);
+    transition: 1s;
+}
+
+.channelsManager p.title{
+    margin-top: 15px;
+    font-weight: bold;
+}
+/*************************************************
+********Botões Adicionar & Remover Canais*********
+*************************************************/
+.cached{
+    background-color: #008000;
+}
+
+.cached:hover{
+    transition: .5s;
+    background-color: #04c404;
+}
+.cached,
+.add,
+.delete, .remove{color: #FFF}
+
+.add {background-color: #0173be}
+.delete, .remove {background-color: #d44141;}
+.add:hover {background-color: var(--blue)}
+.delete:hover, .remove:hover {background-color: var(--red)}
+
+.channelsManager input[type='text']{
+    margin-top: 4px;
+    border-radius: 20px;
+    width: 70%;
+    height: 25px;
+    padding: 2px 10px 2px 10px;
+    font-size: 16px;
+}
+
+.channelsManager input[type='button']{
+    cursor: pointer;
+    border-radius: 20px;
+    position: relative;
+    top: 5px;
+    width: 26px;
+}
+
+.channelsManager .status{
+    font-weight: 300;
+    margin-top: 5px;
+}
+
+#canalLog i{
+    font-size: 23px;
+    position: relative;
+    top: 5px;
+}
+.cnFile{
+    font-size: 15px;
+    height: 35px;
+    width: 175px;
+    background: var(--disable);
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: .5s;
+}
+.cnFile:hover{
+    transition: 1s;
+    background-color: #0099ff;
+}
+.cnFile i{
+    position: relative;
+    top: 6px;
+}
+/**************************************
+****************AVATAR*****************
+***************************************/
+.avatar{
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    pointer-events: none;
+}
+
+/**************************************
+****************Table de Pings*********
+***************************************/
+textarea {
+    resize:none; 
+    border-radius: 10px;;
+    display: inline-block;
+    padding: 6px 2px 0px 5px;
+    margin: 10px;
+    width: 500px;
+    background-color: #0c0c0c;
+    color: #FFF;
+}
+#PingBox{
+    width: 68%;
+}
+#PingBox span{
+    position: relative;
+    bottom: 20px;
+    left: 0px;
+}
+
+#PingBox p{
+    position: relative;
+    font-weight: bold;
+    width: 20px;
+    margin: 0px;
+    left: 16px;
+    top: 8px;
+}
+#PingBox input[type=button]{
+    position: relative;
+    bottom: 180px;
+    left: 513px;
+    width: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+}

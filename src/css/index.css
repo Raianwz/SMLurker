@@ -1,0 +1,83 @@
+@font-face{
+    font-family: 'OpenSans' ;
+    src:url('../fonts/OpenSans-Light.ttf');
+    font-weight: lighter;
+}
+@font-face{
+    font-family: 'OpenSans' ;
+    src:url('../fonts/OpenSans-Regular.ttf');
+    font-style: normal;
+    font-weight: normal;
+}
+@font-face{
+    font-family: 'OpenSans' ;
+    src:url('../fonts/OpenSans-Bold.ttf');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/material\ icons.woff2') format('woff2');
+}
+
+/*Reset*/
+*{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+    font-family: 'OpenSans' ;
+    font-weight: normal;
+}
+
+*{
+    --fundo:#282b30;
+    --disable: #747f8d;
+    --text:#ffffff;
+    --blue: #0099ff;
+    --red:#f04747;
+    --purple: #9148ff;
+}
+html{
+    background-color: var(--fundo);
+    color: var(--text);
+}
+/* disable highlighting/selecting https://github.com/electron/electron/issues/2538#issuecomment-133083181 */
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+input,
+button,
+textarea,
+:focus {
+  outline: none;
+}
+:disabled(input):disabled(textarea){
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;  /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'liga';
+}
