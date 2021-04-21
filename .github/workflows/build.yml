@@ -28,15 +28,3 @@ jobs:
       run: yarn release
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create portable artifact
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: smlurker *
-        path: packages/*-portable-*.exe
-
-    - name: Create setup artifact
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: smlurker setup
-        path: packages/*-setup-*.exe
