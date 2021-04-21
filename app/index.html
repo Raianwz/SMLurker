@@ -43,7 +43,7 @@
         </header>
         <div class="mainBox">
             <div class="loginBox">
-                <div id="LoginBox" oncontextmenu="return true;">
+                <div id="LoginBox">
                     <p>Twitch Username</p>
                 <input type="text" placeholder="DarkJunin123456" id="username">
                 <p>Twitch OAuth</p>
@@ -57,8 +57,9 @@
             <div id="UserBox"></div>
                 <p id="msgStatus"></p>
                 <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
+                <p id="cnCount"></p>
             </div>
-            <div id="cMng" class="channelsManager" oncontextmenu="return true;">
+            <div id="cMng" class="channelsManager">
                 <p class="title">Gerenciar Canais</p>
                 <input class="material-icons add" onclick="addCanal()" title="Adicionar Canal" type="button" value="add">
                     <input type="text" placeholder="Nome do Canal" id="txtCanal" />
@@ -69,7 +70,7 @@
                     <input class="material-icons cached" onclick="reloadWindow()" title="Atualizar Lista de canais" type="button" value="cached">
                     <p class="status" id="canalLog"></p>
             </div>
-            <div id="PingBox" class="hide" style="display: none;" oncontextmenu="return true;">
+            <div id="PingBox" class="hide" style="display: none;">
                 <p>Menções</p>
                 <textarea name="pTable" id="pTable" cols="49" rows="9" title="pings" disabled></textarea>
                 <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">

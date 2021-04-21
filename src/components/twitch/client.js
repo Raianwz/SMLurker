@@ -14,7 +14,6 @@ async function entrarTwitch(){
     let pingTable = document.getElementById('pTable');
     let ptotal = document.getElementById('Ptotal');
     let error = false;
-    console.log(username)
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
@@ -92,7 +91,6 @@ async function entrarTwitch(){
         client.on("message", async (channel, tags, message, self) => {
             let DisplayName = document.querySelector('div#UserBox p').textContent
             if(message.includes(username)||message.includes(DisplayName)){
-                console.log(`Pingado em: ${channel} canal, messagem: ${tags.username}: ${message}`);
                 pingTable.value += `🔔 Canal: ${channel} \n💬 ${tags.username}: ${message}\n`;
                 let pings = pingTable.value
                 pings =  pings.replaceAll(' ','').replace('🔔Canal:','').replace('💬','')
@@ -108,14 +106,17 @@ async function entrarTwitch(){
 
 async function sairTwitch() {
     await client.disconnect();
-    let userbox = document.getElementById('UserBox')
+    let userbox = document.getElementById('UserBox'),
+    cnCount =  document.getElementById('cnCount')
     userbox.innerHTML = "";
+    cnCount.innerHTML = "";
     ShowHide('saiu');
 
     client = null;
     let btnEntrar = document.getElementById('btnEntrar');
     let status = document.getElementById('msgStatus');
     btnEntrar.blur();
+
 
     status.innerHTML = '';
     btnEntrar.value = 'Entrar';
@@ -157,7 +158,6 @@ function criarUser(username){
           <img class="avatar" src="${logo}" alt="${username}">`
   
          if(logo.length == 0 && displayName.length ==0){
-             console.log("passou no if")
             userbox.innerHTML = `<p>Twitch Glitch!</p>
             <img class="avatar" src="https://static-cdn.jtvnw.net/emoticons/v1/304432163/3.0" alt="Twitch">`
          }

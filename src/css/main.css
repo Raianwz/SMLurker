@@ -315,6 +315,22 @@ div.loginBox{
     pointer-events: none;
 }
 
+#msgStatus{
+    padding: 0;
+    margin: 0;
+    font-weight: normal;
+}
+#cnCount{
+    margin:10px auto;
+    font-size: 15px;
+    background-color: #222325;
+    border-radius: 15px;
+    width: 31%;
+    position: fixed;
+    left: 109px;
+    bottom: 115px;
+}
+
 /**************************************
 ****************Table de Pings*********
 ***************************************/

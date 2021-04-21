@@ -5,7 +5,8 @@ const sleep = require(path.resolve(__dirname,'./sleep'));
 
 module.exports = async client =>{
     let channelPath=`${app.getPath('userData')}\\channels.json`,
-    channels;
+    channels,
+    cnCount = document.getElementById('cnCount');
 
     if(!fs.existsSync(channelPath)){
         throw 'Nenhum canal adicionado, por favor adicione um canal';
@@ -17,6 +18,7 @@ module.exports = async client =>{
 
     for(let x =0; x < channels.length; x++){
         client.join(channels[x]).catch(err => {});
+        cnCount.innerHTML = `Entrou em ${x+1} de ${channels.length} canais.`
         await sleep(100);
     }
 };
