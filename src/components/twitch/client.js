@@ -8,12 +8,13 @@ let client = null;
 loadCredentials();
 
 async function entrarTwitch(){
-    let username = document.getElementById('username').value;
+    let username = document.getElementById('username').value.toLowerCase()
     let pass = document.getElementById('pass').value;
     let status = document.getElementById('msgStatus');
     let pingTable = document.getElementById('pTable');
     let ptotal = document.getElementById('Ptotal');
     let error = false;
+    console.log(username)
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
@@ -89,14 +90,17 @@ async function entrarTwitch(){
         }
     
         client.on("message", async (channel, tags, message, self) => {
-            if(message.includes(username)){
+            let DisplayName = document.querySelector('div#UserBox p').textContent
+            if(message.includes(username)||message.includes(DisplayName)){
                 console.log(`Pingado em: ${channel} canal, messagem: ${tags.username}: ${message}`);
                 pingTable.value += `🔔 Canal: ${channel} \n💬 ${tags.username}: ${message}\n`;
-                ptotal.innerText = `Total:${pingTable.value.length}/2000`
+                let pings = pingTable.value
+                pings =  pings.replaceAll(' ','').replace('🔔Canal:','').replace('💬','')
+                ptotal.innerText = `Total: ${pings.length}/4000`
             }
-            if(pingTable.value.length>2000){
+            if(pingTable.value.length>4000){
                 pingTable.value="";
-                ptotal.innerText = `Total: 0/2000 — Limpo`
+                ptotal.innerText = `Total: 0/4000 — Limpo`
             }
         });
     }
@@ -151,6 +155,12 @@ function criarUser(username){
           let displayName = data.users[0].display_name
           userbox.innerHTML = `<p>${displayName}</p>
           <img class="avatar" src="${logo}" alt="${username}">`
+  
+         if(logo.length == 0 && displayName.length ==0){
+             console.log("passou no if")
+            userbox.innerHTML = `<p>Twitch Glitch!</p>
+            <img class="avatar" src="https://static-cdn.jtvnw.net/emoticons/v1/304432163/3.0" alt="Twitch">`
+         }
         })
     }) 
 }
@@ -159,6 +169,7 @@ function ShowHide(status){
     let cManager = document.getElementById('cMng');
     let LoginBox = document.getElementById('LoginBox');
     let Lbox = document.querySelector('.loginBox');
+    let Blogin = document.querySelector('#btnEntrar');
     let PingBox = document.getElementById('PingBox');
 
     if(status == 'entrou'){
@@ -167,11 +178,12 @@ function ShowHide(status){
         cManager.classList.add('hide');
         LoginBox.classList.add('hide');
         setTimeout(()=>{
+        PingBox.classList.remove('hide');
         cManager.style.display = 'none';
         LoginBox.style.display = 'none';
         Lbox.style.width = "30%"
+        Blogin.style.width = "50%"
         PingBox.style.display = 'block';
-        PingBox.classList.remove('hide');
     },600)
     }
 
@@ -181,10 +193,11 @@ function ShowHide(status){
         LoginBox.classList.remove('hide');
         cManager.classList.add('show');
         LoginBox.classList.add('show');
-        PingBox.style.display = 'none';
         cManager.style.display = 'block';
+        PingBox.style.display = 'none';
         LoginBox.style.display = 'block';
         Lbox.style.width = "57%"
+        Blogin.style.width = ""
     }
 }
 

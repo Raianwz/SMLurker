@@ -20,6 +20,9 @@ html{
     background-color: var(--fundo);
     color: var(--text);
 }
+body{
+    border-radius: 50%;
+}
 .container{
     padding: 0;  
 }
@@ -31,7 +34,7 @@ html{
 }
 .show{
     opacity: 100%;
-    transition: .5s;
+    transition: 1s;
     visibility: visible;
 }
 .warn {
@@ -151,7 +154,9 @@ div.loginBox{
 }
 .loginBox input[type='password']:focus,
 .loginBox input[type='text']:focus{
-    box-shadow: 0px 0px 10px 2px var(--blue);
+    transition: .2s ease-in-out;
+    background-color: #FFF;
+    box-shadow: 0px 0px 0px 2px var(--blue);
 }
 .loginBox input[type='password'],
 .loginBox input[type='text']{
@@ -161,6 +166,8 @@ div.loginBox{
     height: 25px;
     padding: 2px 10px 2px 10px;
     font-size: 16px;
+    background-color: #d0d0d0;
+    transition: .2s ease-in-out;
 }
 .loginBox .help{
     display: flex;
@@ -218,7 +225,7 @@ div.loginBox{
 
     margin-top: 15px;
     border-radius: 10px;
-    background-color:#202124;
+    background-color:#222325;
     border: .1px solid #9148ff34;
     transition: .5s;
 }
@@ -321,8 +328,12 @@ textarea {
     background-color: #0c0c0c;
     color: #FFF;
 }
+
+
 #PingBox{
     width: 68%;
+    position: fixed;
+    left: 30%;
 }
 #PingBox span{
     position: relative;

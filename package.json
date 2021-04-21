@@ -16,6 +16,14 @@
     "electron-builder": "^22.9.1",
     "electron-updater": "^4.3.5"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Raianwz/SMLurker"
+  },
+  "publish": {
+    "provider": "github",
+    "releaseType": "release"
+  },
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",

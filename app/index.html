@@ -13,7 +13,7 @@
     <!----Login---->
     <div class="container">
         <header>
-            <h1>SM Twitch Lurker</h1>
+            <h1>SM Twitch Lurker Beta</h1>
             <div class="window-buttons">
                 <svg onclick="hideWindow()" class="hideWindow" viewBox="0 0 24 24" width="24">
                     <title>Esconder</title>
@@ -41,40 +41,40 @@
                 </svg>
             </div>
         </header>
-    </div>
-    <div class="mainBox">
-        <div class="loginBox">
-            <div id="LoginBox">
-                <p>Twitch Username</p>
-            <input type="text" placeholder="DarkJunin123456" id="username">
-            <p>Twitch OAuth</p>
-            <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
-            <div class="help">
-                <a href="https://twitchapps.com/tmi/">
-                    <p>Gerar Twitch OAuth</p>
-                </a>
-            </div>
-        </div>
-        <div id="UserBox"></div>
-            <p id="msgStatus"></p>
-            <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
-        </div>
-        <div id="cMng" class="channelsManager">
-            <p class="title">Gerenciar Canais</p>
-            <input class="material-icons add" onclick="addCanal()" title="Adicionar Canal" type="button" value="add">
-                <input type="text" placeholder="Nome do Canal" id="txtCanal" />
-                <input class="material-icons remove" onclick="removerCanal()" title="Remover Canal" type="button" value="remove">
-                <div style="display: -webkit-inline-box;">
-                    <div class="cnFile" onclick="loadChannelsFromFile()">Carregar Arquivo<i class="material-icons">file_upload</i></div> 
+        <div class="mainBox">
+            <div class="loginBox">
+                <div id="LoginBox" oncontextmenu="return true;">
+                    <p>Twitch Username</p>
+                <input type="text" placeholder="DarkJunin123456" id="username">
+                <p>Twitch OAuth</p>
+                <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
+                <div class="help">
+                    <a href="https://twitchapps.com/tmi/">
+                        <p>Gerar Twitch OAuth</p>
+                    </a>
                 </div>
-                <input class="material-icons cached" onclick="reloadWindow()" title="Atualizar Lista de canais" type="button" value="cached">
-                <p class="status" id="canalLog"></p>
-        </div>
-        <div id="PingBox" class="hide" style="display: none;">
-            <p>Menções</p>
-            <textarea name="pTable" id="pTable" cols="49" rows="9" disabled></textarea>
-            <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">
-            <span id="Ptotal">Total: 0/2000</span>
+            </div>
+            <div id="UserBox"></div>
+                <p id="msgStatus"></p>
+                <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
+            </div>
+            <div id="cMng" class="channelsManager" oncontextmenu="return true;">
+                <p class="title">Gerenciar Canais</p>
+                <input class="material-icons add" onclick="addCanal()" title="Adicionar Canal" type="button" value="add">
+                    <input type="text" placeholder="Nome do Canal" id="txtCanal" />
+                    <input class="material-icons remove" onclick="removerCanal()" title="Remover Canal" type="button" value="remove">
+                    <div style="display: -webkit-inline-box;">
+                        <div class="cnFile" onclick="loadChannelsFromFile()">Carregar Arquivo<i class="material-icons">file_upload</i></div> 
+                    </div>
+                    <input class="material-icons cached" onclick="reloadWindow()" title="Atualizar Lista de canais" type="button" value="cached">
+                    <p class="status" id="canalLog"></p>
+            </div>
+            <div id="PingBox" class="hide" style="display: none;" oncontextmenu="return true;">
+                <p>Menções</p>
+                <textarea name="pTable" id="pTable" cols="49" rows="9" title="pings" disabled></textarea>
+                <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">
+                <span id="Ptotal">Total: 0/4000</span>
+            </div>
         </div>
     </div>
     <!---Scripts--->

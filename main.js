@@ -1,7 +1,9 @@
 const { app, BrowserWindow } = require('electron');
 const shell = require('electron').shell;
+const {autoUpdater} = require("electron-updater");
 let mainWindow;
 var isWin = process.platform === "win32";
+
 function CreateWindow() {
     mainWindow = new BrowserWindow({
         title: 'SM Lurker',
@@ -10,7 +12,9 @@ function CreateWindow() {
         height: 400,
         resizable: false,
         frame: false,
+        transparent: true, 
         fullscreen: false,
+        show: false,
         maximizable: false,
         webPreferences: {
             nodeIntegration: true,
@@ -35,6 +39,10 @@ if(isWin){
     app.setAppUserModelId("SM Lurker");
 }
 
+app.on('ready', function()  {
+  autoUpdater.checkForUpdatesAndNotify();
+  console.log('Verificando atualizações')
+});
 app.on('ready', CreateWindow);
 // Quit when all windows are closed. 
 app.on('window-all-closed', () => { 
@@ -49,57 +57,42 @@ app.on('activate', () => {
 
 function clipMenu(mainWindow){
     const Menu = require('electron').Menu;
-    mainWindow.webContents.on("context-menu", ({ sender: webContents }, { editFlags }) => {
-        const template = [
-          ...(editFlags.canRedo
-            ? [
-              { label: "Refazer", click: () => webContents.redo(), accelerator: "CmdOrCtrl+Y" },
-            ]
-            : []
-          ),
-          ...(editFlags.canUndo
-            ? [
-              { label: "Desfazer", click: () => webContents.undo(), accelerator: "CmdOrCtrl+Z" },
-              { type: "separator" },
-            ]
-            : []
-          ),
-          ...(editFlags.canCut
-            ? [
-              {
-                label: "Recortar", click: () => webContents.cut(),
-                accelerator: "CmdOrCtrl+X"
-              },
-            ]
-            : []
-          ),
-          ...(editFlags.canCopy
-            ? [
-              { label: "Copiar", click: () => webContents.copy(), accelerator: "CmdOrCtrl+C" },
-            ]
-            : []
-          ),
-          ...(editFlags.canPaste
-            ? [
-              { label: "Colar", click: () => webContents.paste(), accelerator: "CmdOrCtrl+V" },
-            ]
-            : []
-          ),
-          ...(editFlags.canSelectAll
-            ? [
-              { type: "separator" },
-              { label: "Selecionar Tudo", click: () => webContents.selectAll(), accelerator: "CmdOrCtrl+A" },
-            ]
-            : []
-          )
-        ];
-    
-        if (!template.length) {
-          return;
-        }
-    
-        Menu
-          .buildFromTemplate(template)
-          .popup({});
-      });
+
+    mainWindow.webContents.on('context-menu', (e, props) => {
+      const InputMenu = Menu.buildFromTemplate([{
+          label: 'Desfazer',
+          role: 'undo',
+          accelerator: 'CmdOrCtrl+Z',
+      }, {
+          label: 'Refazer',
+          role: 'redo',
+          accelerator: 'CmdOrCtrl+Y',
+          
+      }, {
+          type: 'separator',
+      }, {
+          label: 'Recortar',
+          role: 'cut',
+          accelerator: 'CmdOrCtrl+X',
+      }, {
+          label: 'Copiar',
+          role: 'copy',
+          accelerator: 'CmdOrCtrl+C',
+      }, {
+          label: 'Colar',
+          role: 'paste',
+          accelerator: 'CmdOrCtrl+V',
+      }, {
+          type: 'separator',
+      }, {
+          label: 'Selecionar Tudo',
+          role: 'selectall',
+          accelerator: "CmdOrCtrl+A",
+      },
+      ]);
+      const { inputFieldType, titleText } = props;
+      if (inputFieldType === 'plainText' || inputFieldType === 'password' || titleText === 'pings') {
+        InputMenu.popup(mainWindow);
+      }
+    });
 }

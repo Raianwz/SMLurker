@@ -1,5 +1,4 @@
 let dialogOpen = false;
-const iconRL = `<i class="material-icons" title="Clique em Atualizar">refresh</i>`; 
 
 function loadChannelsFromFile(){
     const { remote: {app}} = require('electron');
