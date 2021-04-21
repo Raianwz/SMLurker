@@ -54,6 +54,7 @@
     },
     "nsis": {
       "oneClick": false,
+      "includes":"installer.nsh",
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
     }
