@@ -1,5 +1,8 @@
 const { title } = require('process');
 
+const appVersion = window.require('electron').remote.app.getVersion()
+document.querySelector('header h1').innerText +=` Beta ${appVersion}`
+
 function minWindow(){
     const { remote } = require('electron');
     var win = remote.getCurrentWindow();
