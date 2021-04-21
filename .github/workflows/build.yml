@@ -24,19 +24,9 @@ jobs:
     - name: Install dependencies
       run: yarn
 
-    - name: Build
-      run: yarn release
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create portable artifact
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: smlurker *
-        path: packages/*-portable-*.exe
-
-    - name: Create setup artifact
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: smlurker setup
-        path: packages/*-setup-*.exe
+    - name: Electron Builder Action
+      uses: samuelmeuli/action-electron-builder@v1.6.0
+      with: 
+            build_script_name: yarn release
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            release: ${{ startsWith(github.ref, 'refs/tags/v') }}

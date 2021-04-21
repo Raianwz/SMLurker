@@ -1,6 +1,6 @@
 {
   "name": "SMLurker",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Twich Lurker app",
   "main": "main.js",
   "author": "Raianwz",
@@ -13,8 +13,7 @@
   },
   "devDependencies": {
     "electron": "^11.2.3",
-    "electron-builder": "^22.9.1",
-    "electron-updater": "^4.3.5"
+    "electron-builder": "^22.9.1"
   },
   "repository": {
     "type": "git",
@@ -59,6 +58,7 @@
     }
   },
   "dependencies": {
+    "electron-updater": "^4.3.8",
     "tmi.js": "^1.7.1"
   }
 }
