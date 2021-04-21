@@ -3,15 +3,13 @@ name: Build Release
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  release:
+    runs-on: windows-latest 
 
     strategy:
-      matrix:
+      matrix: 
         node-version: [14.x]
 
     steps:
