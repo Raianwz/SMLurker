@@ -41,7 +41,7 @@ if(isWin){
 
 app.on('ready', function()  {
   autoUpdater.checkForUpdatesAndNotify();
-  console.log('Verificando atualizações')
+  
 });
 app.on('ready', CreateWindow);
 // Quit when all windows are closed. 

@@ -158,6 +158,14 @@ div.loginBox{
     background-color: #FFF;
     box-shadow: 0px 0px 0px 2px var(--blue);
 }
+.loginBox input[type='password']:disabled,
+.loginBox input[type='text']:disabled{
+    transition: .5s ease-in-out;
+    background-color: var(--disable);
+    color: white;
+    cursor: not-allowed;
+    text-align: center;
+}
 .loginBox input[type='password'],
 .loginBox input[type='text']{
     margin-top: 4px;

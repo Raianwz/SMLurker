@@ -13,6 +13,8 @@ async function entrarTwitch(){
     let status = document.getElementById('msgStatus');
     let pingTable = document.getElementById('pTable');
     let ptotal = document.getElementById('Ptotal');
+    let inputUser = document.getElementById('username')
+    let inputPass = document.getElementById('pass')
     let error = false;
 
     let btnEntrar = document.getElementById('btnEntrar');
@@ -38,6 +40,9 @@ async function entrarTwitch(){
     btnEntrar.classList.add('loading');
     btnEntrar.onclick = null;
     status.innerHTML = 'Iniciando Client';
+    inputUser.disabled = true;
+    inputPass.disabled = true;
+
 
     client = new tmi.Client({
         options: { debug: false },
@@ -56,6 +61,8 @@ async function entrarTwitch(){
 
     await client.connect().catch(err => {
         error = true;
+        inputUser.disabled = false;
+        inputPass.disabled = false;
         status.innerHTML = `${err}`;
         btnEntrar.value = 'Entrar';
         btnEntrar.classList.remove('loading');
@@ -171,6 +178,8 @@ function ShowHide(status){
     let Lbox = document.querySelector('.loginBox');
     let Blogin = document.querySelector('#btnEntrar');
     let PingBox = document.getElementById('PingBox');
+    let inputUser = document.getElementById('username').disabled = false
+    let inputPass = document.getElementById('pass').disabled = false
 
     if(status == 'entrou'){
         cManager.classList.remove('show');

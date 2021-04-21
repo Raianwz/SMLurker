@@ -7,6 +7,8 @@ module.exports = async client =>{
     let channelPath=`${app.getPath('userData')}\\channels.json`,
     channels,
     cnCount = document.getElementById('cnCount');
+    document.getElementById('username').disabled = false
+    document.getElementById('pass').disabled = false
 
     if(!fs.existsSync(channelPath)){
         throw 'Nenhum canal adicionado, por favor adicione um canal';
