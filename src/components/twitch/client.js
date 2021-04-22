@@ -58,6 +58,7 @@ async function entrarTwitch(){
 
     await client.connect().catch(err => {
         error = true;
+        BlockLogin(false)
         status.innerHTML = `${err}`;
         btnEntrar.value = 'Entrar';
         btnEntrar.classList.remove('loading');
