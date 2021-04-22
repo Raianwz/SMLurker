@@ -13,8 +13,6 @@ async function entrarTwitch(){
     let status = document.getElementById('msgStatus');
     let pingTable = document.getElementById('pTable');
     let ptotal = document.getElementById('Ptotal');
-    let inputUser = document.getElementById('username')
-    let inputPass = document.getElementById('pass')
     let error = false;
 
     let btnEntrar = document.getElementById('btnEntrar');
@@ -36,12 +34,11 @@ async function entrarTwitch(){
         }
     }
 
+    BlockLogin(true)
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
     btnEntrar.onclick = null;
     status.innerHTML = 'Iniciando Client';
-    inputUser.disabled = true;
-    inputPass.disabled = true;
 
 
     client = new tmi.Client({
@@ -61,8 +58,6 @@ async function entrarTwitch(){
 
     await client.connect().catch(err => {
         error = true;
-        inputUser.disabled = false;
-        inputPass.disabled = false;
         status.innerHTML = `${err}`;
         btnEntrar.value = 'Entrar';
         btnEntrar.classList.remove('loading');
@@ -71,12 +66,11 @@ async function entrarTwitch(){
 
     if (!error) {
         saveCredentials(username, pass);
-
         status.innerHTML = 'Entrando nos canais...'
 
         await joinChannels(client).catch(err => {
             error = true;
-
+            BlockLogin(false)
             status.innerHTML = `${err}`;
             btnEntrar.value = 'Entrar';
             btnEntrar.classList.remove('loading');
@@ -155,21 +149,22 @@ async function loadCredentials() {
 function criarUser(username){
     let userbox = document.getElementById('UserBox')
     userbox.innerHTML = "";
-    fetch(`https://api.twitch.tv/kraken/users?login=${username}`, {
-        headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' }
-    }).then(function(response) {
-        return response.json().then(function(data) {
-          let logo = data.users[0].logo;
-          let displayName = data.users[0].display_name
-          userbox.innerHTML = `<p>${displayName}</p>
-          <img class="avatar" src="${logo}" alt="${username}">`
-  
-         if(logo.length == 0 && displayName.length ==0){
-            userbox.innerHTML = `<p>Twitch Glitch!</p>
-            <img class="avatar" src="https://static-cdn.jtvnw.net/emoticons/v1/304432163/3.0" alt="Twitch">`
-         }
-        })
-    }) 
+    try {
+        fetch(`https://api.twitch.tv/kraken/users?login=${username}`, {
+            headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' }
+        }).then(function(response) {
+            return response.json().then(function(data) {
+              let logo = data.users[0].logo;
+              let displayName = data.users[0].display_name
+              userbox.innerHTML = `<p>${displayName}</p>
+              <img class="avatar" src="${logo}" alt="${username}">`
+            })
+        }) 
+    }catch (error){
+        userbox.innerHTML = `<p>Twitch Glitch!</p>
+        <img class="avatar" src="https://static-cdn.jtvnw.net/emoticons/v1/304432163/3.0" alt="Twitch">`
+    }
+
 }
 
 function ShowHide(status){
@@ -178,8 +173,6 @@ function ShowHide(status){
     let Lbox = document.querySelector('.loginBox');
     let Blogin = document.querySelector('#btnEntrar');
     let PingBox = document.getElementById('PingBox');
-    let inputUser = document.getElementById('username').disabled = false
-    let inputPass = document.getElementById('pass').disabled = false
 
     if(status == 'entrou'){
         cManager.classList.remove('show');
@@ -187,16 +180,18 @@ function ShowHide(status){
         cManager.classList.add('hide');
         LoginBox.classList.add('hide');
         setTimeout(()=>{
+        BlockLogin(true)    
         PingBox.classList.remove('hide');
         cManager.style.display = 'none';
         LoginBox.style.display = 'none';
         Lbox.style.width = "30%"
         Blogin.style.width = "50%"
         PingBox.style.display = 'block';
-    },600)
+    },1)
     }
 
     if(status == 'saiu'){
+        BlockLogin(false)
         PingBox.classList.add('hide');
         cManager.classList.remove('hide');
         LoginBox.classList.remove('hide');
@@ -214,5 +209,30 @@ function clearPing(){
     let pingTable = document.getElementById('pTable')
     let ptotal = document.getElementById('Ptotal');
     pingTable.value="";
-    ptotal.innerText = `Total: 0/2000 — Limpo`
+    ptotal.innerText = `Total: 0/4000 — Limpo`
+}
+
+function BlockLogin(valor){
+    let inputUser = document.getElementById('username')
+    let inputPass = document.getElementById('pass')
+    let inputCanal = document.getElementById('txtCanal')
+    let btnAdd = document.querySelector('input[type="button"].add')
+    let btnRemove = document.querySelector('input[type="button"].remove')
+    let btnReload = document.querySelector('input[type="button"].cached')
+    let btnFiles = document.querySelector('.cnFile')
+
+    inputUser.disabled = valor;
+    inputPass.disabled = valor;
+    inputCanal.disabled = valor;
+    btnAdd.disabled = valor;
+    btnRemove.disabled = valor;
+    btnReload.disabled = valor;
+
+    if(valor == true){
+        btnFiles.classList.add('block')
+        btnFiles.onclick = null;
+    }else{
+        btnFiles.classList.remove('block')
+        btnFiles.onclick = loadChannelsFromFile;
+    }
 }

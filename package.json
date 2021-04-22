@@ -1,6 +1,6 @@
 {
   "name": "SMLurker",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Twich Lurker app",
   "main": "main.js",
   "author": "Raianwz",
@@ -54,9 +54,8 @@
     },
     "nsis": {
       "oneClick": false,
-      "includes":"installer.nsh",
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true
     }
   },
   "dependencies": {

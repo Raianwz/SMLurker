@@ -41,7 +41,6 @@
     --purple: #9148ff;
 }
 html{
-    background-color: var(--fundo);
     color: var(--text);
 }
 /* disable highlighting/selecting https://github.com/electron/electron/issues/2538#issuecomment-133083181 */

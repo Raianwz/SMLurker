@@ -70,16 +70,3 @@ function reloadWindow(){
     var win = remote.getCurrentWindow();
     win.reload();
 }
-
-/*
-const getLogo = (nome) => {
-    fetch(`https://api.twitch.tv/kraken/users?login=${nome}`, {
-        headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' }
-    }).then(function(response) {
-        return response.json().then(function(data) {
-            let logo = data.users[0].logo;
-            return logo
-        })
-    })
-};
-*/
