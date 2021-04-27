@@ -127,7 +127,7 @@ async function sairTwitch() {
 }
 //Função Salvar Dados
 async function saveCredentials(username, pass) {
-    let credentialsPath = `${app.getPath('userData')}\\credentials.json`,
+    let credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`,
         credentials = {};
 
     credentials.username = username;
@@ -136,7 +136,8 @@ async function saveCredentials(username, pass) {
 }
 //Função carregar dados salvos
 async function loadCredentials() {
-    let credentialsPath = `${app.getPath('userData')}\\credentials.json`,
+    let configPath = `${app.getPath('userData')}\\Config\\configs.json`
+    let credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`,
         credentials;
 
     if (fs.existsSync(credentialsPath)) {
@@ -144,7 +145,15 @@ async function loadCredentials() {
 
         document.getElementById('username').value = credentials.username;
         document.getElementById('pass').value = credentials.pass;
+
+        if (fs.existsSync(configPath)){
+            let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
+            if(config.autologin === true){
+                document.getElementById('btnEntrar').click()
+            }
+        }
     }
+
 }
 
 function criarUser(username){

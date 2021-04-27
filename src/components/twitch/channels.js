@@ -4,7 +4,7 @@ function loadChannelsFromFile(){
     const { remote: {app}} = require('electron');
     const {dialog} = require('electron').remote;
     const fs = require('fs');
-    const channelFilePath = `${app.getPath('userData')}\\channels.json`;
+    const channelFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
     if(!dialogOpen){
         dialogOpen = true;
 
@@ -38,7 +38,7 @@ function addCanal(){
     let channels = newChannelInput.value.toLowerCase();
    
     let log = document.getElementById('canalLog');
-    let channelsFilePath = `${app.getPath('userData')}\\channels.json`;
+    let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
 
     if(!channels || !channels.replace(/ /g, '')){
         newChannelInput.classList.add('warn');
@@ -65,7 +65,7 @@ function removerCanal(){
     let channels = newChannelInput.value.toLowerCase();
 
     let log = document.getElementById('canalLog');
-    let channelsFilePath = `${app.getPath('userData')}\\channels.json`;
+    let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
 
     if(!channels || !channels.replace(/ /g, '')){
         newChannelInput.classList.add('warn');

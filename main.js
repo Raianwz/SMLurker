@@ -1,9 +1,11 @@
 const { app, BrowserWindow } = require('electron');
 const shell = require('electron').shell;
 const {autoUpdater} = require("electron-updater");
+const env = require('./src/components/env')
 let mainWindow;
 var isWin = process.platform === "win32";
-
+require('./src/components/ipc');
+MoveFiles(app);
 function CreateWindow() {
     mainWindow = new BrowserWindow({
         title: 'SM Lurker',
@@ -31,6 +33,10 @@ function CreateWindow() {
       });
       clipMenu(mainWindow);
 
+      if (env(app) == 'DEV') {
+        mainWindow.webContents.openDevTools();
+      }
+
     mainWindow.focus();
     mainWindow.once('ready-to-show', () => mainWindow.show())
 }
@@ -41,8 +47,8 @@ if(isWin){
 
 app.on('ready', function()  {
   autoUpdater.checkForUpdatesAndNotify();
-  
 });
+
 app.on('ready', CreateWindow);
 // Quit when all windows are closed. 
 app.on('window-all-closed', () => { 
@@ -51,9 +57,15 @@ app.on('window-all-closed', () => {
     
 app.on('activate', () => {  
     if (BrowserWindow.getAllWindows().length === 0) { 
-      createWindow() 
-    } 
+      createWindow();
+    }
 }) 
+
+app.on('activate',()=>{
+    setInterval(() => {
+        autoUpdater.checkForUpdatesAndNotify();
+    }, 1000 * 60 * 60);
+})
 
 function clipMenu(mainWindow){
     const Menu = require('electron').Menu;
@@ -95,4 +107,29 @@ function clipMenu(mainWindow){
         InputMenu.popup(mainWindow);
       }
     });
+}
+function MoveFiles(app){
+    const fs = require('fs');
+    const path = require('path');
+    let localPath = `${app.getPath('userData')}\\Config`;
+    let credentialsPath = `${app.getPath('userData')}\\credentials.json`;
+    let channelFilePath = `${app.getPath('userData')}\\channels.json`
+    
+    if(!fs.existsSync(localPath)){
+        fs.mkdirSync(localPath, { recursive: true })
+    }
+
+    if(fs.existsSync(credentialsPath)){
+        fs.rename(credentialsPath,`${app.getPath('userData')}\\Config\\credentials.json`,(err)=>{
+            if(err) throw err;
+            else console.log('Arquivo Movido com Sucesso!');
+        });
+    }
+
+    if(fs.existsSync(channelFilePath)){
+        fs.rename(channelFilePath,`${app.getPath('userData')}\\Config\\channels.json`,(err)=>{
+            if(err) throw err;
+            else console.log('Arquivo Movido com Sucesso!');
+        });
+    }   
 }

@@ -13,7 +13,7 @@
     <!----Login---->
     <div class="container">
         <header>
-            <h1>SM Twitch Lurker</h1>
+            <h1 id="sm">SM Twitch Lurker</h1>
             <div class="window-buttons">
                 <svg onclick="hideWindow()" class="hideWindow" viewBox="0 0 24 24" width="24">
                     <title>Esconder</title>
@@ -45,13 +45,19 @@
             <div class="loginBox">
                 <div id="LoginBox">
                     <p>Twitch Username</p>
-                    <a href="https://imgur.com/a/VCHFo4s"><span title="Ver Tutorial" class="material-icons help2">video_settings</span></a>
                 <input type="text" placeholder="DarkJunin123456" id="username">
                 <p>Twitch OAuth</p>
                 <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
                 <div class="help">
                     <a href="https://twitchapps.com/tmi/">
                         <p>Gerar Twitch OAuth</p>
+                    </a>
+                </div>
+                <div class="help2_tooltip">
+                    <a href="https://imgur.com/a/VCHFo4s">
+                        <svg x="0" y="0" class="help2" aria-hidden="false" width="50" height="50" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12 2C6.486 2 2 6.487 2 12C2 17.515 6.486 22 12 22C17.514 22 22 17.515 22 12C22 6.487 17.514 2 12 2ZM12 18.25C11.31 18.25 10.75 17.691 10.75 17C10.75 16.31 11.31 15.75 12 15.75C12.69 15.75 13.25 16.31 13.25 17C13.25 17.691 12.69 18.25 12 18.25ZM13 13.875V15H11V12H12C13.104 12 14 11.103 14 10C14 8.896 13.104 8 12 8C10.896 8 10 8.896 10 10H8C8 7.795 9.795 6 12 6C14.205 6 16 7.795 16 10C16 11.861 14.723 13.429 13 13.875Z"/></svg>
+                        <span class="help2_tooltiptext help2_down-arrow">Tutorial</span>
                     </a>
                 </div>
             </div>
@@ -77,9 +83,20 @@
                 <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">
                 <span id="Ptotal">Total: 0/4000</span>
             </div>
+            <div class="gear">
+                    <svg viewBox="0 0 512.002 512.002" style="enable-background:new 0 0 512.002 512.002;" width="20px" height="20px" onclick="ipcMain.emit('openConfigs');">
+                        <title>Configurações</title>
+                        <path d="M496.647,312.107l-47.061-36.8c1.459-12.844,1.459-25.812,0-38.656l47.104-36.821 c8.827-7.109,11.186-19.575,5.568-29.419l-48.96-84.629c-5.639-9.906-17.649-14.232-28.309-10.197l-55.467,22.315 c-10.423-7.562-21.588-14.045-33.323-19.349l-8.512-58.923c-1.535-11.312-11.24-19.72-22.656-19.627h-98.133 c-11.321-0.068-20.948,8.246-22.528,19.456l-8.533,59.093c-11.699,5.355-22.846,11.843-33.28,19.371L86.94,75.563 c-10.55-4.159-22.549,0.115-28.096,10.005L9.841,170.347c-5.769,9.86-3.394,22.463,5.568,29.547l47.061,36.8 c-1.473,12.843-1.473,25.813,0,38.656l-47.104,36.8c-8.842,7.099-11.212,19.572-5.589,29.419l48.939,84.651 c5.632,9.913,17.649,14.242,28.309,10.197l55.467-22.315c10.432,7.566,21.604,14.056,33.344,19.371l8.533,58.88 c1.502,11.282,11.147,19.694,22.528,19.648h98.133c11.342,0.091,21-8.226,22.592-19.456l8.533-59.093 c11.698-5.357,22.844-11.845,33.28-19.371l55.68,22.379c10.55,4.149,22.543-0.122,28.096-10.005l49.152-85.12 C507.866,331.505,505.447,319.139,496.647,312.107z M255.964,362.667c-58.91,0-106.667-47.756-106.667-106.667 s47.756-106.667,106.667-106.667s106.667,47.756,106.667,106.667C362.56,314.882,314.845,362.597,255.964,362.667z"/>
+                   </svg>            
+            </div>
         </div>
     </div>
     <!---Scripts--->
+    <script>
+        const {remote: { ipcMain }} = require('electron');
+        const appVersion = window.require('electron').remote.app.getVersion()
+        document.querySelector('header h1#sm').innerText +=` Beta ${appVersion}`;
+    </script>
     <script src="../src/components/window/controlls.js"></script>
     <script src="../src/components/twitch/client.js"></script>
     <script src="../src/components/twitch/channels.js"></script>

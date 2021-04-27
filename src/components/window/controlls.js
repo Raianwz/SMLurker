@@ -1,8 +1,5 @@
 const { title } = require('process');
 
-const appVersion = window.require('electron').remote.app.getVersion()
-document.querySelector('header h1').innerText +=` Beta ${appVersion}`
-
 function minWindow(){
     const { remote } = require('electron');
     var win = remote.getCurrentWindow();
@@ -17,6 +14,7 @@ function closeWindow(){
 
 function hideWindow(){
     const{app, Menu, Tray, Notification, getCurrentWindow} = require('electron').remote
+    const {remote: { ipcMain }} = require('electron');
     const path = require('path');
     const env = require('../src/components/env');
     let dist = process.resourcesPath;
@@ -50,6 +48,9 @@ function hideWindow(){
          label: 'Abrir',
          click: ()=> {win.show(); tray.destroy()},
      },{
+         label: 'Configurações',
+         click: ()=>{ipcMain.emit('openConfigs');}
+     },{type: 'separator'},{
          label: 'Fechar',
          click: () => app.quit(),
      }]

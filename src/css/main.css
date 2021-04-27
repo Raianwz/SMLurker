@@ -42,22 +42,93 @@ html{
 .warn {
     box-shadow: 0px 0px 2px 1px #ff5555;
 }
+/***************************************************
+******************Botões de Ajuda*******************
+***************************************************/
 .help2{
-    cursor: pointer;
     color: var(--disable) ;
     position: fixed;
+    cursor: pointer;
     bottom: 0px;
-    top: 40px;
-    right: 30px;
-    width: 10px;
-    height: 10px;
-    left: 20px;
+    top: 96px;
+    width: auto;
+    height: 1em;
+    z-index: 1;
+    left: 383px;
     font-size: 2em;
     transition: .2s ease-in-out;
+}
+.help2 path{
+    cursor: pointer;
 }
 .help2:hover{
     color: var(--blue);
     transition: .2s ease-in-out;
+}
+
+.help2_tooltip {
+    position: fixed;
+    width: 0px;
+    height: 0px;
+    display: inline-block;
+    border-bottom: 1px dotted #18191C ;
+}
+.help2_tooltip .help2_down-arrow::before{
+    content: " ";
+    position: absolute;
+    top: 80%;
+    right: 39%;
+    border-width: 10px;
+    border-style: solid;
+    border-color: #18191C transparent transparent;
+    z-index: -1;
+}
+.help2_tooltip .help2_tooltiptext {
+    visibility: hidden;
+    width: 75px;
+    left: 135px;
+    bottom: 120px;
+    background-color: #18191C ;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+}
+  
+.help2_tooltip:hover .help2_tooltiptext, 
+.help2_tooltip:hover .help2_down-arrow {
+    visibility: visible;
+  }
+/*********************************************
+*******************Engrenagem*****************
+*********************************************/
+.gear{
+    position: fixed;
+    top: 50px;
+    left: 30px;
+}
+.gear svg{
+    width: 26px;
+    height: auto;
+    fill: var(--disable);
+    background-color: transparent;
+    box-shadow: 0px 0px 0px 0px transparent;
+    border-radius: 12px;
+    transition: .5s ease-in-out;
+}
+
+.gear svg:hover{
+    fill: white;
+    background-color: var(--purple);
+    box-shadow: 0px 0px 0px 5px var(--purple);
+    transition: .5s ease-in-out;
+}
+
+.gear svg, 
+.gear svg path{
+    cursor: pointer;
 }
 /*******************************************************************************************************
 *****************************************[Windows Title & Buttons]**************************************
@@ -87,15 +158,30 @@ header div.window-buttons {
     margin-top: 6px;
 }
 
+header div.config{
+    display: inline-flex;
+    fill: var(--text);
+}
+
 /********************************
 ***********[Buttons]************
 ********************************/
+.configWindow,
 .hideWindow,
 .minimizeWindow,
 .closeWindow{
     margin: 0 6px 0;
     cursor: pointer;
     box-shadow: 0px 0px 0px 0px #ffffff00;
+}
+
+.configWindow{
+    width: 30px;
+    height: 27px;
+    position: relative;
+    right: 6px;
+    padding-left: 2px;
+    border-top-left-radius: 4.5px;
 }
 
 .hideWindow{
@@ -114,6 +200,11 @@ header div.window-buttons {
     border-top-right-radius: 1px;
 }
 
+.configWindow:hover{
+    transition: .05s;
+    background-color: var(--blue);
+    box-shadow:  6px 0px 0px 0px var(--blue);
+}
 .hideWindow:hover{
     transition: .05s;
     background-color: var(--purple);
@@ -139,6 +230,7 @@ div.mainBox{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    margin-top: 15px;
     width: 100vw;
 }
 
@@ -253,7 +345,6 @@ div.loginBox{
     text-align: center;
     width: 39%;
     height: 160px;
-
     margin-top: 15px;
     border-radius: 10px;
     background-color:#222325;
@@ -381,7 +472,7 @@ div.loginBox{
     width: 31%;
     position: fixed;
     left: 109px;
-    bottom: 100px;
+    bottom: 90px;
 }
 
 /**************************************
@@ -445,3 +536,4 @@ textarea::-webkit-scrollbar-thumb:hover {
     border-radius: 6px;
     cursor: pointer;
 }
+

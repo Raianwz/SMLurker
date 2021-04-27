@@ -4,7 +4,7 @@ const path = require('path');
 const sleep = require(path.resolve(__dirname,'./sleep'));
 
 module.exports = async client =>{
-    let channelPath=`${app.getPath('userData')}\\channels.json`,
+    let channelPath=`${app.getPath('userData')}\\Config\\channels.json`,
     channels,
     cnCount = document.getElementById('cnCount');
 
