@@ -394,6 +394,12 @@ div.loginBox{
     height: 25px;
     padding: 2px 10px 2px 10px;
     font-size: 16px;
+    transition: .3s ease-in-out;
+}
+.channelsManager input[type='text']:focus,
+.channelsManager input[type='text']:hover{
+    transition: .5s ease-in-out;
+    box-shadow: 0px 0px .2px 2px var(--blue);
 }
 .channelsManager input[type='text']:disabled,
 .channelsManager input[type='button']:disabled{
@@ -430,7 +436,7 @@ div.loginBox{
 .cnFile{
     font-size: 15px;
     height: 35px;
-    width: 175px;
+    width: 180px;
     background: var(--disable);
     margin-top: 15px;
     margin-left: auto;
@@ -445,6 +451,7 @@ div.loginBox{
 }
 .cnFile i{
     position: relative;
+    cursor: pointer;
     top: 6px;
 }
 /**************************************
@@ -496,6 +503,7 @@ textarea::-webkit-scrollbar {
 
 *::-webkit-scrollbar-track {
     background: #222222;
+    border-radius: 5px;
 }
  
 textarea::-webkit-scrollbar-thumb {
@@ -517,9 +525,15 @@ textarea::-webkit-scrollbar-thumb:hover {
 #PingBox span{
     position: relative;
     bottom: 20px;
-    left: 0px;
 }
 
+#PingBox span#Ptotal{
+    right: 19px;
+}
+#PingBox span#Mtotal{
+    position: relative;
+    left: 15px;
+}
 #PingBox p{
     position: relative;
     font-weight: bold;
@@ -536,4 +550,3 @@ textarea::-webkit-scrollbar-thumb:hover {
     border-radius: 6px;
     cursor: pointer;
 }
-

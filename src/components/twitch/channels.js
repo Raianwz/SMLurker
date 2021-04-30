@@ -1,3 +1,5 @@
+const { log } = require('console');
+
 let dialogOpen = false;
 
 function loadChannelsFromFile(){
@@ -54,9 +56,13 @@ function addCanal(){
 
         fs.writeFileSync(channelsFilePath, JSON.stringify(oldChannels));
         log.innerHTML = `Adicionado com Sucesso!`;
+        newChannelInput.value="";
+        setTimeout(()=>clearInputs(log),1.75*1000);
     }else{
         fs.writeFileSync(channelsFilePath, JSON.stringify(channels));
         log.innerHTML = `Adicionado com Sucesso!`;
+        newChannelInput.value="";
+        setTimeout(()=>clearInputs(log),1.75*1000);
     }
 }
 function removerCanal(){
@@ -93,7 +99,7 @@ function removerCanal(){
             }
             fs.writeFileSync(channelsFilePath, JSON.stringify(currentChannels));
             log.innerHTML = "Removido com Sucesso!";
-            
+            setTimeout(()=>{clearInputs(log);newChannelInput.value="";},2.75*1000);    
         }else{
             newChannelInput.classList.add('warn');
             log.innerHTML = 'Canal não encontrado!';
@@ -114,4 +120,8 @@ function fixChannels(channels){
         if(!channels[x].startsWith('#')) channels[x] = `#${channels[x]}`;
     }
     return channels;
+}
+function clearInputs(log){
+        newChannelInput.focus()
+        log.innerHTML = '';
 }

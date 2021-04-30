@@ -10,8 +10,10 @@ module.exports = async client =>{
 
     if(!fs.existsSync(channelPath)){
         throw 'Nenhum canal adicionado, por favor adicione um canal';
+    }else if(JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8'})).length <= 0){
+        throw 'Nenhum canal adicionado, por favor adicione um canal';
     }else {
-        channels = require(channelPath);
+        channels = JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8'}));
     }
 
     while(client.readyState() != 'OPEN') await sleep(100);

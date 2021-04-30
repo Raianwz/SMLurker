@@ -12,7 +12,7 @@ function closeWindow(){
     win.close();
 };
 
-function hideWindow(){
+function hideWindow(skip){
     const{app, Menu, Tray, Notification, getCurrentWindow} = require('electron').remote
     const {remote: { ipcMain }} = require('electron');
     const path = require('path');
@@ -30,14 +30,15 @@ function hideWindow(){
     var tray = null;
     var win = getCurrentWindow();
 
-    new Notification({
-        icon: ppL,
-        title: "SM Lurker em segundo plano",
-        body: "Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone",
-        timeoutType: 10000,
-        urgency: 'critical',
-    }).show()
-
+    if(skip === undefined){
+        new Notification({
+            icon: ppL,
+            title: "SM Lurker em segundo plano",
+            body: "Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone",
+            timeoutType: 10000,
+            urgency: 'critical',
+        }).show()
+    }
     win.hide();
 
     const template =[{
@@ -56,7 +57,6 @@ function hideWindow(){
      }]
 
      const contextMenu = Menu.buildFromTemplate(template);
-
      tray = Tray(TppL)
      tray.setToolTip('SM Twitch Lurker')
      tray.setContextMenu(contextMenu)

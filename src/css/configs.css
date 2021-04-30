@@ -13,18 +13,20 @@
     height: 100vh;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    transition: .6s ease-in-out;
 }
 .configBox{
     display: flex;
     flex-direction: column;
 }
+
 /********************************
 *********** Header **************
 ********************************/
 header {
     display: flex;
     width: 100%;
-    background-color: #282b30;
+    background-color: #6441a4;
     flex-direction: row;
     border-bottom: 1px solid black;
     border-top-left-radius: 5px;
@@ -54,7 +56,6 @@ header div.window-buttons {
     cursor: pointer;
     box-shadow: 0px 0px 0px 0px #ffffff00;
 } 
-
 .minimizeWindow{
     width: 25px;
     padding-bottom: 4px;;
@@ -75,11 +76,15 @@ header div.window-buttons {
     background-color: var(--red);
     box-shadow:  3px -3px 0px 3px var(--red), -3px -3px 0px 3px var(--red);
 }
+
+.ppL{
+    pointer-events: none;
+}
 /*********************************************************
 *********************Botões em Switch*********************
 *********************************************************/
 .switch__container{
-    margin-top: 20px;
+    margin-top: 10px;
     flex-direction: column;
     display: flex;
     padding-inline: 50px;
@@ -114,7 +119,6 @@ header div.window-buttons {
     cursor: not-allowed;
     background-color: var(--disable);
 }
-
 .switch--shadow + label:before,
 .switch--shadow + label:after {
   display: block;

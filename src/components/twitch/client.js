@@ -3,7 +3,8 @@ const fs = require('fs');
 const { remote: { app } } = require('electron');
 const path = require('path');
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
-
+let userData = null;
+let mentions = 0;
 let client = null;
 loadCredentials();
 
@@ -12,12 +13,15 @@ async function entrarTwitch(){
     let pass = document.getElementById('pass').value;
     let status = document.getElementById('msgStatus');
     let pingTable = document.getElementById('pTable');
+    let mtotal = document.getElementById('Mtotal');
     let ptotal = document.getElementById('Ptotal');
     let error = false;
+
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
     status.innerHTML = "";
+
 
     if (!username.replace(/ /g, '') || !pass.replace(/ /g, '')) {
         status.innerHTML = 'Por favor preencha os campos Username e OAuth';
@@ -67,7 +71,8 @@ async function entrarTwitch(){
 
     if (!error) {
         saveCredentials(username, pass);
-        status.innerHTML = 'Entrando nos canais...'
+        status.innerHTML = 'Entrando nos canais...';
+        getUser(username);
 
         await joinChannels(client).catch(err => {
             error = true;
@@ -82,25 +87,30 @@ async function entrarTwitch(){
 
         if (!error) {
             ShowHide('entrou');
-            criarUser(username);
+            criarUser()
             status.innerHTML = 'Entrou nos canais!';
             btnEntrar.value = 'Sair';
             btnEntrar.classList.remove('loading');
             btnEntrar.classList.add('conectado');
             btnEntrar.onclick = sairTwitch;
+
         }
     
         client.on("message", async (channel, tags, message, self) => {
-            let DisplayName = document.querySelector('div#UserBox p').textContent
+            let DisplayName = userData.users[0].display_name;
             if(message.includes(username)||message.includes(DisplayName)){
                 pingTable.value += `🔔 Canal: ${channel} \n💬 ${tags.username}: ${message}\n`;
                 let pings = pingTable.value
+                mentions = mentions + 1
                 pings =  pings.replaceAll(' ','').replace('🔔Canal:','').replace('💬','')
-                ptotal.innerText = `Total: ${pings.length}/4000`
+                ptotal.innerText = `💬 Total: ${pings.length}/4000`
+                mtotal.innerText = `🔔 Menções: ${mentions}`;
             }
             if(pingTable.value.length>4000){
+                mentions = 0;
                 pingTable.value="";
-                ptotal.innerText = `Total: 0/4000 — Limpo`
+                ptotal.innerText = `💬Total: 0/4000`
+                mtotal.innerText = '🔔Menções: 0'
             }
         });
     }
@@ -125,6 +135,7 @@ async function sairTwitch() {
     btnEntrar.classList.remove('conectado');
     btnEntrar.onclick = entrarTwitch;
 }
+
 //Função Salvar Dados
 async function saveCredentials(username, pass) {
     let credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`,
@@ -145,36 +156,32 @@ async function loadCredentials() {
 
         document.getElementById('username').value = credentials.username;
         document.getElementById('pass').value = credentials.pass;
-
+        getUser(credentials.username)
         if (fs.existsSync(configPath)){
             let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
+            if(config.autologin === true && config.modeppl === true){
+                hideWindow(true);
+            };
             if(config.autologin === true){
-                document.getElementById('btnEntrar').click()
-            }
-        }
+                document.getElementById('btnEntrar').click();
+            };
+       }
     }
 
 }
 
-function criarUser(username){
-    let userbox = document.getElementById('UserBox')
-    userbox.innerHTML = "";
-    try {
-        fetch(`https://api.twitch.tv/kraken/users?login=${username}`, {
-            headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' }
-        }).then(function(response) {
-            return response.json().then(function(data) {
-              let logo = data.users[0].logo;
-              let displayName = data.users[0].display_name
-              userbox.innerHTML = `<p>${displayName}</p>
-              <img class="avatar" src="${logo}" alt="${username}">`
-            })
-        }) 
-    }catch (error){
-        userbox.innerHTML = `<p>Twitch Glitch!</p>
-        <img class="avatar" src="https://static-cdn.jtvnw.net/emoticons/v1/304432163/3.0" alt="Twitch">`
-    }
+function getUser(username){
+    fetch(`https://api.twitch.tv/kraken/users?login=${username}`, {
+    headers: { 'Accept': 'application/vnd.twitchtv.v5+json','Client-ID':'snq57nbghk8n01y6amef3n4l06no8o'}
+    }).then((resp)=>{return resp.json().then((data)=>{ return userData = data})});
+}
 
+function criarUser(){
+    let userbox = document.getElementById('UserBox')
+    let logo = userData.users[0].logo;
+    let displayName = userData.users[0].display_name
+    userbox.innerHTML = "";
+    userbox.innerHTML = `<p>${displayName}</p><img class="avatar" src="${logo}" alt="${username}">`
 }
 
 function ShowHide(status){
@@ -216,10 +223,13 @@ function ShowHide(status){
 }
 
 function clearPing(){
-    let pingTable = document.getElementById('pTable')
+    let pingTable = document.getElementById('pTable');
     let ptotal = document.getElementById('Ptotal');
+    let mtotal = document.getElementById('Mtotal');
     pingTable.value="";
-    ptotal.innerText = `Total: 0/4000 — Limpo`
+    ptotal.innerText = `💬 Total: 0/4000`
+    mtotal.innerText = `🔔 Menções: 0`;
+    mentions = 0;
 }
 
 function BlockLogin(valor){
@@ -228,7 +238,6 @@ function BlockLogin(valor){
     let inputCanal = document.getElementById('txtCanal')
     let btnAdd = document.querySelector('input[type="button"].add')
     let btnRemove = document.querySelector('input[type="button"].remove')
-    let btnReload = document.querySelector('input[type="button"].cached')
     let btnFiles = document.querySelector('.cnFile')
 
     inputUser.disabled = valor;
@@ -236,7 +245,6 @@ function BlockLogin(valor){
     inputCanal.disabled = valor;
     btnAdd.disabled = valor;
     btnRemove.disabled = valor;
-    btnReload.disabled = valor;
 
     if(valor == true){
         btnFiles.classList.add('block')

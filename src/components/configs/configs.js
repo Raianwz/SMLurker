@@ -8,7 +8,8 @@ function chanceConfigs(){
     var AutoLaunch = require('auto-launch');
     let configPath = `${app.getPath('userData')}\\Config\\configs.json`
     let swtIniciar = document.getElementById('swt_ini').checked;
-    let swtAutoLogin = document.getElementById('swt_autologin').checked
+    let swtAutoLogin = document.getElementById('swt_autologin').checked;
+    let swtModeppL = document.getElementById('swt_modeppl').checked;
     let configs = {};
     let smlurkerAutoLaunch = new AutoLaunch({
         name:'SM Lurker'
@@ -16,6 +17,15 @@ function chanceConfigs(){
 
     configs.ini = swtIniciar
     configs.autologin = swtAutoLogin
+    if(configs.autologin === false){
+        document.getElementById('swt_modeppl').checked = false;
+        document.getElementById('swt_modeppl').disabled = true;
+        configs.modeppl = false;
+    }else{
+        document.getElementById('swt_modeppl').disabled = false;
+        configs.modeppl = swtModeppL;
+    }
+
     fs.writeFileSync(configPath, JSON.stringify(configs));
 
     if (fs.existsSync(configPath)){
@@ -35,6 +45,13 @@ function LoadConfigs(){
         let configs = require(configPath);
         document.getElementById('swt_ini').checked=configs.ini;
         document.getElementById('swt_autologin').checked =configs.autologin;
+        document.getElementById('swt_modeppl').checked =configs.modeppl;
+
+        if(configs.autologin === false){
+            document.getElementById('swt_modeppl').disabled = true;
+        }else{
+            document.getElementById('swt_modeppl').disabled = false;
+        }
     }
 }
 function abrirLocal() {
@@ -45,11 +62,9 @@ function abrirLocal() {
 }
 function exportarLista(){
     const {dialog} = require('electron').remote;
-    const childprocess = require('child_process');
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
 
     if(fs.existsSync(channelsFilePath)){
-        let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
         let channels = JSON.parse(fs.readFileSync(channelsFilePath, { encoding: 'utf8'}))
         channels.sort()
         channels = JSON.stringify(channels).replace(/[\"\[\]]/g,'');
