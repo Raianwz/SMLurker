@@ -19,7 +19,7 @@ ipcMain.on('openConfigs', () =>{
             fullscreenable: false,
             webPreferences: {
               nodeIntegration: true,
-              enableRemoteModule: true,
+              enableRemoteModule: true
             },
           });
         configWindow.loadFile('./app/configs.html');

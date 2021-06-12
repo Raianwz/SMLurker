@@ -16,9 +16,7 @@
     --red:#f04747;
     --purple: #9148ff;
 }
-html{
-    color: var(--text);
-}
+
 .container{
     padding: 0;  
     background-color: #282b30;
@@ -146,7 +144,7 @@ header{
 header h1{
     text-align: center;
     font-size: 1.25rem;
-    width: 88%;
+    width: 100%;
     font-weight: bold;
     -webkit-user-select: none;
     -webkit-app-region: drag;
@@ -162,6 +160,18 @@ header div.config{
     display: inline-flex;
     fill: var(--text);
 }
+header w-buttons{
+    display: inline-flex;
+    fill: var(--text);
+}
+
+header w-buttons svg,
+header w-buttons svg path{
+    cursor: pointer;
+    fill: #FFF;
+    height: 100%;
+    transition: .2s ease-in-out;
+}
 
 /********************************
 ***********[Buttons]************
@@ -170,8 +180,7 @@ header div.config{
 .hideWindow,
 .minimizeWindow,
 .closeWindow{
-    margin: 0 6px 0;
-    cursor: pointer;
+    margin-inline: 0px 14px;
     box-shadow: 0px 0px 0px 0px #ffffff00;
 }
 
@@ -183,24 +192,20 @@ header div.config{
     padding-left: 2px;
     border-top-left-radius: 4.5px;
 }
-
 .hideWindow{
-    width: 30px;
-    height: 20px;
-    padding-bottom: 3px;
+    width: 16px;
 }
-
 .minimizeWindow{
-    width: 25px;
-    padding-bottom: 4px;;
+    width: 14px;
+    margin-right: 17px;
 }
 .closeWindow{
-    width: 30px;
-    padding-bottom: 4px;
-    border-top-right-radius: 1px;
+    width: 14px;
+    margin-right: 11px;
+    border-top-right-radius: 5px;
 }
 
-.configWindow:hover{
+.configWindow{
     transition: .05s;
     background-color: var(--blue);
     box-shadow:  6px 0px 0px 0px var(--blue);
@@ -214,13 +219,13 @@ header div.config{
 .minimizeWindow:hover{
     transition: .05s;
     background-color: var(--blue);
-    box-shadow:  2px -3px 0px 3px var(--blue), -3px -3px 0px 3px var(--blue);
+    box-shadow: 4px -3px 0px 3px var(--blue), -5px -3px 0px 3px var(--blue);
 }
 
 .closeWindow:hover{
     transition: .05s;
     background-color: var(--red);
-    box-shadow:  3px -3px 0px 3px var(--red), -3px -3px 0px 3px var(--red);
+    box-shadow: 10px 0px 0px var(--red), -9px 0px 0 0px var(--red);
 }
 
 /********************************
@@ -267,6 +272,8 @@ div.loginBox{
     margin-top: 12px;
     font-weight: bold;
 }
+.loginBox input[type='password']:hover,
+.loginBox input[type='text']:hover,
 .loginBox input[type='password']:focus,
 .loginBox input[type='text']:focus{
     transition: .2s ease-in-out;
@@ -394,11 +401,13 @@ div.loginBox{
     height: 25px;
     padding: 2px 10px 2px 10px;
     font-size: 16px;
+    background-color: #d0d0d0;
     transition: .3s ease-in-out;
 }
 .channelsManager input[type='text']:focus,
 .channelsManager input[type='text']:hover{
     transition: .5s ease-in-out;
+    background-color: #ffffff;
     box-shadow: 0px 0px .2px 2px var(--blue);
 }
 .channelsManager input[type='text']:disabled,
@@ -471,6 +480,9 @@ div.loginBox{
     margin-bottom: 8px;
     font-weight: normal;
 }
+
+
+
 #cnCount{
     margin:10px auto;
     font-size: 15px;
@@ -490,8 +502,8 @@ textarea {
     border-radius: 10px;;
     display: inline-block;
     padding: 6px 2px 0px 5px;
-    margin: 10px;
-    width: 500px;
+    margin: 10px 6px 0px;
+    width: 530px;
     background-color: #0c0c0c;
     color: #FFF;
 }
@@ -522,18 +534,6 @@ textarea::-webkit-scrollbar-thumb:hover {
     position: fixed;
     left: 30%;
 }
-#PingBox span{
-    position: relative;
-    bottom: 20px;
-}
-
-#PingBox span#Ptotal{
-    right: 19px;
-}
-#PingBox span#Mtotal{
-    position: relative;
-    left: 15px;
-}
 #PingBox p{
     position: relative;
     font-weight: bold;
@@ -543,10 +543,125 @@ textarea::-webkit-scrollbar-thumb:hover {
     top: 8px;
 }
 #PingBox input[type=button]{
-    position: relative;
-    bottom: 180px;
-    left: 513px;
-    width: 30px;
     border-radius: 6px;
+    width: 40px;
     cursor: pointer;
+    margin-inline: 10px;
+    position: fixed;
+    right: 15px;
+}
+
+div#mentionsbar{
+    display: flex;
+    width: fit-content;
+    margin-left: 15px;
+}
+#PingBox div#notifybar{
+    display: flex;
+    width: fit-content;
+    box-sizing: border-box;
+    box-shadow: inset 0px 2px 4px 1px #1f2125;
+    margin-top: 5px;
+    height: 95px;
+    flex-direction: column;
+    background: #282b30;
+    margin-inline: 10px;
+    border-radius: 5px;
+}
+div#notifybar p{
+    font-weight: bold;
+    text-align: center;
+}
+
+div#notifybar h3{ 
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 3px;
+    text-align: center;
+    margin-top: 3px;
+}
+
+div#mentionsbar span{
+    margin-inline: 10px;
+}
+/*******************************
+**** Switcher *****************
+*******************************/
+switchbox{
+    flex-direction: column;
+    display: flex;
+    padding-inline: 50px;
+    width: fit-content;
+}
+switchbox div{
+    display: inline-flex;
+    padding-top: 5px;
+}
+#PingBox switchbox p {
+    font-weight: normal;
+    width: 100%;
+    margin: 0px;
+    left: 0px;
+    top: 0px;
+    display: flex;
+}
+.switch {
+    position: absolute;
+    margin-left: -9999px;
+    visibility: hidden;
+    cursor: pointer;
+    user-select: none;
+    
+}
+
+.switch + label {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+}
+
+.switch--shadow + label {
+    padding: 2px;
+    width: 45px;
+    height: 20px;
+    background-color: #9148ff;
+    border-radius: 60px;
+}
+.switch--shadow:disabled + label,
+.switch--shadow:disabled + label::before,
+.switch--shadow:disabled + label::after{
+    cursor: not-allowed;
+    background-color: var(--disable);
+}
+.switch--shadow + label:before,
+.switch--shadow + label:after {
+  display: block;
+  position: absolute;
+  cursor: pointer;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  content: '';
+}
+.switch--shadow + label:before {
+  right: 1px;
+  background-color: #f1f1f1;
+  border-radius: 60px;
+  transition: all 0.4s;
+}
+.switch--shadow + label:after {
+  width: 18px;
+  background-color: #fff;
+  border-radius: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s;
+}
+
+.switch--shadow:checked + label:before {
+    background-color: var(--purple);
+}
+.switch--shadow:checked + label:after {
+    transform: translateX(15px);
 }

@@ -1,5 +1,3 @@
-const { log } = require('console');
-
 let dialogOpen = false;
 
 function loadChannelsFromFile(){

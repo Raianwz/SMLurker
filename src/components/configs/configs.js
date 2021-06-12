@@ -9,24 +9,21 @@ function chanceConfigs(){
     let configPath = `${app.getPath('userData')}\\Config\\configs.json`
     let swtIniciar = document.getElementById('swt_ini').checked;
     let swtAutoLogin = document.getElementById('swt_autologin').checked;
-    let swtModeppL = document.getElementById('swt_modeppl').checked;
     let configs = {};
     let smlurkerAutoLaunch = new AutoLaunch({
         name:'SM Lurker'
     });
 
-    configs.ini = swtIniciar
-    configs.autologin = swtAutoLogin
-    if(configs.autologin === false){
-        document.getElementById('swt_modeppl').checked = false;
-        document.getElementById('swt_modeppl').disabled = true;
-        configs.modeppl = false;
+    if(fs.existsSync(configPath)){
+        let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
+        configs.ini = swtIniciar
+        configs.autologin = swtAutoLogin
+        fs.writeFileSync(configPath, JSON.stringify(configs));
     }else{
-        document.getElementById('swt_modeppl').disabled = false;
-        configs.modeppl = swtModeppL;
+        configs.ini = swtIniciar
+        configs.autologin = swtAutoLogin
+        fs.writeFileSync(configPath, JSON.stringify(configs));
     }
-
-    fs.writeFileSync(configPath, JSON.stringify(configs));
 
     if (fs.existsSync(configPath)){
         let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
@@ -45,13 +42,6 @@ function LoadConfigs(){
         let configs = require(configPath);
         document.getElementById('swt_ini').checked=configs.ini;
         document.getElementById('swt_autologin').checked =configs.autologin;
-        document.getElementById('swt_modeppl').checked =configs.modeppl;
-
-        if(configs.autologin === false){
-            document.getElementById('swt_modeppl').disabled = true;
-        }else{
-            document.getElementById('swt_modeppl').disabled = false;
-        }
     }
 }
 function abrirLocal() {

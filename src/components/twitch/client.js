@@ -1,7 +1,9 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
 const { remote: { app } } = require('electron');
+const{ Notification } = require('electron').remote
 const path = require('path');
+const env = require('../src/components/env');
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
 let userData = null;
 let mentions = 0;
@@ -14,9 +16,10 @@ async function entrarTwitch(){
     let status = document.getElementById('msgStatus');
     let pingTable = document.getElementById('pTable');
     let mtotal = document.getElementById('Mtotal');
-    let ptotal = document.getElementById('Ptotal');
+    let ptotal = document.getElementById('Ptotal');       
+    let configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
     let error = false;
-
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
@@ -95,7 +98,13 @@ async function entrarTwitch(){
             btnEntrar.onclick = sairTwitch;
 
         }
-    
+        
+        let dist = process.resourcesPath;
+        let distFile = 'assets';
+        if(env(app) == 'DEV'){dist = __dirname; distFile='../src/assets'}
+        let mention = path.join(dist, `${distFile}/metion.png`);
+        let gift = path.join(dist, `${distFile}/gift.png`);
+        
         client.on("message", async (channel, tags, message, self) => {
             let DisplayName = userData.users[0].display_name;
             if(message.includes(username)||message.includes(DisplayName)){
@@ -103,14 +112,31 @@ async function entrarTwitch(){
                 let pings = pingTable.value
                 mentions = mentions + 1
                 pings =  pings.replaceAll(' ','').replace('🔔Canal:','').replace('💬','')
-                ptotal.innerText = `💬 Total: ${pings.length}/4000`
+                ptotal.innerText = `💬 Texto: ${pings.length}/4000`
                 mtotal.innerText = `🔔 Menções: ${mentions}`;
+                if(configs.NotifyMention === true){
+                    new Notification({icon: mention, title: `Mencionado em ${channel}`,
+                        body: `Você foi mencionado em ${channel} por @${tags.username}: ${message}`,
+                        timeoutType: 'default',urgency: 'normal' 
+                    }).show() 
+                }
             }
             if(pingTable.value.length>4000){
                 mentions = 0;
                 pingTable.value="";
-                ptotal.innerText = `💬Total: 0/4000`
+                ptotal.innerText = `💬Texto: 0/4000`
                 mtotal.innerText = '🔔Menções: 0'
+            }
+        });
+        client.on("subgift",async (channel, tags, message, self) =>{
+            console.log(message)
+            let DisplayName = userData.users[0].display_name;
+            if(message.includes(username)||message.includes(DisplayName)){
+                if(configs.NotifySubgift === true){
+                    new Notification({icon: gift, title: `Ganhou Sub Gift em ${channel}`,
+                    body: `Opa!\nVocê ganhou um Sub Gift em ${channel} de @${tags.username}`,
+                    timeoutType: 'default',urgency: 'critical'}).show()
+                }
             }
         });
     }
@@ -118,10 +144,8 @@ async function entrarTwitch(){
 
 async function sairTwitch() {
     await client.disconnect();
-    let userbox = document.getElementById('UserBox'),
-    cnCount =  document.getElementById('cnCount')
+    let userbox = document.getElementById('UserBox')
     userbox.innerHTML = "";
-    cnCount.innerHTML = "";
     ShowHide('saiu');
 
     client = null;
@@ -159,9 +183,8 @@ async function loadCredentials() {
         getUser(credentials.username)
         if (fs.existsSync(configPath)){
             let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
-            if(config.autologin === true && config.modeppl === true){
-                hideWindow(true);
-            };
+            document.getElementById('swt_notifyMention').checked =config.NotifyMention;
+            document.getElementById('swt_notifySub').checked =config.NotifySubgift;
             if(config.autologin === true){
                 document.getElementById('btnEntrar').click();
             };
@@ -172,7 +195,7 @@ async function loadCredentials() {
 
 function getUser(username){
     fetch(`https://api.twitch.tv/kraken/users?login=${username}`, {
-    headers: { 'Accept': 'application/vnd.twitchtv.v5+json','Client-ID':'snq57nbghk8n01y6amef3n4l06no8o'}
+        headers: { 'Accept': 'application/vnd.twitchtv.v5+json','Client-ID':'snq57nbghk8n01y6amef3n4l06no8o'}
     }).then((resp)=>{return resp.json().then((data)=>{ return userData = data})});
 }
 
@@ -227,7 +250,7 @@ function clearPing(){
     let ptotal = document.getElementById('Ptotal');
     let mtotal = document.getElementById('Mtotal');
     pingTable.value="";
-    ptotal.innerText = `💬 Total: 0/4000`
+    ptotal.innerText = `💬 Texto: 0/4000`
     mtotal.innerText = `🔔 Menções: 0`;
     mentions = 0;
 }
@@ -252,5 +275,19 @@ function BlockLogin(valor){
     }else{
         btnFiles.classList.remove('block')
         btnFiles.onclick = loadChannelsFromFile;
+    }
+}
+
+function ChangeNotify(){
+    const fs = require('fs');
+    let configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+    let mention = document.getElementById('swt_notifyMention').checked;
+    let subgift = document.getElementById('swt_notifySub').checked;
+    if(fs.existsSync(configPath)){
+        let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8'}))
+        configs.NotifyMention = mention;
+        configs.NotifySubgift = subgift;
+        console.log(configs)
+        fs.writeFileSync(configPath, JSON.stringify(configs));
     }
 }

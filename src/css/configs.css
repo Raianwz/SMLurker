@@ -26,7 +26,7 @@
 header {
     display: flex;
     width: 100%;
-    background-color: #6441a4;
+    background-color: #3f51b5;
     flex-direction: row;
     border-bottom: 1px solid black;
     border-top-left-radius: 5px;
@@ -49,7 +49,10 @@ header div.window-buttons {
     fill: var(--text);
     margin-top: 6px;
 }
-
+div.window-buttons svg,
+div.window-buttons svg path{
+    cursor: pointer;
+}
 .minimizeWindow,
 .closeWindow{
     margin: 0 6px 0;
@@ -74,7 +77,7 @@ header div.window-buttons {
 .closeWindow:hover{
     transition: .05s;
     background-color: var(--red);
-    box-shadow:  3px -3px 0px 3px var(--red), -3px -3px 0px 3px var(--red);
+    box-shadow: 2px -3px 0px 4px var(--red), -3px -3px 0px 4px var(--red);
 }
 
 .ppL{

@@ -10,11 +10,10 @@
 </head>
 
 <body>
-    <!----Login---->
     <div class="container">
         <header>
             <h1 id="sm">SM Twitch Lurker</h1>
-            <div class="window-buttons">
+            <w-buttons>
                 <svg onclick="hideWindow()" class="hideWindow" viewBox="0 0 24 24" width="24">
                     <title>Esconder</title>
                     <path desc="oi" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 
@@ -39,7 +38,7 @@
                     c5.068,5.072,11.824,7.856,19.024,7.856h0.008c7.204,0,13.96-2.784,19.028-7.856l16.12-16.116
                     c5.06-5.064,7.852-11.824,7.852-19.028c0-7.204-2.792-13.96-7.852-19.028L300.188,246z" />
                 </svg>
-            </div>
+            </w-buttons>
         </header>
         <div class="mainBox">      
             <div class="loginBox">
@@ -78,10 +77,30 @@
             </div>
             <div id="PingBox" class="hide" style="display: none;">
                 <p>Menções</p>
-                <textarea name="pTable" id="pTable" cols="49" rows="9" title="pings" disabled></textarea>
-                <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">
-                <span id="Ptotal">&#x1F4AC Total: 0/4000</span>
-                <span id="Mtotal">&#x1F514 Menções: 0</span>
+                <textarea name="pTable" id="pTable" cols="49" rows="9" disabled></textarea>
+                    <div id="mentionsbar">
+                        <span id="cntotal">&#x1F7E3 Canais: 0</span>
+                        <span id="Mtotal">&#x1F514 Menções: 0</span>
+                        <span id="Ptotal">&#x1F4AC Texto: 0/4000</span>
+                        <input onclick="clearPing()" title="Limpar Pings" id="btnDelete" type="button" class="material-icons delete" value="delete_sweep">
+                    </div>
+                    <div id="notifybar">
+                        <h3>Notificações</h3>
+                        <switchbox>
+                            <div>
+                                <input type="checkbox" class="switch switch--shadow" id="swt_notifyMention" onclick="ChangeNotify()">
+                                <label for="swt_notifyMention"></label>
+                                <p style="padding-left:15px">Menções</p>
+                            </div>   
+                            <div>
+                                <input type="checkbox" class="switch switch--shadow" id="swt_notifySub" onclick="ChangeNotify()">
+                                <label for="swt_notifySub"></label>
+                                <p style="padding-left:15px">Sub Gift</p>
+                            </div>   
+                        </switchbox>
+                    </div>
+
+
             </div>
             <div class="gear">
                     <svg viewBox="0 0 512.002 512.002" style="enable-background:new 0 0 512.002 512.002;" width="20px" height="20px" onclick="ipcMain.emit('openConfigs');">
