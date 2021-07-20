@@ -113,7 +113,7 @@
     <!---Scripts--->
     <script>
         const {remote: { ipcMain }} = require('electron');
-        const appVersion = window.require('electron').remote.app.getVersion()
+        const appVersion = window.require('electron').remote.app.getVersion();
         document.querySelector('header h1#sm').innerText +=` Beta ${appVersion}`;
     </script>
     <script src="../src/components/window/controlls.js"></script>
