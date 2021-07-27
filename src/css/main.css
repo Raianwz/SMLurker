@@ -1,24 +1,5 @@
-/*Reset*/
-*{
-    margin: 0;
+.container {
     padding: 0;
-    border: 0;
-    box-sizing: border-box;
-    font-family: 'OpenSans' ;
-    font-weight: normal;
-}
-
-*{
-    --fundo:#282b30;
-    --disable: #747f8d;
-    --text:#ffffff;
-    --blue: #0099ff;
-    --red:#f04747;
-    --purple: #9148ff;
-}
-
-.container{
-    padding: 0;  
     background-color: #282b30;
     height: 100vh;
     border-bottom-left-radius: 5px;
@@ -26,113 +7,58 @@
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
-.hide{
-    opacity: 1%;
-    transition: .5s;
-    visibility: hidden;
+
+.hide {
     height: 0;
+    animation: slide-out .5s forwards;
 }
-.show{
+
+.show {
     opacity: 100%;
-    transition: 1s;
+    animation: slide-in .5s forwards;
     visibility: visible;
 }
+
 .warn {
     box-shadow: 0px 0px 2px 1px #ff5555;
 }
-/***************************************************
-******************Botões de Ajuda*******************
-***************************************************/
-.help2{
-    color: var(--disable) ;
-    position: fixed;
-    cursor: pointer;
-    bottom: 0px;
-    top: 96px;
-    width: auto;
-    height: 1em;
-    z-index: 1;
-    left: 383px;
-    font-size: 2em;
-    transition: .2s ease-in-out;
+/*Linha Vertical*/
+.vline {
+    border-left: 1px #18191b solid;
+    height: 90vh;
+    margin-top: -25px;
 }
-.help2 path{
-    cursor: pointer;
-}
-.help2:hover{
-    color: var(--blue);
-    transition: .2s ease-in-out;
+/* Animações de Entrada e Saida */
+@keyframes slide-in {
+    0% {
+        -webkit-transform: translateX(100%);
+        opacity: 0%;
+    }
+
+    100% {
+        -webkit-transform: translateX(0%);
+        opacity: 100%;
+    }
 }
 
-.help2_tooltip {
-    position: fixed;
-    width: 0px;
-    height: 0px;
-    display: inline-block;
-    border-bottom: 1px dotted #18191C ;
-}
-.help2_tooltip .help2_down-arrow::before{
-    content: " ";
-    position: absolute;
-    top: 80%;
-    right: 39%;
-    border-width: 10px;
-    border-style: solid;
-    border-color: #18191C transparent transparent;
-    z-index: -1;
-}
-.help2_tooltip .help2_tooltiptext {
-    visibility: hidden;
-    width: 75px;
-    left: 135px;
-    bottom: 120px;
-    background-color: #18191C ;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-}
-  
-.help2_tooltip:hover .help2_tooltiptext, 
-.help2_tooltip:hover .help2_down-arrow {
-    visibility: visible;
-  }
-/*********************************************
-*******************Engrenagem*****************
-*********************************************/
-.gear{
-    position: fixed;
-    top: 50px;
-    left: 30px;
-}
-.gear svg{
-    width: 26px;
-    height: auto;
-    fill: var(--disable);
-    background-color: transparent;
-    box-shadow: 0px 0px 0px 0px transparent;
-    border-radius: 12px;
-    transition: .5s ease-in-out;
+@keyframes slide-out {
+    0% {
+        opacity: 100%;
+        transform: translateX(0%);
+    }
+
+    100% {
+        transform: translateX(100%);
+        opacity: 0%;
+        visibility: hidden;
+    }
 }
 
-.gear svg:hover{
-    fill: white;
-    background-color: var(--purple);
-    box-shadow: 0px 0px 0px 5px var(--purple);
-    transition: .5s ease-in-out;
-}
-
-.gear svg, 
-.gear svg path{
-    cursor: pointer;
-}
 /*******************************************************************************************************
 *****************************************[Windows Title & Buttons]**************************************
 *******************************************************************************************************/
 
-header{
+header {
     display: flex;
     flex-direction: row;
     background-color: #202225;
@@ -141,7 +67,7 @@ header{
     border-bottom: 0.01px #18191b solid;
 }
 
-header h1{
+header h1 {
     text-align: center;
     font-size: 1.25rem;
     width: 100%;
@@ -156,156 +82,192 @@ header div.window-buttons {
     margin-top: 6px;
 }
 
-header div.config{
+header div.config {
     display: inline-flex;
     fill: var(--text);
 }
-header w-buttons{
+
+header w-buttons {
     display: inline-flex;
     fill: var(--text);
 }
 
 header w-buttons svg,
-header w-buttons svg path{
+header w-buttons svg path {
     cursor: pointer;
     fill: #FFF;
     height: 100%;
-    transition: .2s ease-in-out;
+    transition: .2s ease 0s;
 }
 
 /********************************
 ***********[Buttons]************
 ********************************/
-.configWindow,
 .hideWindow,
 .minimizeWindow,
-.closeWindow{
-    margin-inline: 0px 14px;
-    box-shadow: 0px 0px 0px 0px #ffffff00;
+.closeWindow {
+    margin-inline: 0px 20px;
 }
 
-.configWindow{
-    width: 30px;
-    height: 27px;
-    position: relative;
-    right: 6px;
-    padding-left: 2px;
-    border-top-left-radius: 4.5px;
+
+.gearConfig {
+    margin-left: 10px;
 }
-.hideWindow{
+
+.gearConfig:hover path {
+    transition: .3s ease 0s;
+    fill: var(--purple);
+}
+
+.hideWindow {
     width: 16px;
 }
-.minimizeWindow{
-    width: 14px;
-    margin-right: 17px;
-}
-.closeWindow{
-    width: 14px;
-    margin-right: 11px;
-    border-top-right-radius: 5px;
+
+.minimizeWindow {
+    width: 17px;
 }
 
-.configWindow{
-    transition: .05s;
-    background-color: var(--blue);
-    box-shadow:  6px 0px 0px 0px var(--blue);
+.closeWindow {
+    width: 18px;
+    margin-right: 9px;
+    padding: 1px;
+    border-top-right-radius: 4px;
 }
-.hideWindow:hover{
-    transition: .05s;
+
+.hideWindow:hover {
+    transition: .03s ease 0s;
     background-color: var(--purple);
-    box-shadow:  2px -3px 0px 3px var(--purple), -3px -3px 0px 3px var(--purple);
+    box-shadow: 9px -3px 0px 3px var(--purple), -8px -3px 0px 3px var(--purple);
 }
 
-.minimizeWindow:hover{
-    transition: .05s;
+.minimizeWindow:hover {
+    transition: .03s ease 0s;
     background-color: var(--blue);
-    box-shadow: 4px -3px 0px 3px var(--blue), -5px -3px 0px 3px var(--blue);
+    box-shadow: -5px -3px 0px 3px var(--blue), 5px -3px 0px 3px var(--blue);
 }
 
-.closeWindow:hover{
-    transition: .05s;
+.closeWindow:hover {
+    transition: .03s ease 0s;
     background-color: var(--red);
-    box-shadow: 10px 0px 0px var(--red), -9px 0px 0 0px var(--red);
+    box-shadow: 9px 0px 0px 0.2px var(--red), -11px 0px 0px 0.2px var(--red);
 }
+/************************************************
+*******************[Wrappers & Boxes]*************
+************************************************/
 
-/********************************
-***********[Login Box]************
-********************************/
-div.mainBox{
+div.conectBox,
+div.mainBox {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-top: 15px;
+    margin-top: 30px;
     width: 100vw;
 }
 
-div.loginBox{
-    margin-top: 20px;
-    width: 57%;
+.UserWrapper {
+    width: 20%;
+    height: 93vh;
+    margin-top: -30px;
+    background-color: #18191c;
+}
+
+.UserWrapper #UserBox {
     text-align: center;
+    margin-top: 3em;
+}
+/********************************
+***********[Login Box]************
+********************************/
+div.loginBox {
+    width: 50%;
+}
+
+div.loginBox,
+div.channelsManager {
+    text-align: center;
+    margin-inline: 20px;
 }
 
 .loading,
 .loading:hover {
-  background-color: #44475a !important;
-  border-color: #44475a !important;
-  background-image: url("./extra/loading.svg");
-  background-size: 25px 25px;
-  background-repeat: no-repeat;
-  background-position: center center;
-  cursor: default;
+    background-color: #44475a !important;
+    border-color: #44475a !important;
+    background-image: url("./extra/loading.svg");
+    background-size: 25px 25px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    cursor: default;
 }
+
 .conectado {
-    background-color: var(--red) !important;
+    background-color: #b616163b !important;
     border: 1px solid var(--red) !important;
-    color: #ffffff !important;
+    color: var(--red) !important;
     font-weight: bold;
-  }
-  
+}
+
 .conectado:hover {
     background-color: var(--red) !important;
     border: 1px solid var(--red) !important;
     color: #f8f8f2 !important;
 }
 
-.loginBox p{
+.loginBox p {
     margin-top: 12px;
     font-weight: bold;
 }
+
+.channelsManager input[type='text']:focus,
+.channelsManager input[type='text']:hover {
+    transition: .2s ease-in-out 0s;
+    width: 70%;
+    background-color: #FFF;
+    box-shadow: 0px 0px 0px 2px var(--purple);
+}
+
 .loginBox input[type='password']:hover,
 .loginBox input[type='text']:hover,
 .loginBox input[type='password']:focus,
-.loginBox input[type='text']:focus{
-    transition: .2s ease-in-out;
+.loginBox input[type='text']:focus {
+    transition: .2s ease-in-out 0s;
+    width: 76%;
     background-color: #FFF;
     box-shadow: 0px 0px 0px 2px var(--blue);
 }
+
+.channelsManager input[type='text']:disabled:hover,
+.loginBox input[type='password']:disabled:hover,
+.loginBox input[type='text']:disabled:hover,
 .loginBox input[type='password']:disabled,
-.loginBox input[type='text']:disabled{
-    transition: .5s ease-in-out;
+.loginBox input[type='text']:disabled {
+    transition: .5s ease 0s;
     background-color: var(--disable);
     color: white;
     cursor: not-allowed;
+    width: 70%;
     text-align: center;
+    box-shadow: none;
 }
+
+.channelsManager input[type='text'],
+.channelsManager input[type='text'],
 .loginBox input[type='password'],
-.loginBox input[type='text']{
+.loginBox input[type='text'] {
     margin-top: 4px;
     border-radius: 20px;
-    width: 68%;
+    width: 70%;
     height: 25px;
     padding: 2px 10px 2px 10px;
     font-size: 16px;
     background-color: #d0d0d0;
     transition: .2s ease-in-out;
 }
-.loginBox .help{
+
+.loginBox .help {
     display: flex;
     flex-direction: row-reverse;
     width: 82%;
 }
 
-.loginBox .help p{
+.loginBox .help p {
     margin-top: 3px;
     font-size: 13.5px;
     text-align: center;
@@ -315,176 +277,56 @@ div.loginBox{
     cursor: pointer;
 }
 
-.loginBox .help a{
+.loginBox .help a {
     text-decoration: none;
 }
-.loginBox .help a:hover>p{
+
+.loginBox .help a:hover>p {
     color: var(--purple);
     text-decoration: underline;
 }
+
 /************************************************
 ********************[Botão Login]***************
 ************************************************/
-.loginBox input[type="button"]{
-    color:#FFF;
-    border: 1px solid  #0173be;
-    background-color: #0173be;
+.UserWrapper input[type="button"],
+.loginBox input[type="button"] {
+    color: #FFF;
+    border: 1px solid #0066aa;
+    background-color: #0268acc5;
     border-radius: 15px;
     font-size: 18px;
-    width: 25%;
+    width: 30%;
     height: 30px;
     vertical-align: middle;
     cursor: pointer;
-    transition:  .5s;
+    transition: .5s ease 0s;
 }
-.loginBox input[type=button]:hover{
-    color:#FFF;
-    background-color:  #0184db;
-    border: 1x solid  #42b3ff;
+
+.UserWrapper input[type="button"] {
+    width: 70%;
+    margin-left: 30px;
+}
+
+.UserWrapper input[type="button"]:hover,
+.loginBox input[type=button]:hover {
+    color: #FFF;
+    background-color: #0184db;
+    border: 1x solid #42b3ff;
     cursor: pointer;
-    transition: .5s;
-  }
-
-/**************************************************
-******** Gerenciar Canais *************************
-**************************************************/
-.channelsManager{
-    text-align: center;
-    width: 39%;
-    height: 160px;
-    margin-top: 15px;
-    border-radius: 10px;
-    background-color:#222325;
-    border: .1px solid #9148ff34;
-    transition: .5s;
-}
-.channelsManager:hover{
-    border: 1px solid var(--purple);
-    transition: 1s;
+    transition: .5s ease 0s;
 }
 
-.channelsManager p.title{
-    margin-top: 15px;
-    font-weight: bold;
-}
-/*************************************************
-********Botões Adicionar & Remover Canais*********
-*************************************************/
-.cached{
-    background-color: #008000;
-}
-
-.cached:hover{
-    transition: .5s;
-    background-color: #04c404;
-}
-.cached,
-.add,
-.delete, .remove{color: #FFF}
-
-.add {background-color: #0173be}
-.delete, .remove {background-color: #d44141;}
-.add:hover {background-color: var(--blue)}
-.delete:hover, .remove:hover {background-color: var(--red)}
-
-.channelsManager input[type='text']:disabled::placeholder{
-    color: white;
-    text-align: center;
-    cursor: not-allowed;
-    transition: .5s ease-in-out;
-}
-
-.channelsManager input[type='text']{
-    margin-top: 4px;
-    border-radius: 20px;
-    width: 70%;          
-    height: 25px;
-    padding: 2px 10px 2px 10px;
-    font-size: 16px;
-    background-color: #d0d0d0;
-    transition: .3s ease-in-out;
-}
-.channelsManager input[type='text']:focus,
-.channelsManager input[type='text']:hover{
-    transition: .5s ease-in-out;
-    background-color: #ffffff;
-    box-shadow: 0px 0px .2px 2px var(--blue);
-}
-.channelsManager input[type='text']:disabled,
-.channelsManager input[type='button']:disabled{
-    cursor: not-allowed;
-    background-color: var(--disable);
-    transition: .5s ease-in-out;
-}
-.channelsManager input[type='button']{
-    cursor: pointer;
-    border-radius: 20px;
-    position: relative;
-    top: 5px;
-    width: 26px;
-}
-
-.channelsManager .status{
-    font-weight: 300;
-    margin-top: 5px;
-}
-
-#canalLog i{
-    font-size: 23px;
-    position: relative;
-    top: 5px;
-}
-.cnFile.block:hover{
-    background-color: var(--red);
-}
-.cnFile.block{
-    cursor: not-allowed;
-    transition: .2s ease-in-out;
-}
-
-.cnFile{
-    font-size: 15px;
-    height: 35px;
-    width: 180px;
-    background: var(--disable);
-    margin-top: 15px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: .5s;
-}
-.cnFile:hover{
-    transition: 1s;
-    background-color: #0099ff;
-}
-.cnFile i{
-    position: relative;
-    cursor: pointer;
-    top: 6px;
-}
-/**************************************
-****************AVATAR*****************
-***************************************/
-.avatar{
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    transition: 10s ease-in-out;
-    pointer-events: none;
-}
-
-#msgStatus{
+/* Msg Status & Barra de Count de Canais */
+#msgStatus {
     padding: 0;
     margin: 0;
     margin-bottom: 8px;
     font-weight: normal;
 }
 
-
-
-#cnCount{
-    margin:10px auto;
+#cnCount {
+    margin: 10px auto;
     font-size: 15px;
     background-color: #222325;
     border-radius: 15px;
@@ -493,17 +335,157 @@ div.loginBox{
     left: 109px;
     bottom: 90px;
 }
+/**************************************************
+******** Gerenciar Canais *************************
+**************************************************/
+.channelsManager {
+    width: 40%;
+    height: 185px;
+    border-radius: 5%;
+    transition: 2s ease 0s;
+}
+
+.channelsManager input::placeholder {
+    text-align: center;
+}
+
+.channelsManager p.title {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+/*************************************************
+********Botões Adicionar & Remover Canais*********
+*************************************************/
+.add {
+    color: #FFF;
+    background-color: #0c639c;
+    border: 1px #0099ff solid;
+    transition: .5s ease 0s;
+}
+
+.delete,
+.remove {
+    background-color: #d4414100;
+    color: #d44141;
+    border: 1px #d44141 solid;
+    transition: .5s ease 0s;
+}
+
+.add:hover {
+    color: #ffffff;
+    background-color: var(--blue);
+    transition: .5s ease 0s;
+}
+
+.delete:hover,
+.remove:hover {
+    color: #ffffff;
+    background-color: var(--red);
+    border: 1px #d44141 solid;
+    transition: .5s ease 0s;
+
+}
+
+.channelsManager input[type='text']:disabled::placeholder {
+    color: white;
+    text-align: center;
+    cursor: not-allowed;
+    transition: .5s ease 0s;
+}
+
+.channelsManager input[type='text'] {
+    margin-top: 4px;
+    border-radius: 20px;
+    width: 70%;
+    height: 25px;
+    padding: 2px 10px 2px 10px;
+    font-size: 16px;
+    background-color: #d0d0d0;
+    transition: .3s ease 0s;
+}
+.cnFile.block,
+.cnFile.block:hover,
+.channelsManager input[type='text']:disabled,
+.channelsManager input[type='button']:disabled {
+    background-color: var(--disable);
+    cursor: not-allowed;
+    color: #282b30;
+    transition: .5s ease 0s;
+    border: 1px solid #282b30;
+}
+
+.channelsManager input[type='button'] {
+    cursor: pointer;
+    border-radius: 20px;
+    position: relative;
+    top: 5px;
+    width: 26px;
+}
+
+.channelsManager .status {
+    font-weight: 300;
+    margin-top: 5px;
+}
+
+#canalLog i {
+    font-size: 23px;
+    position: relative;
+    top: 5px;
+}
+/* Botão Carregar Arquivos */
+.cnFile {
+    font-size: 15px;
+    height: 35px;
+    width: 180px;
+    background: #0099ff54;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: .5s ease 0s;
+}
+
+.cnFile:hover {
+    transition: 1s ease 0s;
+    background-color: #0099ff;
+}
+
+.cnFile i {
+    position: relative;
+    cursor: pointer;
+    top: 6px;
+}
+
+/**************************************
+****************AVATAR*****************
+***************************************/
+.avatar {
+    border-radius: 50%;
+    width: 100px;
+    pointer-events: none;
+    border: 1.25px solid #9148ff;
+}
 
 /**************************************
 ****************Table de Pings*********
 ***************************************/
+.mentionsWrapper {
+    margin-left: 15px;
+
+}
+div.mentionsWrapper p {
+    font-weight: bold;
+}
+
 textarea {
-    resize:none; 
-    border-radius: 10px;;
+    resize: none;
+    border-radius: 10px;
     display: inline-block;
     padding: 6px 2px 0px 5px;
     margin: 10px 6px 0px;
-    width: 530px;
+    width: 580px;
     background-color: #0c0c0c;
     color: #FFF;
 }
@@ -517,151 +499,29 @@ textarea::-webkit-scrollbar {
     background: #222222;
     border-radius: 5px;
 }
- 
+
 textarea::-webkit-scrollbar-thumb {
     background-color: #3f3f3f;
     border-radius: 20px;
     border: 1px solid #000000;
     transition: .1s ease-in-out;
 }
+
 textarea::-webkit-scrollbar-thumb:hover {
     background-color: #575757;
     transition: .1s ease-in-out;
 }
 
-#PingBox{
-    width: 68%;
-    position: fixed;
-    left: 30%;
-}
-#PingBox p{
-    position: relative;
-    font-weight: bold;
-    width: 20px;
-    margin: 0px;
-    left: 16px;
-    top: 8px;
-}
-#PingBox input[type=button]{
-    border-radius: 6px;
-    width: 40px;
-    cursor: pointer;
-    margin-inline: 10px;
-    position: fixed;
-    right: 15px;
-}
-
-div#mentionsbar{
+div#mentionsbar {
     display: flex;
-    width: fit-content;
     margin-left: 15px;
+    vertical-align: bottom;
+    justify-content: space-between;
+    align-items: center;
 }
-#PingBox div#notifybar{
-    display: flex;
-    width: fit-content;
-    box-sizing: border-box;
-    box-shadow: inset 0px 2px 4px 1px #1f2125;
-    margin-top: 5px;
-    height: 95px;
-    flex-direction: column;
-    background: #282b30;
-    margin-inline: 10px;
+div#mentionsbar input[name="clearPing"]{
+    cursor: pointer;
+    width: 40px;
     border-radius: 5px;
-}
-div#notifybar p{
-    font-weight: bold;
-    text-align: center;
-}
-
-div#notifybar h3{ 
-    font-size: 17px;
-    font-weight: bold;
-    margin-bottom: 3px;
-    text-align: center;
-    margin-top: 3px;
-}
-
-div#mentionsbar span{
-    margin-inline: 10px;
-}
-/*******************************
-**** Switcher *****************
-*******************************/
-switchbox{
-    flex-direction: column;
-    display: flex;
-    padding-inline: 50px;
-    width: fit-content;
-}
-switchbox div{
-    display: inline-flex;
-    padding-top: 5px;
-}
-#PingBox switchbox p {
-    font-weight: normal;
-    width: 100%;
-    margin: 0px;
-    left: 0px;
-    top: 0px;
-    display: flex;
-}
-.switch {
-    position: absolute;
-    margin-left: -9999px;
-    visibility: hidden;
-    cursor: pointer;
-    user-select: none;
-    
-}
-
-.switch + label {
-    display: block;
-    position: relative;
-    cursor: pointer;
-    outline: none;
-    user-select: none;
-}
-
-.switch--shadow + label {
-    padding: 2px;
-    width: 45px;
-    height: 20px;
-    background-color: #9148ff;
-    border-radius: 60px;
-}
-.switch--shadow:disabled + label,
-.switch--shadow:disabled + label::before,
-.switch--shadow:disabled + label::after{
-    cursor: not-allowed;
-    background-color: var(--disable);
-}
-.switch--shadow + label:before,
-.switch--shadow + label:after {
-  display: block;
-  position: absolute;
-  cursor: pointer;
-  top: 1px;
-  left: 1px;
-  bottom: 1px;
-  content: '';
-}
-.switch--shadow + label:before {
-  right: 1px;
-  background-color: #f1f1f1;
-  border-radius: 60px;
-  transition: all 0.4s;
-}
-.switch--shadow + label:after {
-  width: 18px;
-  background-color: #fff;
-  border-radius: 100%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s;
-}
-
-.switch--shadow:checked + label:before {
-    background-color: var(--purple);
-}
-.switch--shadow:checked + label:after {
-    transform: translateX(15px);
+    margin-right: 10px;
 }

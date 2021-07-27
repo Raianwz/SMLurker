@@ -1,86 +1,89 @@
-const { title } = require('process');
-let skyp = 0;
+let tmpTray;
+Controlls()
 clipMenu()
-function minWindow(){
-    const { remote } = require('electron');
-    var win = remote.getCurrentWindow();
-    win.minimize();
-};
+SkipHideNotify()
 
-function closeWindow(){
-    const { remote } = require('electron');
-    var win = remote.getCurrentWindow();
-    win.close();
-};
+function Controlls() {
+    const { remote: { getCurrentWindow, ipcMain } } = require('electron')
+    const wButton = btn => document.querySelector(`svg[name=${btn}]`)
 
-function hideWindow(){
-    const{app, Menu, Tray, Notification, getCurrentWindow} = require('electron').remote
-    const {remote: { ipcMain }} = require('electron');
-    const path = require('path');
-    const env = require('../src/components/env');
-    let dist = process.resourcesPath;
-    let distFile = 'assets';
+    wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
+    wButton('minWindow').addEventListener('click', () => getCurrentWindow().minimize())
 
-    if(env(app) == 'DEV'){dist = __dirname; distFile='../src/assets'}
+    wButton('hideWindow').addEventListener('click', () => hideWindow())
+    wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
+}
 
-    let ppL = path.join(dist, `${distFile}/ppL.png`);
-    let TppL = path.join(dist, `${distFile}/tray.png`);
-    let ezy = path.join(dist,`${distFile}/miniezy.png`);
 
+function SkipHideNotify() {
+    let value = false;
+    if (localStorage.hasOwnProperty('SkipHideNotify')) {
+        !JSON.parse(localStorage.getItem('SkipHideNotify')) == false ? value : false
+    }
+    localStorage.setItem('SkipHideNotify', `${value}`)
+}
+
+function hideWindow() {
+    const { remote: { app, Menu, Tray, Notification, getCurrentWindow } } = require('electron')
+    const path = require('path'), win = getCurrentWindow(), env = require('../src/components/env');
+
+    let dist = process.resourcesPath, distFile = 'assets';
+    let tray = null;
+
+    if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
+
+    const ppL = path.join(dist, `${distFile}/ppL.png`),
+        TppL = path.join(dist, `${distFile}/tray.png`),
+        ezy = path.join(dist, `${distFile}/miniezy.png`);
     path.join(process.resourcesPath, 'data');
-    var tray = null;
-    var win = getCurrentWindow();
 
-    if( skyp === 0){
-        new Notification({
+    if (!JSON.parse(localStorage.getItem('SkipHideNotify'))) {
+        let notify = new Notification({
             icon: ppL,
             title: "SM Lurker em segundo plano",
             body: "Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone",
-            timeoutType: 30000,
-            urgency: 'critical',
-        }).show() 
-        
-        const template =[{
+            timeoutType: 8000,
+            urgency: 'normal',
+        })
+        // notify.show()
+        localStorage.setItem('SkipHideNotify', true)
+
+        const template = [{
             label: 'SM Lurker',
             icon: ezy,
-            enabled: false,   
-         },{type: 'separator'},{
-             label: 'Abrir',
-             click: ()=> {win.show();},
-         },{
-             label: 'Configurações',
-             click: ()=>{ipcMain.emit('openConfigs');}
-         },{type: 'separator'},{
-             label: 'Fechar',
-             click: () => app.quit(),
-         }]
-    
-         const contextMenu = Menu.buildFromTemplate(template);
-         tray = Tray(TppL)
-         tray.setToolTip('SM Twitch Lurker')
-         tray.setContextMenu(contextMenu)
-         tray.on('click', ()=> {
-             win.show();
-         })
+            enabled: false,
+        }, { type: 'separator' }, {
+            label: 'Abrir',
+            click: () => { win.show(); },
+        }, {
+            label: 'Configurações',
+            click: () => { ipcMain.emit('openConfigs'); }
+        }, { type: 'separator' }, {
+            label: 'Fechar',
+            click: () => app.quit(),
+        }]
+        const contextMenu = Menu.buildFromTemplate(template);
+        tray = new Tray(TppL)
+        tray.setToolTip('SM Twitch Lurker')
+        tray.setContextMenu(contextMenu)
+        tray.on('click', () => {
+            win.show();
+        })
+        tray.displayBalloon({
+            title: 'SM Lurker em segundo plano',
+            content: 'Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone',
+            icon: ppL,
+        })
+        tmpTray = tray
     }
     win.hide();
-
-     return skyp=1;
 };
 
-function reloadWindow(){
-    const { remote } = require('electron');
-    var win = remote.getCurrentWindow();
-    win.reload();
-}
+function clipMenu() {
+    const { remote: { Menu, getCurrentWindow } } = require('electron');
+    const mainWindow = getCurrentWindow();
 
-function clipMenu(){
-    const { remote } = require('electron');
-    const { Menu, MenuItem } = remote;
-    var mainWindow = remote.getCurrentWindow();
-    let txtArea = document.getElementById('pTable')
-
-    window.addEventListener('contextmenu', (e)=>{
+    window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         const InputMenu = Menu.buildFromTemplate([{
             label: 'Desfazer',
@@ -90,7 +93,7 @@ function clipMenu(){
             label: 'Refazer',
             role: 'redo',
             accelerator: 'CmdOrCtrl+Y',
-            
+
         }, {
             type: 'separator',
         }, {
@@ -113,10 +116,15 @@ function clipMenu(){
             accelerator: "CmdOrCtrl+A",
         },
         ]);
-        if(e.target.type === "text" || e.target.type === "textarea" || e.target.type === "password"){
+        if (e.target.type === "text" || e.target.type === "textarea" || e.target.type === "password") {
             InputMenu.popup(mainWindow);
         }
 
     })
 
 }
+
+
+window.addEventListener('beforeunload', () => {
+    tmpTray != null ? tmpTray.destroy() : true
+})

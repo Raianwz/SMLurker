@@ -5,6 +5,7 @@
   "main": "main.js",
   "author": "Raianwz",
   "license": "MIT",
+  "__comment": "electron ^11.2.3, electron-builder ^22.9.1",
   "scripts": {
     "dev": "electron .",
     "pack": "electron-builder --dir",
@@ -12,8 +13,8 @@
     "release": "electron-builder --ia32 --publish always"
   },
   "devDependencies": {
-    "electron": "^11.2.3",
-    "electron-builder": "^22.9.1"
+    "electron": "13.1.7",
+    "electron-builder": "^22.11.7"
   },
   "repository": {
     "type": "git",

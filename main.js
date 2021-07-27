@@ -19,6 +19,7 @@ function CreateWindow() {
         show: false,
         maximizable: false,
         webPreferences: {
+            contextIsolation: false,
             nodeIntegration: true,
             webSecurity: true,
             enableRemoteModule: true,
