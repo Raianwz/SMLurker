@@ -9,9 +9,10 @@ function Controlls() {
 
     wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
     wButton('minWindow').addEventListener('click', () => getCurrentWindow().minimize())
-
-    wButton('hideWindow').addEventListener('click', () => hideWindow())
-    wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
+    if (document.querySelector('h1').textContent != 'Configurações') {
+        wButton('hideWindow').addEventListener('click', () => hideWindow())
+        wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
+    }
 }
 
 

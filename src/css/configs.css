@@ -26,7 +26,7 @@
 header {
     display: flex;
     width: 100%;
-    background-color: #3f51b5;
+    background-color: #0a598f;
     flex-direction: row;
     border-bottom: 1px solid black;
     border-top-left-radius: 5px;
@@ -98,7 +98,6 @@ div.window-buttons svg path{
     visibility: hidden;
     cursor: pointer;
     user-select: none;
-    
 }
 
 .switch + label {
@@ -113,7 +112,6 @@ div.window-buttons svg path{
     padding: 2px;
     width: 40px;
     height: 20px;
-    background-color: #9148ff;
     border-radius: 60px;
 }
 .switch--shadow:disabled + label,
@@ -140,7 +138,7 @@ div.window-buttons svg path{
 }
 .switch--shadow + label:after {
   width: 18px;
-  background-color: #fff;
+  background-color: #9148ff;
   border-radius: 100%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   transition: all 0.4s;
@@ -150,6 +148,7 @@ div.window-buttons svg path{
     background-color: var(--purple);
 }
 .switch--shadow:checked + label:after {
+    background-color: #ffffff;
     transform: translateX(20px);
 }
 /**********************************************
@@ -161,15 +160,15 @@ div.window-buttons svg path{
     padding-left: 50px;
 }
 .folder{
-    fill: var(--disable);
+    fill: #8e6d03;
     height: 40px;
     width: 40px;
     cursor: pointer;
-    transition: .5s ease-in-out;
+    transition: .5s ease 0s;
 }
 .folder:hover{
-    fill: var(--blue);
-    transition: .5s ease-in-out;
+    fill: #ffcd28;
+    transition: .5s ease 0s;
 }
 .folder path{
     cursor: pointer;
@@ -178,11 +177,11 @@ div.window-buttons svg path{
 div.configButtons span.material-icons{
     cursor: pointer;
     font-size: 35px;
-    color: var(--disable);
+    color: #c2c2c2;
     padding-left: 5px;
-    transition: .5s ease-in-out;
+    transition: .5s ease 0s;
 }
 div.configButtons span.material-icons:hover{
-    color: var(--blue);
-    transition: .5s ease-in-out;
+    color: #ffffff;
+    transition: .5s ease 0s;
 }

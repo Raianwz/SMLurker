@@ -28,6 +28,12 @@
     height: 90vh;
     margin-top: -25px;
 }
+.hline{
+    border-top: 1px var(--purple) solid;
+    width: 90%;
+    margin-top: 15px;
+    margin-left: 8px;
+}
 /* Animações de Entrada e Saida */
 @keyframes slide-in {
     0% {
@@ -471,11 +477,23 @@ div.channelsManager {
 /**************************************
 ****************Table de Pings*********
 ***************************************/
+div#mentionsbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+div#mentionsbar input[name="clearPing"]{
+    cursor: pointer;
+    width: 40px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
 .mentionsWrapper {
     margin-left: 15px;
-
 }
-div.mentionsWrapper p {
+
+.mentionsWrapper p {
     font-weight: bold;
 }
 
@@ -512,16 +530,99 @@ textarea::-webkit-scrollbar-thumb:hover {
     transition: .1s ease-in-out;
 }
 
-div#mentionsbar {
-    display: flex;
-    margin-left: 15px;
-    vertical-align: bottom;
-    justify-content: space-between;
-    align-items: center;
+/********************************
+*********NOTIFICAÇÕES************
+*********************************/
+.NotifyWrapper{
+    margin-top: 10px;
+    text-align: center;
 }
-div#mentionsbar input[name="clearPing"]{
+.NotifyWrapper p .title{
+    font-weight: 700;
+    font-size: 12px;
+}
+.NotifyWrapper switch_container{
+    display: flex;
+    flex-direction: column;
+    margin-inline: 8px;
+    margin-top: 8px;
+}
+switch_container div{
+    flex-direction: row;
+    display: flex;
+}
+switch_container div p{
+    margin-inline: 5px;
+}
+p.beta{
+    font-size: 11px;
+    margin-left: -8px;
+    margin-top: -6px;
+    color: #ff5555;
+    font-weight: bold;
+}
+
+.switch {
+    position: absolute;
+    margin-left: -9999px;
+    visibility: hidden;
     cursor: pointer;
+    user-select: none;
+}
+
+.switch + label {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+}
+
+.switch--shadow + label {
+    padding: 2px;
     width: 40px;
-    border-radius: 5px;
-    margin-right: 10px;
+    height: 20px;
+    border-radius: 60px;
+}
+
+.switch--shadow:disabled + label,
+.switch--shadow:disabled + label::before,
+.switch--shadow:disabled + label::after{
+    cursor: not-allowed;
+    background-color: var(--disable);
+    border: none;
+}
+.switch--shadow + label:before,
+.switch--shadow + label:after {
+  display: block;
+  position: absolute;
+  cursor: pointer;
+  top: 1px;
+  left: 1px;
+  bottom: 1px;
+  content: '';
+}
+.switch--shadow + label:before {
+  right: 1px;
+  right: 1px;
+  border-radius: 60px;
+  background-color: #9a9a9a;
+  border: 1px solid #f1f1f1;
+  transition: all 0.4s;
+}
+.switch--shadow + label:after {
+  width: 18px;
+  background-color: #9148ff;
+  border-radius: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s;
+}
+
+.switch--shadow:checked + label:before {
+    background-color: var(--purple);
+    border: 1px solid #731cf5;
+}
+.switch--shadow:checked + label:after {
+    background-color: #ffffff;
+    transform: translateX(20px);
 }

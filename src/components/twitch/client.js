@@ -1,12 +1,11 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
-const { remote: { app } } = require('electron');
-const { Notification } = require('electron').remote
+const { remote: { app, Notification } } = require('electron');
 const path = require('path');
 const env = require('../src/components/env');
+const { config } = require('process');
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
 let userData = null;
-let mentions = 0;
 let client = null;
 loadCredentials();
 
@@ -14,14 +13,11 @@ async function entrarTwitch() {
     let username = document.getElementById('username').value.toLowerCase()
     let pass = document.getElementById('pass').value;
     let status = document.getElementById('msgStatus');
-    let configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
     let error = false;
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
     status.innerHTML = "";
-
 
     if (!username.replace(/ /g, '') || !pass.replace(/ /g, '')) {
         status.innerHTML = 'Por favor preencha os campos Username e OAuth';
@@ -71,6 +67,7 @@ async function entrarTwitch() {
         saveCredentials(username, pass);
         status.innerHTML = 'Entrando nos canais...';
         getUser(username);
+        pingMessages(client, username);
 
         await joinChannels(client).catch(err => {
             error = true;
@@ -93,37 +90,6 @@ async function entrarTwitch() {
             btnEntrar.onclick = sairTwitch;
 
         }
-
-        // let dist = process.resourcesPath;
-        // let distFile = 'assets';
-        // if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
-        // let mention = path.join(dist, `${distFile}/metion.png`);
-        // let gift = path.join(dist, `${distFile}/gift.png`);
-
-        // client.on("message", async (channel, tags, message, self) => {
-        //     let DisplayName = userData.users[0].display_name;
-        //     if (message.includes(username) || message.includes(DisplayName)) {
-        //         pingTable.value += `🔔 Canal: ${channel} \n💬 ${tags.username}: ${message}\n`;
-        //         let pings = pingTable.value
-        //         mentions = mentions + 1
-        //         pings = pings.replaceAll(' ', '').replace('🔔Canal:', '').replace('💬', '')
-        //         ptotal.innerText = `💬 Texto: ${pings.length}/4000`
-        //         mtotal.innerText = `🔔 Menções: ${mentions}`;
-        //         if (configs.NotifyMention === true) {
-        //             new Notification({
-        //                 icon: mention, title: `Mencionado em ${channel}`,
-        //                 body: `Você foi mencionado em ${channel} por @${tags.username}: ${message}`,
-        //                 timeoutType: 'default', urgency: 'normal'
-        //             }).show()
-        //         }
-        //     }
-        //     if (pingTable.value.length > 4000) {
-        //         mentions = 0;
-        //         pingTable.value = "";
-        //         ptotal.innerText = `💬Texto: 0/4000`
-        //         mtotal.innerText = '🔔Menções: 0'
-        //     }
-        // });
     }
 }
 
@@ -133,6 +99,7 @@ async function sairTwitch() {
     let btnEntrar = document.getElementById('btnEntrar');
     let status = document.getElementById('msgStatus');
     userbox.innerHTML = "";
+    pingMessages(true)
     BlockLogin(false)
     changeButtonSide(btnEntrar, 0)
 
@@ -149,29 +116,28 @@ async function sairTwitch() {
 async function saveCredentials(username, pass) {
     let credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`,
         credentials = {};
-
     credentials.username = username;
     credentials.pass = pass;
     fs.writeFileSync(credentialsPath, JSON.stringify(credentials), null, 2);
 }
 //Função carregar dados salvos
 async function loadCredentials() {
-    let configPath = `${app.getPath('userData')}\\Config\\configs.json`
+    const getEl = (el) => document.querySelector(el);
+    const configPath = `${app.getPath('userData')}\\Config\\configs.json`
     let credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`,
         credentials;
 
     if (fs.existsSync(credentialsPath)) {
         credentials = require(credentialsPath);
-
-        document.getElementById('username').value = credentials.username;
-        document.getElementById('pass').value = credentials.pass;
+        getEl('#username').value = credentials.username;
+        getEl('#pass').value = credentials.pass;
         getUser(credentials.username)
         if (fs.existsSync(configPath)) {
             let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
-            // document.getElementById('swt_notifyMention').checked = config.NotifyMention;
-            // document.getElementById('swt_notifySub').checked = config.NotifySubgift;
+            getEl('#swt_notifyMe').checked = config.NotifyMe
+            getEl('#swt_notifyGift').checked = config.NotifyGift
             if (config.autologin === true) {
-                document.getElementById('btnEntrar').click();
+                getEl('#btnEntrar').click();
             };
         }
     }
@@ -199,7 +165,7 @@ function changeButtonSide(btnEntrar, destino) {
     destino == 1
         ? conectBox.appendChild(btnEntrar)
         : loginBox.appendChild(btnEntrar)
-    
+    Notify();
     if (destino == 1) {
         element('.container').style.overflow = 'hidden'
         element('.conectBox').classList.remove('hide')
@@ -218,59 +184,11 @@ function changeButtonSide(btnEntrar, destino) {
             elDisplay('.mainBox', 'flex')
             elDisplay('.conectBox', 'none')
         }, .1 * 1000)
-        setTimeout(()=>{
-            element('.container').removeAttribute('style')
-        },.9*1000)
-    }
-
-}
-
-function ShowHide(status) {
-    let cManager = document.getElementById('cMng');
-    let LoginBox = document.getElementById('LoginBox');
-    let Lbox = document.querySelector('.loginBox');
-    let Blogin = document.querySelector('#btnEntrar');
-    let PingBox = document.getElementById('PingBox');
-
-    if (status == 'entrou') {
-        cManager.classList.remove('show');
-        LoginBox.classList.remove('show');
-        cManager.classList.add('hide');
-        LoginBox.classList.add('hide');
         setTimeout(() => {
-            BlockLogin(true)
-            PingBox.classList.remove('hide');
-            cManager.style.display = 'none';
-            LoginBox.style.display = 'none';
-            Lbox.style.width = "30%"
-            Blogin.style.width = "50%"
-            PingBox.style.display = 'block';
-        }, 1)
+            element('.container').removeAttribute('style')
+        }, .9 * 1000)
     }
 
-    if (status == 'saiu') {
-        BlockLogin(false)
-        PingBox.classList.add('hide');
-        cManager.classList.remove('hide');
-        LoginBox.classList.remove('hide');
-        cManager.classList.add('show');
-        LoginBox.classList.add('show');
-        cManager.style.display = 'block';
-        PingBox.style.display = 'none';
-        LoginBox.style.display = 'block';
-        Lbox.style.width = "57%"
-        Blogin.style.width = ""
-    }
-}
-
-function clearPing() {
-    let pingTable = document.getElementById('pTable');
-    let ptotal = document.getElementById('Ptotal');
-    let mtotal = document.getElementById('Mtotal');
-    pingTable.value = "";
-    ptotal.innerText = `💬 Texto: 0/4000`
-    mtotal.innerText = `🔔 Menções: 0`;
-    mentions = 0;
 }
 
 function BlockLogin(valor) {
@@ -289,16 +207,78 @@ function BlockLogin(valor) {
     }
 }
 
-function ChangeNotify() {
-    const fs = require('fs');
-    let configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    let mention = document.getElementById('swt_notifyMention').checked;
-    let subgift = document.getElementById('swt_notifySub').checked;
-    if (fs.existsSync(configPath)) {
-        let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
-        configs.NotifyMention = mention;
-        configs.NotifySubgift = subgift;
-        console.log(configs)
-        fs.writeFileSync(configPath, JSON.stringify(configs));
+function pingMessages(clear) {
+    const element = (el) => document.querySelector(el)
+    const inText = (el, text) => el.innerText = text
+    const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬Texto: 0/4000`); inText(mTotal, `🔔Menções: 0`) }
+    const DisplayName = userData.users[0].display_name, UserName = DisplayName.toLowerCase();
+    const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+
+    let dist = process.resourcesPath;
+    let distFile = 'assets';
+    if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
+
+    let pingTable = element('#pTable'), ping;
+    let pTotal = element('#Ptotal'), mTotal = element('#Mtotal'), mentions = 0;
+
+    client.on("message", async (channel, tags, message, self) => {
+        if (message.includes(UserName) || message.includes(DisplayName)) {
+            pingTable.value += `🔴Canal: ${channel}\n💬 ${tags.username}: ${message}\n`;
+            ping = pingTable.value
+            ping = ping.replaceAll(' ', '').replace('🔴Canal:', '').replace('💬', '').replace('\n', '')
+            inText(pTotal, `💬 Texto: ${ping.length}/4000`);
+            inText(mTotal, `🔔 Menções: ${mentions += 1}`);
+            LoadNotify(channel, tags, message)
+        }
+        pingTable.value.length > 4000 ? resetTable() : false
+    });
+    client.on('subgift', async (channel, username, streakMonths, recipient, methods, userstate) => {
+        if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
+            LoadNotify(channel, recipient, username)
+        }
+        console.log(`SubGift aconteceu em ${channel}\n ${username} deu para ${recipient}`)
+    })
+
+    element('[name="clearPing"]').addEventListener('click', () => resetTable());
+    clear == true ? resetTable() : false
+
+    function LoadNotify(channel, tags, message, recipient, username) {
+        if (fs.existsSync(configPath)) {
+            let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
+            if (configs.NotifyMe === true) {
+                let mention = path.join(dist, `${distFile}/metion.png`);
+                new Notification({
+                    icon: mention, title: `Mencionado em ${channel}`,
+                    body: `Você foi mencionado em ${channel} por @${tags.username}: ${message}`,
+                    timeoutType: 'default', urgency: 'normal'
+                }).show()
+            }
+            if (configs.NotifyGift === true) {
+                let gift = path.join(dist, `${distFile}/gift.png`);
+                new Notification({
+                    icon: gift, title: `Ganhou um Sub em ${channel}`,
+                    body: `Você ganhou um SubGift de @${username} em ${channel}`,
+                    timeoutType: 'default', urgency: 'normal'
+                })
+            }
+        }
+    }
+}
+
+function Notify() {
+    const getEl = (el) => document.querySelector(el);
+    const mentions = getEl('#swt_notifyMe'), subgift = getEl('#swt_notifyGift');
+    const configPath = `${app.getPath('userData')}\\Config\\configs.json`
+    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
+    mentions.addEventListener('change', () => { console.log(`Menções: ${mentions.checked}`); saveConfigs() })
+    subgift.addEventListener('change', () => { console.log(`SubGift: ${subgift.checked}`); saveConfigs() })
+
+    function saveConfigs() {
+        if (fs.existsSync(configPath)) {
+            configs.NotifyMe = mentions.checked;
+            configs.NotifyGift = subgift.checked;
+            console.log(configs);
+            fs.writeFileSync(configPath, JSON.stringify(configs))
+        }
     }
 }
