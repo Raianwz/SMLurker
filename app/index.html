@@ -48,6 +48,9 @@
             </w-buttons>
         </header>
         <div class="mainBox">
+            <a href="https://imgur.com/a/VCHFo4s" style="width: 0px;height: 0px;">
+                <span class="material-icons help">help</a></span>
+            </a>
             <div class="loginBox">
                 <p>Twitch Username</p>
                 <input type="text" placeholder="DarkJunin123456" id="username">
@@ -112,10 +115,6 @@
             </div>
         </div>
     </div>
-    <script>
-        const {remote: {app: {getVersion}}} = require('electron');
-        document.querySelector('header h1#sm').innerText += ` Preview ${getVersion()}`;
-    </script>
     <script src="../src/components/window/controlls.js"></script>
     <script src="../src/components/twitch/client.js"></script>
     <script src="../src/components/twitch/channels.js"></script>

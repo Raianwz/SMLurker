@@ -1,6 +1,6 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
-const { remote: { app, Notification } } = require('electron');
+const { remote: { app, Notification, nativeImage } } = require('electron');
 const path = require('path');
 const env = require('../src/components/env');
 const { config } = require('process');
@@ -210,7 +210,7 @@ function BlockLogin(valor) {
 function pingMessages(clear) {
     const element = (el) => document.querySelector(el)
     const inText = (el, text) => el.innerText = text
-    const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬Texto: 0/4000`); inText(mTotal, `🔔Menções: 0`) }
+    const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬 Texto: 0/4000`); inText(mTotal, `🔔 Menções: 0`) }
     const DisplayName = userData.users[0].display_name, UserName = DisplayName.toLowerCase();
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
 
@@ -242,7 +242,7 @@ function pingMessages(clear) {
     element('[name="clearPing"]').addEventListener('click', () => resetTable());
     clear == true ? resetTable() : false
 
-    function LoadNotify(channel, tags, message, recipient, username) {
+    function LoadNotify(channel, tags, message, username) {
         if (fs.existsSync(configPath)) {
             let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
             if (configs.NotifyMe === true) {
@@ -250,14 +250,14 @@ function pingMessages(clear) {
                 new Notification({
                     icon: mention, title: `Mencionado em ${channel}`,
                     body: `Você foi mencionado em ${channel} por @${tags.username}: ${message}`,
-                    timeoutType: 'default', urgency: 'normal'
+                    timeoutType: 'default', urgency: 'low',
                 }).show()
             }
             if (configs.NotifyGift === true) {
                 let gift = path.join(dist, `${distFile}/gift.png`);
                 new Notification({
                     icon: gift, title: `Ganhou um Sub em ${channel}`,
-                    body: `Você ganhou um SubGift de @${username} em ${channel}`,
+                    body: `Você ganhou um SubGift de @${username} em ${channel}`, sound: false,
                     timeoutType: 'default', urgency: 'normal'
                 })
             }
@@ -269,16 +269,22 @@ function Notify() {
     const getEl = (el) => document.querySelector(el);
     const mentions = getEl('#swt_notifyMe'), subgift = getEl('#swt_notifyGift');
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`
-    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
-    mentions.addEventListener('change', () => { console.log(`Menções: ${mentions.checked}`); saveConfigs() })
-    subgift.addEventListener('change', () => { console.log(`SubGift: ${subgift.checked}`); saveConfigs() })
+    mentions.addEventListener('click', () => saveConfigs())
+    subgift.addEventListener('click', () => saveConfigs())
 
     function saveConfigs() {
         if (fs.existsSync(configPath)) {
+            let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
             configs.NotifyMe = mentions.checked;
             configs.NotifyGift = subgift.checked;
-            console.log(configs);
             fs.writeFileSync(configPath, JSON.stringify(configs))
+        }else{
+            let configs = {};
+            configs.ini = false;
+            configs.autologin = false;
+            configs.NotifyMe = mentions.checked;
+            configs.NotifyGift = subgift.checked;
+            fs.writeFileSync(configPath, JSON.stringify(configs));
         }
     }
 }

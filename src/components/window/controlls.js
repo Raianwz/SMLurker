@@ -25,30 +25,18 @@ function SkipHideNotify() {
 }
 
 function hideWindow() {
-    const { remote: { app, Menu, Tray, Notification, getCurrentWindow } } = require('electron')
+    const { remote: { app, Menu, Tray, getCurrentWindow, ipcMain, nativeImage: { createFromPath } } } = require('electron')
     const path = require('path'), win = getCurrentWindow(), env = require('../src/components/env');
-
     let dist = process.resourcesPath, distFile = 'assets';
     let tray = null;
-
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
 
-    const ppL = path.join(dist, `${distFile}/ppL.png`),
-        TppL = path.join(dist, `${distFile}/tray.png`),
-        ezy = path.join(dist, `${distFile}/miniezy.png`);
+    const ppL = path.join(dist, `${distFile}/pepeL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
+    const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' })
     path.join(process.resourcesPath, 'data');
 
     if (!JSON.parse(localStorage.getItem('SkipHideNotify'))) {
-        let notify = new Notification({
-            icon: ppL,
-            title: "SM Lurker em segundo plano",
-            body: "Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone",
-            timeoutType: 8000,
-            urgency: 'normal',
-        })
-        // notify.show()
         localStorage.setItem('SkipHideNotify', true)
-
         const template = [{
             label: 'SM Lurker',
             icon: ezy,
@@ -64,7 +52,7 @@ function hideWindow() {
             click: () => app.quit(),
         }]
         const contextMenu = Menu.buildFromTemplate(template);
-        tray = new Tray(TppL)
+        tray = new Tray(ppL)
         tray.setToolTip('SM Twitch Lurker')
         tray.setContextMenu(contextMenu)
         tray.on('click', () => {
@@ -73,7 +61,7 @@ function hideWindow() {
         tray.displayBalloon({
             title: 'SM Lurker em segundo plano',
             content: 'Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone',
-            icon: ppL,
+            icon: Resize(ppL),
         })
         tmpTray = tray
     }
@@ -81,8 +69,9 @@ function hideWindow() {
 };
 
 function clipMenu() {
-    const { remote: { Menu, getCurrentWindow } } = require('electron');
+    const { remote: { Menu, getCurrentWindow, app:{ getVersion} } } = require('electron');
     const mainWindow = getCurrentWindow();
+    //document.querySelector('header h1#sm').innerText += ` Beta ${getVersion()}`;
 
     window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
@@ -124,7 +113,6 @@ function clipMenu() {
     })
 
 }
-
 
 window.addEventListener('beforeunload', () => {
     tmpTray != null ? tmpTray.destroy() : true
