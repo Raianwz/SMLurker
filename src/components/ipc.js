@@ -18,6 +18,7 @@ ipcMain.on('openConfigs', () =>{
             webPreferences: {
               contextIsolation: false,
               nodeIntegration: true,
+              webSecurity: true,
               enableRemoteModule: true
             },
           });

@@ -1,42 +1,43 @@
-const tmi = require('tmi.js');
-const fs = require('fs');
-const { remote: { app, Notification, nativeImage } } = require('electron');
-const path = require('path');
+const tmi = require('tmi.js'), fs = require('fs'), path = require('path');
+const { remote: { app, Notification } } = require('electron');
 const env = require('../src/components/env');
-const { config } = require('process');
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
+const CreateConfigs = require(path.resolve(__dirname, '../src/components/configs/helper'));
+const getUser = (user) => { fetch(`https://api.twitch.tv/kraken/users?login=${user}`, { headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' } }).then(async (resp) => { const dados = await resp.json(); return userData = dados }) }
 let userData = null;
 let client = null;
 loadCredentials();
 
 async function entrarTwitch() {
+    const status = (arg) => document.getElementById('msgStatus').innerHTML = `${arg}`;
     let username = document.getElementById('username').value.toLowerCase()
     let pass = document.getElementById('pass').value;
-    let status = document.getElementById('msgStatus');
     let error = false;
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
-    status.innerHTML = "";
+    status("");
 
     if (!username.replace(/ /g, '') || !pass.replace(/ /g, '')) {
-        status.innerHTML = 'Por favor preencha os campos Username e OAuth';
+        status('Por favor preencha os campos Username e OAuth');
         return;
     } else if (username.startsWith(' ') || pass.startsWith(' ') || pass.includes(' ')) {
         if (username.startsWith(' ')) {
-            status.innerHTML = 'Por favor insirá um Username válido';
-            return;
-        } else if (pass.startsWith(' ') || pass.includes(' ')) {
-            status.innerHTML = 'Por favor insirá um OAoth válido';
+            status('Por favor insirá um Username válido');
             return;
         }
+    }
+
+    if (pass.length < 30 || pass.startsWith(' ') || pass.includes(' ')) {
+        status('Por favor insirá um OAoth válido');
+        return;
     }
 
     BlockLogin(true)
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
     btnEntrar.onclick = null;
-    status.innerHTML = 'Iniciando Client';
+    status('Iniciando Client');
 
 
     client = new tmi.Client({
@@ -52,38 +53,41 @@ async function entrarTwitch() {
         channels: [],
     });
 
-    status.innerHTML = 'Tentando conectar';
+    status('Tentando conectar');
 
     await client.connect().catch(err => {
         error = true;
         BlockLogin(false)
-        status.innerHTML = `${err}`;
+        status(`${err}`);
         btnEntrar.value = 'Entrar';
         btnEntrar.classList.remove('loading');
         btnEntrar.onclick = entrarTwitch;
     })
 
     if (!error) {
-        saveCredentials(username, pass);
-        status.innerHTML = 'Entrando nos canais...';
-        getUser(username);
-        pingMessages(client, username);
+        status('Entrando nos canais...');
+
 
         await joinChannels(client).catch(err => {
             error = true;
             BlockLogin(false)
-            status.innerHTML = `${err}`;
+            status(`${err}`);
             btnEntrar.value = 'Entrar';
             btnEntrar.classList.remove('loading');
             btnEntrar.onclick = entrarTwitch;
             client.disconnect();
             client = null;
+        }).then(() => {
+            saveCredentials(username, pass);
+            getUser(username);
         });
+
 
         if (!error) {
             changeButtonSide(btnEntrar, 1)
+            pingMessages(client, username);
             criarUser()
-            status.innerHTML = 'Entrou nos canais!';
+            status('Entrou nos canais!');
             btnEntrar.value = 'Sair';
             btnEntrar.classList.remove('loading');
             btnEntrar.classList.add('conectado');
@@ -124,11 +128,11 @@ async function saveCredentials(username, pass) {
 async function loadCredentials() {
     const getEl = (el) => document.querySelector(el);
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`
-    let credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`,
-        credentials;
+    const credentialsPath = `${app.getPath('userData')}\\Config\\credentials.json`;
+    let credentials;
 
     if (fs.existsSync(credentialsPath)) {
-        credentials = require(credentialsPath);
+        credentials = JSON.parse(fs.readFileSync(credentialsPath, { encoding: 'utf8' }));
         getEl('#username').value = credentials.username;
         getEl('#pass').value = credentials.pass;
         getUser(credentials.username)
@@ -142,12 +146,6 @@ async function loadCredentials() {
         }
     }
 
-}
-
-function getUser(username) {
-    fetch(`https://api.twitch.tv/kraken/users?login=${username}`, {
-        headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' }
-    }).then((resp) => { return resp.json().then((data) => { return userData = data }) });
 }
 
 function criarUser() {
@@ -228,13 +226,13 @@ function pingMessages(clear) {
             ping = ping.replaceAll(' ', '').replace('🔴Canal:', '').replace('💬', '').replace('\n', '')
             inText(pTotal, `💬 Texto: ${ping.length}/4000`);
             inText(mTotal, `🔔 Menções: ${mentions += 1}`);
-            LoadNotify(channel, tags, message)
+            LoadNotifyMe(channel, tags, message)
         }
         pingTable.value.length > 4000 ? resetTable() : false
     });
     client.on('subgift', async (channel, username, streakMonths, recipient, methods, userstate) => {
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
-            LoadNotify(channel, recipient, username)
+            LoadNotifySub(channel, username, recipient)
         }
         console.log(`SubGift aconteceu em ${channel}\n ${username} deu para ${recipient}`)
     })
@@ -242,7 +240,7 @@ function pingMessages(clear) {
     element('[name="clearPing"]').addEventListener('click', () => resetTable());
     clear == true ? resetTable() : false
 
-    function LoadNotify(channel, tags, message, username) {
+    function LoadNotifyMe(channel, tags, message) {
         if (fs.existsSync(configPath)) {
             let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
             if (configs.NotifyMe === true) {
@@ -253,16 +251,23 @@ function pingMessages(clear) {
                     timeoutType: 'default', urgency: 'low',
                 }).show()
             }
+        }
+    };
+
+    function LoadNotifySub(channel, username, recipient) {
+        if (fs.existsSync(configPath)) {
+            let audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/870396181174452224/gift.mp3');
+            let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
             if (configs.NotifyGift === true) {
                 let gift = path.join(dist, `${distFile}/gift.png`);
                 new Notification({
                     icon: gift, title: `Ganhou um Sub em ${channel}`,
-                    body: `Você ganhou um SubGift de @${username} em ${channel}`, sound: false,
-                    timeoutType: 'default', urgency: 'normal'
-                })
+                    body: `Você(@${recipient}) ganhou um SubGift de @${username} em ${channel}`,
+                    timeoutType: 'default', urgency: 'normal', sound: audio.play(), silent: true
+                }).show()
             }
         }
-    }
+    };
 }
 
 function Notify() {
@@ -278,13 +283,8 @@ function Notify() {
             configs.NotifyMe = mentions.checked;
             configs.NotifyGift = subgift.checked;
             fs.writeFileSync(configPath, JSON.stringify(configs))
-        }else{
-            let configs = {};
-            configs.ini = false;
-            configs.autologin = false;
-            configs.NotifyMe = mentions.checked;
-            configs.NotifyGift = subgift.checked;
-            fs.writeFileSync(configPath, JSON.stringify(configs));
+        } else {
+            CreateConfigs(configPath, mentions.checked, subgift.checked)
         }
     }
 }

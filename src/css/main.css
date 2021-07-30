@@ -360,6 +360,7 @@ a span:hover::after{
     margin: 0;
     margin-bottom: 8px;
     font-weight: normal;
+    font-size: 15px;
 }
 
 #cnCount {
@@ -591,6 +592,7 @@ p.beta{
     margin-top: -6px;
     color: #ff5555;
     font-weight: bold;
+    width: 0px;
 }
 
 .switch {

@@ -1,4 +1,13 @@
+const clearInputs = (log) => { newChannelInput.focus(); log.innerHTML = ''; }
+const getEl = (el) => document.querySelector(el)
 let dialogOpen = false;
+Listiners()
+
+function Listiners() {
+    getEl('input[name="addCanal"]').addEventListener('click', () => addCanal())
+    getEl('input[name="removerCanal"]').addEventListener('click', () => removerCanal())
+    getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => loadChannelsFromFile())
+}
 
 function loadChannelsFromFile() {
     const { remote: { app, dialog } } = require('electron');
@@ -19,7 +28,7 @@ function loadChannelsFromFile() {
 
         let data = fs.readFileSync(file[0], { encoding: 'utf8' });
         let channels = data.replace(/ /g, '').split(',');
-        let loadStatus = document.getElementById('canalLog');
+        let loadStatus = getEl('#canalLog');
 
         channels = fixChannels(channels);
         fs.writeFileSync(channelFilePath, JSON.stringify(channels));
@@ -28,7 +37,7 @@ function loadChannelsFromFile() {
     }
 }
 
-let newChannelInput = document.getElementById('txtCanal');
+let newChannelInput = getEl('#txtCanal');
 newChannelInput.onchange = () => newChannelInput.classList.remove('warn');
 
 function addCanal() {
@@ -36,12 +45,13 @@ function addCanal() {
     const fs = require('fs');
     let channels = newChannelInput.value.toLowerCase();
 
-    let log = document.getElementById('canalLog');
+    let log = getEl('#canalLog');
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
 
     if (!channels || !channels.replace(/ /g, '')) {
         newChannelInput.classList.add('warn');
         log.innerHTML = 'Por favor digite algo';
+        setTimeout(() => { clearInputs(log); newChannelInput.classList.remove('warn') }, 60 * 1000);
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
@@ -67,7 +77,7 @@ function removerCanal() {
     const fs = require('fs');
     let channels = newChannelInput.value.toLowerCase();
 
-    let log = document.getElementById('canalLog');
+    let log = getEl('#canalLog');
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
 
     if (!channels || !channels.replace(/ /g, '')) {
@@ -100,11 +110,13 @@ function removerCanal() {
         } else {
             newChannelInput.classList.add('warn');
             log.innerHTML = 'Canal não encontrado!';
+            setTimeout(() => { clearInputs(log); newChannelInput.value = ""; }, 15 * 1000);
             return;
         }
     } else {
         newChannelInput.classList.add('warn');
         log.innerHTML = 'Você não tem nenhum canal para remover!';
+        setTimeout(() => { clearInputs(log); newChannelInput.value = ""; }, 60 * 1000);
         return;
     }
 }
@@ -117,8 +129,4 @@ function fixChannels(channels) {
         if (!channels[x].startsWith('#')) channels[x] = `#${channels[x]}`;
     }
     return channels;
-}
-function clearInputs(log) {
-    newChannelInput.focus()
-    log.innerHTML = '';
 }

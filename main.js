@@ -1,9 +1,15 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, Notification } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = require('./src/components/env')
 let mainWindow;
 require('./src/components/ipc');
+const notificar = (arg) => {
+    new Notification({
+        title: `Atualização ${arg} Disponivel!`,
+        body: `Atualização ${arg} do SMLurker já foi baixada e será instalada automaticamete após você fechar o SMLurker.`
+    })
+}
 
 function CreateWindow() {
     mainWindow = new BrowserWindow({
@@ -66,4 +72,3 @@ app.on('activate', () => {
         autoUpdater.checkForUpdatesAndNotify();
     }, 1000 * 60 * 60);
 })
-

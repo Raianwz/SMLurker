@@ -68,13 +68,13 @@
             <div class="vline"></div>
             <div id="cMng" class="channelsManager">
                 <p class="title">Gerenciar Canais</p>
-                <input class="material-icons add" onclick="addCanal()" title="Adicionar Canal" type="button"
+                <input class="material-icons add" name="addCanal" title="Adicionar Canal" type="button"
                     value="add">
                 <input type="text" placeholder="Nome do Canal" id="txtCanal" />
-                <input class="material-icons remove" onclick="removerCanal()" title="Remover Canal" type="button"
+                <input class="material-icons remove" name="removerCanal" title="Remover Canal" type="button"
                     value="remove">
                 <div style="display: -webkit-inline-box;">
-                    <div class="cnFile" onclick="loadChannelsFromFile()">Carregar Arquivo<i
+                    <div class="cnFile" name="loadChannelsFromFile">Carregar Arquivo<i
                             class="material-icons">file_upload</i></div>
                 </div>
                 <p class="status" id="canalLog"></p>

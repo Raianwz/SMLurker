@@ -4,7 +4,7 @@ clipMenu()
 SkipHideNotify()
 
 function Controlls() {
-    const { remote: { getCurrentWindow, ipcMain } } = require('electron')
+    const { remote: { getCurrentWindow, ipcMain, app: { getVersion } } } = require('electron')
     const wButton = btn => document.querySelector(`svg[name=${btn}]`)
 
     wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
@@ -12,9 +12,9 @@ function Controlls() {
     if (document.querySelector('h1').textContent != 'Configurações') {
         wButton('hideWindow').addEventListener('click', () => hideWindow())
         wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
+        document.querySelector('header h1#sm').innerText += ` Beta ${getVersion()}`;
     }
 }
-
 
 function SkipHideNotify() {
     let value = false;
@@ -31,7 +31,7 @@ function hideWindow() {
     let tray = null;
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
 
-    const ppL = path.join(dist, `${distFile}/pepeL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
+    const ppL = path.join(dist, `${distFile}/ppL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
     const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' })
     path.join(process.resourcesPath, 'data');
 
@@ -69,10 +69,8 @@ function hideWindow() {
 };
 
 function clipMenu() {
-    const { remote: { Menu, getCurrentWindow, app:{ getVersion} } } = require('electron');
+    const { remote: { Menu, getCurrentWindow } } = require('electron');
     const mainWindow = getCurrentWindow();
-    //document.querySelector('header h1#sm').innerText += ` Beta ${getVersion()}`;
-
     window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         const InputMenu = Menu.buildFromTemplate([{
