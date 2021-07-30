@@ -31,7 +31,6 @@ async function chanceConfigs() {
         configs.ini = swtIniciar
         configs.autologin = swtAutoLogin
         fs.writeFileSync(configPath, JSON.stringify(configs));
-    } else {
         configs.ini === true ? smlurkerAutoLaunch.enable() : false
         if (configs.ini === false) {
             await smlurkerAutoLaunch.isEnabled() ? await smlurkerAutoLaunch.disable() : false
