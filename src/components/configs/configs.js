@@ -4,9 +4,11 @@ const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch');
 const childprocess = require('child_process');
 const localPath = `${app.getPath('userData')}\\Config`
-const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
 const configPath = `${localPath}\\configs.json`;
-const CreateConfigs = require(path.resolve(__dirname, '../src/components/configs/helper'));
+const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
+const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/createConfigs'));
+const sleep = require(path.resolve(__dirname, '../src/components/helpers/sleep'));
+const loading = getEl('div[name="loading"]');
 LoadConfigs()
 
 function LoadConfigs() {
@@ -17,24 +19,34 @@ function LoadConfigs() {
     }
     else { CreateConfigs(configPath) }
 
-    getEl('#swt_ini').addEventListener('click', () => chanceConfigs())
-    getEl('#swt_autologin').addEventListener('click', () => chanceConfigs())
+    getEl('#swt_ini').addEventListener('click', () => changeIni())
+    getEl('#swt_autologin').addEventListener('click', () => { changeConfigs() })
     getEl('[name="abrirLocal"]').addEventListener('click', () => childprocess.exec(`start ${localPath}`))
     getEl('[name="exportarLista"]').addEventListener('click', () => exportarLista())
 }
 
-async function chanceConfigs() {
+function changeConfigs() {
     let swtIniciar = getEl('#swt_ini').checked, swtAutoLogin = getEl('#swt_autologin').checked;
-
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
         configs.ini = swtIniciar
         configs.autologin = swtAutoLogin
         fs.writeFileSync(configPath, JSON.stringify(configs));
-        configs.ini === true ? smlurkerAutoLaunch.enable() : false
-        if (configs.ini === false) {
-            await smlurkerAutoLaunch.isEnabled() ? await smlurkerAutoLaunch.disable() : false
+    }
+}
+
+async function changeIni() {
+    changeConfigs()
+    if (fs.existsSync(configPath)) {
+        let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
+        const ppHop = async (value) => {
+            loading.classList.add('loading'); 
+            await sleep(200);
+            value === 1 ? value = smlurkerAutoLaunch.enable() : value=smlurkerAutoLaunch.disable()
+            await value.then(loading.classList.remove('loading'))
         }
+        if (configs.ini === true)  ppHop(1)
+        if (configs.ini === false) ppHop(0)
     }
 }
 

@@ -119,11 +119,14 @@ header w-buttons svg path {
     margin-inline: 0px 20px;
 }
 
+svg[name="menuConfig"]{
+    margin-left: 8px;
+}
 
 .gearConfig {
     margin-left: 10px;
 }
-
+svg[name="menuConfig"]:hover path,
 .gearConfig:hover path {
     transition: .3s ease 0s;
     fill: var(--purple);
@@ -594,7 +597,19 @@ p.beta{
     font-weight: bold;
     width: 0px;
 }
-
+span.sgSom{
+    cursor: pointer;
+    position: relative;
+    width: 0px;
+    color: #a5a5a5;
+    font-size: 22px;
+    left: 20px;
+    top: 0px;
+}
+span.sgSom:hover{
+    transition: .3s ease 0s;
+    color: #f8f8f2;
+}
 .switch {
     position: absolute;
     margin-left: -9999px;

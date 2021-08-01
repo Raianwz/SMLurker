@@ -19,7 +19,30 @@
     display: flex;
     flex-direction: column;
 }
-
+.loading{
+    position: fixed;
+    background-color: #222325d0;
+    background-image: url('./extra/load.gif');
+    background-repeat: no-repeat;
+    cursor: wait;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-position-x: center;
+    background-position-y: 40px;
+    user-select: none;
+}
+.loading::after{
+    display: flex;
+    cursor: wait;
+    content: 'Aplicando Alterações';
+    position: relative;
+    font-weight: bolder;
+    top: 40px;
+    justify-content: center;
+    font-size: 21px;
+    align-items: center;
+}
 /********************************
 *********** Header **************
 ********************************/

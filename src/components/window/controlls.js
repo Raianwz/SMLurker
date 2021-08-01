@@ -1,6 +1,5 @@
 let tmpTray;
 Controlls()
-clipMenu()
 SkipHideNotify()
 
 function Controlls() {
@@ -13,6 +12,7 @@ function Controlls() {
         wButton('hideWindow').addEventListener('click', () => hideWindow())
         wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
         document.querySelector('header h1#sm').innerText += ` Beta ${getVersion()}`;
+        clipMenu()
     }
 }
 
@@ -26,7 +26,7 @@ function SkipHideNotify() {
 
 function hideWindow() {
     const { remote: { app, Menu, Tray, getCurrentWindow, ipcMain, nativeImage: { createFromPath } } } = require('electron')
-    const path = require('path'), win = getCurrentWindow(), env = require('../src/components/env');
+    const path = require('path'), win = getCurrentWindow(), env = require('../src/components/helpers/env');
     let dist = process.resourcesPath, distFile = 'assets';
     let tray = null;
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
@@ -69,45 +69,59 @@ function hideWindow() {
 };
 
 function clipMenu() {
-    const { remote: { Menu, getCurrentWindow } } = require('electron');
+    const { remote: { app, Menu, getCurrentWindow, ipcMain: {emit} } } = require('electron');
     const mainWindow = getCurrentWindow();
+    const InputMenu = Menu.buildFromTemplate([{
+        label: 'Desfazer',
+        role: 'undo',
+        accelerator: 'CmdOrCtrl+Z',
+    }, {
+        label: 'Refazer',
+        role: 'redo',
+        accelerator: 'CmdOrCtrl+Y',
+
+    }, {
+        type: 'separator',
+    }, {
+        label: 'Recortar',
+        role: 'cut',
+        accelerator: 'CmdOrCtrl+X',
+    }, {
+        label: 'Copiar',
+        role: 'copy',
+        accelerator: 'CmdOrCtrl+C',
+    }, {
+        label: 'Colar',
+        role: 'paste',
+        accelerator: 'CmdOrCtrl+V',
+    }, {
+        type: 'separator',
+    }, {
+        label: 'Selecionar Tudo',
+        role: 'selectall',
+        accelerator: "CmdOrCtrl+A",
+    },
+    ]);
+    const ShortMenu = Menu.buildFromTemplate([{
+        label: 'Recarregar',
+        role: 'reload',
+        accelerator: 'CmdOrCtrl+R'
+    },{
+        type: 'separator'
+    },{
+        label: 'Reiniciar',
+        click: ()=>{app.relaunch();app.quit()},
+    }])
+    
+    document.querySelector('svg[name="menuConfig"]').addEventListener('click',()=>{
+        ShortMenu.popup(mainWindow);
+    })
     window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        const InputMenu = Menu.buildFromTemplate([{
-            label: 'Desfazer',
-            role: 'undo',
-            accelerator: 'CmdOrCtrl+Z',
-        }, {
-            label: 'Refazer',
-            role: 'redo',
-            accelerator: 'CmdOrCtrl+Y',
-
-        }, {
-            type: 'separator',
-        }, {
-            label: 'Recortar',
-            role: 'cut',
-            accelerator: 'CmdOrCtrl+X',
-        }, {
-            label: 'Copiar',
-            role: 'copy',
-            accelerator: 'CmdOrCtrl+C',
-        }, {
-            label: 'Colar',
-            role: 'paste',
-            accelerator: 'CmdOrCtrl+V',
-        }, {
-            type: 'separator',
-        }, {
-            label: 'Selecionar Tudo',
-            role: 'selectall',
-            accelerator: "CmdOrCtrl+A",
-        },
-        ]);
-        if (e.target.type === "text" || e.target.type === "textarea" || e.target.type === "password") {
+        let ele = e.target
+        if (ele.type === "text" || ele.type === "textarea" || ele.type === "password") {
             InputMenu.popup(mainWindow);
         }
-
     })
 
 }

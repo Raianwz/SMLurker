@@ -1,5 +1,5 @@
 const { ipcMain, BrowserWindow, shell} = require('electron');
-const environment = require('./env');
+const environment = require('./helpers/env');
 let configWindow;
 
 ipcMain.on('openConfigs', () =>{

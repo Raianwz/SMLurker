@@ -1,9 +1,9 @@
 const tmi = require('tmi.js'), fs = require('fs'), path = require('path');
 const { remote: { app, Notification } } = require('electron');
-const env = require('../src/components/env');
+const env = require('../src/components/helpers/env');
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
-const CreateConfigs = require(path.resolve(__dirname, '../src/components/configs/helper'));
-const getUser = (user) => { fetch(`https://api.twitch.tv/kraken/users?login=${user}`, { headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': 'snq57nbghk8n01y6amef3n4l06no8o' } }).then(async (resp) => { const dados = await resp.json(); return userData = dados }) }
+const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/createConfigs'));
+const getUser = (user) => { fetch(`https://api.chatwz.ga/api/smlurker/${user}`).then(async (resp) => { const dados = await resp.json(); return userData = dados }) }
 let userData = null;
 let client = null;
 loadCredentials();
@@ -150,8 +150,8 @@ async function loadCredentials() {
 
 function criarUser() {
     let userbox = document.getElementById('UserBox')
-    let logo = userData.users[0].logo;
-    let displayName = userData.users[0].display_name
+    let logo = userData.profile_image_url;
+    let displayName = userData.display_name;
     userbox.innerHTML = "";
     userbox.innerHTML = `<p>${displayName}</p><img class="avatar" src="${logo}" alt="${displayName}">`
 }
@@ -209,8 +209,10 @@ function pingMessages(clear) {
     const element = (el) => document.querySelector(el)
     const inText = (el, text) => el.innerText = text
     const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬 Texto: 0/4000`); inText(mTotal, `🔔 Menções: 0`) }
-    const DisplayName = userData.users[0].display_name, UserName = DisplayName.toLowerCase();
+    const DisplayName = userData.display_name, UserName = userData.login;
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+    const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/870396181174452224/gift.mp3');
+    audio.volume= 0.30
 
     let dist = process.resourcesPath;
     let distFile = 'assets';
@@ -234,9 +236,8 @@ function pingMessages(clear) {
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
             LoadNotifySub(channel, username, recipient)
         }
-        console.log(`SubGift aconteceu em ${channel}\n ${username} deu para ${recipient}`)
     })
-
+    element('.sgSom').addEventListener('click', () => audio.play());
     element('[name="clearPing"]').addEventListener('click', () => resetTable());
     clear == true ? resetTable() : false
 
@@ -248,7 +249,7 @@ function pingMessages(clear) {
                 new Notification({
                     icon: mention, title: `Mencionado em ${channel}`,
                     body: `Você foi mencionado em ${channel} por @${tags.username}: ${message}`,
-                    timeoutType: 'default', urgency: 'low',
+                    timeoutType: 'default', urgency: 'low'
                 }).show()
             }
         }
@@ -256,7 +257,6 @@ function pingMessages(clear) {
 
     function LoadNotifySub(channel, username, recipient) {
         if (fs.existsSync(configPath)) {
-            let audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/870396181174452224/gift.mp3');
             let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
             if (configs.NotifyGift === true) {
                 let gift = path.join(dist, `${distFile}/gift.png`);

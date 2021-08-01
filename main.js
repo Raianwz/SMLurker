@@ -1,7 +1,7 @@
 const { app, BrowserWindow, shell, Notification } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
-const env = require('./src/components/env')
+const env = require('./src/components/helpers/env')
 let mainWindow;
 require('./src/components/ipc');
 

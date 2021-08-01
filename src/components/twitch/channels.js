@@ -1,5 +1,6 @@
-const clearInputs = (log) => { newChannelInput.focus(); log.innerHTML = ''; }
 const getEl = (el) => document.querySelector(el)
+const Clog = (txt) => getEl('#canalLog').innerText = txt;
+const clearInputs = () => { newChannelInput.focus(); Clog(''); }
 let dialogOpen = false;
 Listiners()
 
@@ -28,30 +29,28 @@ function loadChannelsFromFile() {
 
         let data = fs.readFileSync(file[0], { encoding: 'utf8' });
         let channels = data.replace(/ /g, '').split(',');
-        let loadStatus = getEl('#canalLog');
 
         channels = fixChannels(channels);
         fs.writeFileSync(channelFilePath, JSON.stringify(channels));
-        loadStatus.innerHTML = 'Arquivo adicionado!';
-        dialog = false;
+        Clog('Arquivo adicionado!');
+        dialogOpen = false;
     }
 }
 
 let newChannelInput = getEl('#txtCanal');
-newChannelInput.onchange = () => newChannelInput.classList.remove('warn');
+newChannelInput.onchange = () => {newChannelInput.classList.remove('warn'); Clog('')};
 
 function addCanal() {
     const { remote: { app } } = require('electron');
     const fs = require('fs');
     let channels = newChannelInput.value.toLowerCase();
-
-    let log = getEl('#canalLog');
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
+    let onList = false;
 
     if (!channels || !channels.replace(/ /g, '')) {
         newChannelInput.classList.add('warn');
-        log.innerHTML = 'Por favor digite algo';
-        setTimeout(() => { clearInputs(log); newChannelInput.classList.remove('warn') }, 60 * 1000);
+        Clog('Por favor digite algo');
+        setTimeout(() => { clearInputs(); newChannelInput.classList.remove('warn') }, 60 * 1000);
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
@@ -59,30 +58,34 @@ function addCanal() {
     if (fs.existsSync(channelsFilePath)) {
         let oldChannels = fs.readFileSync(channelsFilePath);
         oldChannels = JSON.parse(oldChannels);
-        channels.forEach(channel => { oldChannels.push(channel) });
-
-        fs.writeFileSync(channelsFilePath, JSON.stringify(oldChannels));
-        log.innerHTML = `Adicionado com Sucesso!`;
-        newChannelInput.value = "";
-        setTimeout(() => clearInputs(log), 1.75 * 1000);
+        for (let x in channels) {
+            if (oldChannels.includes(channels[x])) onList = true;
+        }
+        if (!onList) {
+            channels.forEach(channel => { oldChannels.push(channel) });
+            fs.writeFileSync(channelsFilePath, JSON.stringify(oldChannels));
+            Clog(`Adicionado com Sucesso!`);
+            newChannelInput.value = "";
+            setTimeout(() => clearInputs(), 1.75 * 1000);
+        }else{
+            Clog(`${JSON.stringify(channels).replace(/[\[\#\]"]/g,'')} já existe em sua lista!📝`);
+        }
     } else {
         fs.writeFileSync(channelsFilePath, JSON.stringify(channels));
-        log.innerHTML = `Adicionado com Sucesso!`;
+        Clog(`Adicionado com Sucesso!`);
         newChannelInput.value = "";
-        setTimeout(() => clearInputs(log), 1.75 * 1000);
+        setTimeout(() => clearInputs(), 1.75 * 1000);
     }
 }
 function removerCanal() {
     const { remote: { app } } = require('electron');
     const fs = require('fs');
     let channels = newChannelInput.value.toLowerCase();
-
-    let log = getEl('#canalLog');
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
 
     if (!channels || !channels.replace(/ /g, '')) {
         newChannelInput.classList.add('warn');
-        log.innerHTML = 'Por favor digite algo';
+        Clog('Por favor digite algo');
         return;
     }
 
@@ -105,18 +108,18 @@ function removerCanal() {
                 );
             }
             fs.writeFileSync(channelsFilePath, JSON.stringify(currentChannels));
-            log.innerHTML = "Removido com Sucesso!";
-            setTimeout(() => { clearInputs(log); newChannelInput.value = ""; }, 2.75 * 1000);
+            Clog("Removido com Sucesso!");
+            setTimeout(() => { clearInputs(); newChannelInput.value = ""; }, 2.75 * 1000);
         } else {
             newChannelInput.classList.add('warn');
-            log.innerHTML = 'Canal não encontrado!';
-            setTimeout(() => { clearInputs(log); newChannelInput.value = ""; }, 15 * 1000);
+            Clog('Canal não encontrado!');
+            setTimeout(() => { clearInputs(); newChannelInput.value = ""; }, 15 * 1000);
             return;
         }
     } else {
         newChannelInput.classList.add('warn');
-        log.innerHTML = 'Você não tem nenhum canal para remover!';
-        setTimeout(() => { clearInputs(log); newChannelInput.value = ""; }, 60 * 1000);
+        Clog('Você não tem nenhum canal para remover!');
+        setTimeout(() => { clearInputs(); newChannelInput.value = ""; }, 60 * 1000);
         return;
     }
 }

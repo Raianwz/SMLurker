@@ -1,7 +1,6 @@
 const fs = require('fs');
 const { remote: {app} } = require('electron');
-const path = require('path');
-const sleep = require(path.resolve(__dirname,'./sleep'));
+const sleep = require('../helpers/sleep');
 
 module.exports = async client =>{
     let channelPath=`${app.getPath('userData')}\\Config\\channels.json`,
