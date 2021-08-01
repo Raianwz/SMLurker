@@ -247,8 +247,8 @@ function pingMessages(clear) {
             if (configs.NotifyMe === true) {
                 let mention = path.join(dist, `${distFile}/metion.png`);
                 new Notification({
-                    icon: mention, title: `Mencionado em ${channel}`,
-                    body: `Você foi mencionado em ${channel} por @${tags.username}: ${message}`,
+                    icon: mention, title: `Mencionado(a) em ${channel}`,
+                    body: `Você foi mencionado(a) em ${channel} por @${tags.username}: ${message}`,
                     timeoutType: 'default', urgency: 'low'
                 }).show()
             }
