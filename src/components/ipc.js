@@ -1,10 +1,8 @@
-const { ipcMain, BrowserWindow} = require('electron');
-const shell = require('electron').shell;
-const environment = require('./env');
+const { ipcMain, BrowserWindow, shell} = require('electron');
+const environment = require('./helpers/env');
 let configWindow;
 
 ipcMain.on('openConfigs', () =>{
-
     if(!configWindow){
         configWindow = new BrowserWindow({
             width: 400,
@@ -18,7 +16,9 @@ ipcMain.on('openConfigs', () =>{
             show: false,
             fullscreenable: false,
             webPreferences: {
+              contextIsolation: false,
               nodeIntegration: true,
+              webSecurity: true,
               enableRemoteModule: true
             },
           });
