@@ -1,9 +1,10 @@
 const tmi = require('tmi.js'), fs = require('fs'), path = require('path');
 const { remote: { app, Notification } } = require('electron');
 const env = require('../src/components/helpers/env');
+const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/recreateConfigs'));
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
-const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/createConfigs'));
-const getUser = (user) => { fetch(`https://api.chatwz.ga/api/smlurker/${user}`).then(async (resp) => { const dados = await resp.json(); return userData = dados }) }
+const sleep = require(path.resolve(__dirname, '../src/components/helpers/sleep'));
+const getUser = (user) => { fetch(`https://api.chatwz.ga/api/smlurker/${user}/`).then(async (resp) => { const dados = await resp.json(); return userData = dados }) }
 let userData = null;
 let client = null;
 loadCredentials();
@@ -39,7 +40,6 @@ async function entrarTwitch() {
     btnEntrar.onclick = null;
     status('Iniciando Client');
 
-
     client = new tmi.Client({
         options: { debug: false },
         connection: {
@@ -66,7 +66,7 @@ async function entrarTwitch() {
 
     if (!error) {
         status('Entrando nos canais...');
-
+        getUser(username);
 
         await joinChannels(client).catch(err => {
             error = true;
@@ -77,11 +77,9 @@ async function entrarTwitch() {
             btnEntrar.onclick = entrarTwitch;
             client.disconnect();
             client = null;
-        }).then(() => {
-            saveCredentials(username, pass);
-            getUser(username);
         });
 
+        if (!error) saveCredentials(username, pass);
 
         if (!error) {
             changeButtonSide(btnEntrar, 1)
@@ -99,18 +97,17 @@ async function entrarTwitch() {
 
 async function sairTwitch() {
     await client.disconnect();
-    let userbox = document.getElementById('UserBox')
-    let btnEntrar = document.getElementById('btnEntrar');
-    let status = document.getElementById('msgStatus');
-    userbox.innerHTML = "";
+    const getInner = (e,txt) => document.getElementById(e).innerHTML = txt
+    const btnEntrar = document.getElementById('btnEntrar');
+
+    getInner('UserBox','');
+    getInner('msgStatus','');
     pingMessages(true)
     BlockLogin(false)
     changeButtonSide(btnEntrar, 0)
 
     client = null;
     btnEntrar.blur();
-
-    status.innerHTML = '';
     btnEntrar.value = 'Entrar';
     btnEntrar.classList.remove('conectado');
     btnEntrar.onclick = entrarTwitch;
@@ -135,7 +132,7 @@ async function loadCredentials() {
         credentials = JSON.parse(fs.readFileSync(credentialsPath, { encoding: 'utf8' }));
         getEl('#username').value = credentials.username;
         getEl('#pass').value = credentials.pass;
-        getUser(credentials.username)
+        getUser(credentials.username);
         if (fs.existsSync(configPath)) {
             let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
             getEl('#swt_notifyMe').checked = config.NotifyMe
@@ -150,10 +147,11 @@ async function loadCredentials() {
 
 function criarUser() {
     let userbox = document.getElementById('UserBox')
-    let logo = userData.profile_image_url;
-    let displayName = userData.display_name;
-    userbox.innerHTML = "";
-    userbox.innerHTML = `<p>${displayName}</p><img class="avatar" src="${logo}" alt="${displayName}">`
+    let logo = userData != null ? userData.profile_image_url : 'https://cdn.frankerfacez.com/emoticon/605387/4'
+    let displayName = userData != null ? userData.display_name : '';
+    let userColor =  userData != null ? userData.chatColor : '#9148FF';
+    userbox.innerHTML = ""; //#9148FF
+    userbox.innerHTML = `<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`
 }
 
 function changeButtonSide(btnEntrar, destino) {
@@ -165,6 +163,7 @@ function changeButtonSide(btnEntrar, destino) {
         : loginBox.appendChild(btnEntrar)
     Notify();
     if (destino == 1) {
+        userData != null ? criarUser() : false
         element('.container').style.overflow = 'hidden'
         element('.conectBox').classList.remove('hide')
         element('.mainBox').classList.add('hide')
@@ -212,7 +211,7 @@ function pingMessages(clear) {
     const DisplayName = userData.display_name, UserName = userData.login;
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/870396181174452224/gift.mp3');
-    audio.volume= 0.30
+    audio.volume = 0.30
 
     let dist = process.resourcesPath;
     let distFile = 'assets';

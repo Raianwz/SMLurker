@@ -1,5 +1,6 @@
 const getEl = (el) => document.querySelector(el)
 const Clog = (txt) => getEl('#canalLog').innerText = txt;
+const newChannelInput = getEl('#txtCanal');
 const clearInputs = () => { newChannelInput.focus(); Clog(''); }
 let dialogOpen = false;
 Listiners()
@@ -8,6 +9,7 @@ function Listiners() {
     getEl('input[name="addCanal"]').addEventListener('click', () => addCanal())
     getEl('input[name="removerCanal"]').addEventListener('click', () => removerCanal())
     getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => loadChannelsFromFile())
+    newChannelInput.addEventListener('change', () => { newChannelInput.classList.remove('warn'); Clog('') })
 }
 
 function loadChannelsFromFile() {
@@ -37,8 +39,6 @@ function loadChannelsFromFile() {
     }
 }
 
-let newChannelInput = getEl('#txtCanal');
-newChannelInput.onchange = () => {newChannelInput.classList.remove('warn'); Clog('')};
 
 function addCanal() {
     const { remote: { app } } = require('electron');
@@ -67,8 +67,8 @@ function addCanal() {
             Clog(`Adicionado com Sucesso!`);
             newChannelInput.value = "";
             setTimeout(() => clearInputs(), 1.75 * 1000);
-        }else{
-            Clog(`${JSON.stringify(channels).replace(/[\[\#\]"]/g,'')} já existe em sua lista!📝`);
+        } else {
+            Clog(`${JSON.stringify(channels).replace(/[\[\#\]"]/g, '')} já existe em sua lista!📝`);
         }
     } else {
         fs.writeFileSync(channelsFilePath, JSON.stringify(channels));

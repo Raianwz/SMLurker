@@ -1,6 +1,5 @@
 let tmpTray;
 Controlls()
-SkipHideNotify()
 
 function Controlls() {
     const { remote: { getCurrentWindow, ipcMain, app: { getVersion } } } = require('electron')
@@ -16,17 +15,11 @@ function Controlls() {
     }
 }
 
-function SkipHideNotify() {
-    let value = false;
-    if (localStorage.hasOwnProperty('SkipHideNotify')) {
-        !JSON.parse(localStorage.getItem('SkipHideNotify')) == false ? value : false
-    }
-    localStorage.setItem('SkipHideNotify', `${value}`)
-}
-
 function hideWindow() {
     const { remote: { app, Menu, Tray, getCurrentWindow, ipcMain, nativeImage: { createFromPath } } } = require('electron')
     const path = require('path'), win = getCurrentWindow(), env = require('../src/components/helpers/env');
+    const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
     let dist = process.resourcesPath, distFile = 'assets';
     let tray = null;
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
@@ -35,8 +28,7 @@ function hideWindow() {
     const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' })
     path.join(process.resourcesPath, 'data');
 
-    if (!JSON.parse(localStorage.getItem('SkipHideNotify'))) {
-        localStorage.setItem('SkipHideNotify', true)
+    if (!configs.NotifyTray) {
         const template = [{
             label: 'SM Lurker',
             icon: ezy,
@@ -63,13 +55,16 @@ function hideWindow() {
             content: 'Para abrir a janela dê um clique sobre o icone. Para mais opções clique com botão direito do mouse sobre o icone',
             icon: Resize(ppL),
         })
-        tmpTray = tray
+        win.hide();
+        configs.NotifyTray = true
+        fs.writeFileSync(configPath, JSON.stringify(configs));
+        return tmpTray = tray
     }
     win.hide();
 };
 
 function clipMenu() {
-    const { remote: { app, Menu, getCurrentWindow, ipcMain: {emit} } } = require('electron');
+    const { remote: { app, Menu, getCurrentWindow } } = require('electron');
     const mainWindow = getCurrentWindow();
     const InputMenu = Menu.buildFromTemplate([{
         label: 'Desfazer',
@@ -106,14 +101,14 @@ function clipMenu() {
         label: 'Recarregar',
         role: 'reload',
         accelerator: 'CmdOrCtrl+R'
-    },{
+    }, {
         type: 'separator'
-    },{
+    }, {
         label: 'Reiniciar',
-        click: ()=>{app.relaunch();app.quit()},
+        click: () => { app.relaunch(); app.quit() },
     }])
-    
-    document.querySelector('svg[name="menuConfig"]').addEventListener('click',()=>{
+
+    document.querySelector('svg[name="menuConfig"]').addEventListener('click', () => {
         ShortMenu.popup(mainWindow);
     })
     window.addEventListener('contextmenu', (e) => {
@@ -127,5 +122,11 @@ function clipMenu() {
 }
 
 window.addEventListener('beforeunload', () => {
+    const { remote: { app } } = require('electron')
+    const fs = require('fs');
+    const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
+    configs.NotifyTray = false
+    fs.writeFileSync(configPath, JSON.stringify(configs));
     tmpTray != null ? tmpTray.destroy() : true
 })

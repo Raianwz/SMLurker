@@ -3,11 +3,10 @@ const fs = require('fs'), path = require('path');
 const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch');
 const childprocess = require('child_process');
-const localPath = `${app.getPath('userData')}\\Config`
-const configPath = `${localPath}\\configs.json`;
+const localPath = `${app.getPath('userData')}\\Config`, configPath = `${localPath}\\configs.json`;
 const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
-const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/createConfigs'));
 const sleep = require(path.resolve(__dirname, '../src/components/helpers/sleep'));
+const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/recreateConfigs'));
 const loading = getEl('div[name="loading"]');
 LoadConfigs()
 
@@ -16,9 +15,8 @@ function LoadConfigs() {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
         getEl('#swt_ini').checked = configs.ini;
         getEl('#swt_autologin').checked = configs.autologin;
-    }
-    else { CreateConfigs(configPath) }
-
+    } else CreateConfigs(configPath);
+    
     getEl('#swt_ini').addEventListener('click', () => changeIni())
     getEl('#swt_autologin').addEventListener('click', () => { changeConfigs() })
     getEl('[name="abrirLocal"]').addEventListener('click', () => childprocess.exec(`start ${localPath}`))
@@ -40,12 +38,12 @@ async function changeIni() {
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
         const ppHop = async (value) => {
-            loading.classList.add('loading'); 
+            loading.classList.add('loading');
             await sleep(200);
-            value === 1 ? value = smlurkerAutoLaunch.enable() : value=smlurkerAutoLaunch.disable()
+            value === 1 ? value = smlurkerAutoLaunch.enable() : value = smlurkerAutoLaunch.disable()
             await value.then(loading.classList.remove('loading'))
         }
-        if (configs.ini === true)  ppHop(1)
+        if (configs.ini === true) ppHop(1)
         if (configs.ini === false) ppHop(0)
     }
 }

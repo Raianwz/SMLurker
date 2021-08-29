@@ -1,29 +1,24 @@
 {
-  "name": "SMLurker",
-  "version": "0.1.6",
+  "name": "smlurker",
+  "version": "0.1.7",
   "description": "Twich Lurker app",
   "main": "main.js",
-  "author": "Raianwz",
-  "license": "MIT",
-  "__comment": "electron ^11.2.3, electron-builder ^22.9.1",
   "scripts": {
     "dev": "electron .",
     "pack": "electron-builder --dir",
     "build": "electron-builder --ia32",
     "release": "electron-builder --ia32 --publish always"
   },
-  "devDependencies": {
-    "electron": "13.2.2",
-    "electron-builder": "^22.11.7"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Raianwz/SMLurker"
+    "url": "git+https://github.com/Raianwz/SMLurker.git"
   },
-  "publish": {
-    "provider": "github",
-    "releaseType": "release"
+  "author": "Raianwz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Raianwz/SMLurker/issues"
   },
+  "homepage": "https://github.com/Raianwz/SMLurker#readme",
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",
@@ -51,6 +46,7 @@
     "publish": {
       "provider": "github",
       "owner": "raianwz",
+      "releaseType": "release",
       "repo": "SMLurker"
     },
     "nsis": {
@@ -59,9 +55,13 @@
       "allowElevation": true
     }
   },
+  "devDependencies": {
+    "electron": "^13.2.3",
+    "electron-builder": "^22.11.7"
+  },
   "dependencies": {
     "auto-launch": "^5.0.5",
-    "electron-updater": "^4.3.8",
+    "electron-updater": "^4.3.9",
     "tmi.js": "^1.8.5"
   }
 }

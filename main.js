@@ -1,9 +1,10 @@
-const { app, BrowserWindow, shell, Notification } = require('electron');
+const { app, BrowserWindow, shell } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
-const env = require('./src/components/helpers/env')
-let mainWindow;
+const env = require('./src/components/helpers/env');
+const initConfigs = require('./src/components/helpers/initConfigs');
 require('./src/components/ipc');
+let mainWindow;
 
 function CreateWindow() {
     mainWindow = new BrowserWindow({
@@ -44,8 +45,9 @@ if (isWin) {
     app.setAppUserModelId("com.smlurker");
 }
 
-app.on('ready', function () {
+app.on('ready', () => {
     autoUpdater.checkForUpdatesAndNotify();
+    initConfigs();
 });
 
 app.on('ready', CreateWindow);
@@ -59,10 +61,4 @@ app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
         createWindow();
     }
-})
-
-app.on('activate', () => {
-    setInterval(() => {
-        autoUpdater.checkForUpdatesAndNotify();
-    }, 1000 * 60 * 60);
 })
