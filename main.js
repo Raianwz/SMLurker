@@ -5,6 +5,7 @@ const env = require('./src/components/helpers/env');
 const initConfigs = require('./src/components/helpers/initConfigs');
 require('./src/components/ipc');
 let mainWindow;
+checkFiles();
 
 function CreateWindow() {
     mainWindow = new BrowserWindow({
@@ -41,16 +42,13 @@ function CreateWindow() {
     mainWindow.once('ready-to-show', () => mainWindow.show())
 }
 
-if (isWin) {
-    app.setAppUserModelId("com.smlurker");
-}
+isWin ? app.setAppUserModelId('com.smlurker') : false
 
 app.on('ready', () => {
     autoUpdater.checkForUpdatesAndNotify();
     initConfigs();
+    CreateWindow();
 });
-
-app.on('ready', CreateWindow);
 
 // Quit when all windows are closed. 
 app.on('window-all-closed', () => {
@@ -59,6 +57,14 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow();
+        CreateWindow();
     }
 })
+
+function checkFiles() {
+    const fs = require('fs'), path = require('path');
+    let localPath = `${app.getPath('userData')}\\Config`;
+    if (!fs.existsSync(localPath)) {
+        fs.mkdirSync(localPath, { recursive: true })
+    }
+}

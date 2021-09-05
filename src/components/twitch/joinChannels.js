@@ -7,10 +7,7 @@ let y = 0, durantion;
 
 module.exports = async client => {
     let channelPath = `${app.getPath('userData')}\\Config\\channels.json`,
-        channels,
-        cnCount = getEl('#cnCount'),
-        cnTotal = getEl('#cntotal'),
-        txtArea = getEl('#pTable'),
+        channels, cnCount = getEl('#cnCount'), cnTotal = getEl('#cntotal'), txtArea = getEl('#pTable'),
         tmp = genTimer();
 
     if (!fs.existsSync(channelPath)) {
@@ -20,14 +17,16 @@ module.exports = async client => {
     } else {
         channels = JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8' }));
     }
-    duration = channels.length >= 36 ? channels.length - 34 : channels.length
+    durantion = channels.length >= 36 ? channels.length - 15 : channels.length
 
     while (client.readyState() != 'OPEN') await sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {
-        client.join(channels[x]).catch(err => { });
+        client.join(channels[x]).catch(err => {
+            if (err === 'msg_channel_suspended') removeChannel(`${channels[x]}`)
+        });
         y++
-        x + 1 == 1 ? tmp.iniTimer(duration) : false
+        x + 1 == 1 ? tmp.iniTimer(durantion) : false
         x + 1 == 1 ? waitLoad() : false
         x < 5 ? getText(cnCount, `Entrou em ${x + 1} de ${channels.length} canais.`)
             : getText(cnTotal, `🟢 Entrou: ${x + 1}/${channels.length}`)
@@ -66,20 +65,42 @@ function waitLogin(valor) {
 
 function genTimer() {
     let clock, minutes, seconds;
-
     function iniTimer(timer) {
         clock = setInterval(function () {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
             minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;  
+            seconds = seconds < 10 ? "0" + seconds : seconds;
             getText(getEl('#Mtimer'), `🕘 ${minutes}m ${seconds}s`)
-            if (--timer < 0) {
-                stopTimer()
-            }
+            if (--timer < 0) stopTimer()
         }, 1000);
     }
     function stopTimer() { clearInterval(clock); }
-
     return { iniTimer, stopTimer }
+}
+
+function removeChannel(canal) {
+    const { remote: { app, dialog } } = require('electron');
+    let channels = canal.toString();
+    let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`,
+        BackupChannels = `${app.getPath('desktop')}\\SMLurker_Lista.backup.txt`
+    if (fs.existsSync(channelsFilePath)) {
+        let currentChannels = JSON.parse(fs.readFileSync(channelsFilePath)),
+            onList = false, filtro, errMsg = `O canal ${channels.toUpperCase()} foi removido da sua Lista de Canais\n\tMotivo: Este canal não existe ou foi suspenso.\n\nUm arquivo de backup foi criado em sua área de trabalho!`;
+
+        if (currentChannels.includes(channels)) onList = true;
+        if (onList) {
+            filtro = currentChannels.filter(channel => channel !== channels);
+            currentChannels.sort();
+            currentChannels = JSON.stringify(currentChannels).replace(/[\"\[\]]/g, '');
+            fs.writeFileSync(channelsFilePath, JSON.stringify(filtro));
+            fs.writeFileSync(BackupChannels, currentChannels);
+            dialog.showMessageBoxSync({
+                type: 'info',
+                title: 'Canal Removido — SMLurker',
+                message: errMsg,
+            })
+        }
+
+    }
 }

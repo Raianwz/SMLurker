@@ -6,10 +6,20 @@ let dialogOpen = false;
 Listiners()
 
 function Listiners() {
+    const preventSymbols = (e) => {
+        let regex = new RegExp("^[a-zA-Z0-9_.]+$");
+        let key = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (!regex.test(key)) {
+            e.preventDefault();
+            return false;
+        }
+    }
     getEl('input[name="addCanal"]').addEventListener('click', () => addCanal())
     getEl('input[name="removerCanal"]').addEventListener('click', () => removerCanal())
     getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => loadChannelsFromFile())
-    newChannelInput.addEventListener('change', () => { newChannelInput.classList.remove('warn'); Clog('') })
+    getEl('#username').addEventListener('keypress', e => preventSymbols(e))
+    newChannelInput.addEventListener('keypress', e => preventSymbols(e))
+    newChannelInput.addEventListener('input', () => { newChannelInput.classList.remove('warn'); Clog('') })
 }
 
 function loadChannelsFromFile() {
@@ -50,14 +60,13 @@ function addCanal() {
     if (!channels || !channels.replace(/ /g, '')) {
         newChannelInput.classList.add('warn');
         Clog('Por favor digite algo');
-        setTimeout(() => { clearInputs(); newChannelInput.classList.remove('warn') }, 60 * 1000);
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
 
     if (fs.existsSync(channelsFilePath)) {
-        let oldChannels = fs.readFileSync(channelsFilePath);
-        oldChannels = JSON.parse(oldChannels);
+        let oldChannels = JSON.parse(fs.readFileSync(channelsFilePath));
+        
         for (let x in channels) {
             if (oldChannels.includes(channels[x])) onList = true;
         }
@@ -92,10 +101,8 @@ function removerCanal() {
     channels = fixChannels(channels.replace(/ /g, '').split(','));
 
     if (fs.existsSync(channelsFilePath)) {
-        let currentChannels = fs.readFileSync(channelsFilePath),
+        let currentChannels = JSON.parse(fs.readFileSync(channelsFilePath)),
             onList = false;
-
-        currentChannels = JSON.parse(currentChannels);
 
         for (let x in channels) {
             if (currentChannels.includes(channels[x])) onList = true;

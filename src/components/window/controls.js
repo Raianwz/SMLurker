@@ -1,7 +1,7 @@
 let tmpTray;
-Controlls()
+Controls()
 
-function Controlls() {
+function Controls() {
     const { remote: { getCurrentWindow, ipcMain, app: { getVersion } } } = require('electron')
     const wButton = btn => document.querySelector(`svg[name=${btn}]`)
 
@@ -10,7 +10,7 @@ function Controlls() {
     if (document.querySelector('h1').textContent != 'Configurações') {
         wButton('hideWindow').addEventListener('click', () => hideWindow())
         wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
-        document.querySelector('header h1#sm').innerText += ` Beta ${getVersion()}`;
+        document.querySelector('header h1#sm').innerText += `\tBeta\t${getVersion()}`;
         clipMenu()
     }
 }
@@ -122,11 +122,8 @@ function clipMenu() {
 }
 
 window.addEventListener('beforeunload', () => {
-    const { remote: { app } } = require('electron')
-    const fs = require('fs');
-    const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
-    configs.NotifyTray = false
-    fs.writeFileSync(configPath, JSON.stringify(configs));
-    tmpTray != null ? tmpTray.destroy() : true
+    const { remote: { getCurrentWindow } } = require('electron')
+    let win = getCurrentWindow()
+    win.webContents.session.clearCache().then()
+    win.webContents.session.clearStorageData().then()
 })
