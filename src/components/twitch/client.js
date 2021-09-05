@@ -29,10 +29,7 @@ async function entrarTwitch() {
         }
     }
 
-    if (pass.length < 30 || pass.startsWith(' ') || pass.includes(' ')) {
-        status('Por favor insirá um OAoth válido');
-        return;
-    }
+
 
     BlockLogin(true)
     btnEntrar.value = '';
