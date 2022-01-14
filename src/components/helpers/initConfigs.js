@@ -1,6 +1,6 @@
-const { app } = require('electron');
 const fs = require('fs');
 const CreateConfigs = require('./recreateConfigs')
+const { app } = require('electron');
 
 module.exports = function Configs() {
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;

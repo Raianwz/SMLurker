@@ -53,9 +53,9 @@
             </w-buttons>
         </header>
         <div class="mainBox">
-            <a href="https://imgur.com/a/VCHFo4s" style="width: 0px;height: 0px;">
+            <!-- <a href="https://imgur.com/a/VCHFo4s" style="width: 0px;height: 0px;">
                 <span class="material-icons help">help</a></span>
-            </a>
+            </a> -->
             <div class="loginBox">
                 <p>Twitch Username</p>
                 <input type="text" placeholder="DarkJunin123456" id="username">
@@ -100,26 +100,32 @@
                         <div style="margin-top: 10px;">
                             <input type="checkbox" class="switch switch--shadow" id="swt_notifyGift">
                             <label for="swt_notifyGift"></label>
-                            <p>SubGifts<p class="beta">BETA</p>
-                                <span class="sgSom material-icons" title="Testar Som de SubGift">volume_up</span>
+                            <p>SubGifts</p><span class="sgSom material-icons" title="Testar Som de SubGift">volume_up</span>
                         </div>
                     </switch_container>
+                </div>
+                <div class="hline"></div>
+                <div id="JoinCanalExtra" class="channelsManager">
+                    <p>Gerenciar Canais<span class="beta">BETA</span></p>
+                    <input type="text" id="txtJoinCanal" placeholder="Nome do Canal">
+                    <input id="jc_Join" type="button" class="material-icons add" value="add" title="Entrar no Canal">
+                    <input id="jc_Part" type="button" class="material-icons remove" value="remove" title="Sair do Canal">
+                    <p id="jc_Status" class="status">Caixa vazia!</p>
                 </div>
             </div>
             <div class="vline"></div>
             <div class="mentionsWrapper">
-                <p>Menções</p>
                 <textarea name="pTable" id="pTable" cols="49" rows="9" disabled></textarea>
                 <div id="mentionsbar">
-                    <span id="Mtimer" title="Tempo Estimado">🕘--:--</span>
+                    <span id="Mtimer">🕘--:--</span>
                     <span id="cntotal">&#x1F7E3 Canais: 0</span>
                     <span id="Mtotal">&#x1F514 Menções: 0</span>
                     <span id="Ptotal">&#x1F4AC Texto: 0/4000</span>
-                    <input name="clearPing" title="Limpar Pings" type="button" class="material-icons delete"
-                        value="delete_sweep">
+                    <span name="clearPing" class="delete">Limpar Texto<span class="material-icons">delete_sweep</span></span>
                 </div>
             </div>
         </div>
+        <p class="version"></p>
     </div>
     <script src="../src/components/window/controls.js"></script>
     <script src="../src/components/twitch/client.js"></script>

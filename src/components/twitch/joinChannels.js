@@ -1,6 +1,8 @@
-const fs = require('fs');
-const { remote: { app } } = require('electron');
+const fs = require('fs'), path = require('path');
+const { app } = require('@electron/remote');
 const sleep = require('../helpers/sleep');
+const env = require('../helpers/env');
+const { dirname } = require('path');
 const getEl = (el) => document.querySelector(el)
 const getText = (el, txt) => el.textContent = `${txt}`
 let y = 0, durantion;
@@ -10,6 +12,8 @@ module.exports = async client => {
         channels, cnCount = getEl('#cnCount'), cnTotal = getEl('#cntotal'), txtArea = getEl('#pTable'),
         tmp = genTimer();
 
+        if(env(app)==='DEV') channelPath = path.join(__dirname,'../../../DevData/channels.json');
+
     if (!fs.existsSync(channelPath)) {
         throw 'Nenhum canal adicionado, por favor adicione um canal';
     } else if (JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8' })).length <= 0) {
@@ -17,7 +21,7 @@ module.exports = async client => {
     } else {
         channels = JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8' }));
     }
-    durantion = channels.length >= 36 ? channels.length - 15 : channels.length
+    durantion = channels.length;
 
     while (client.readyState() != 'OPEN') await sleep(1000);
 
@@ -44,16 +48,16 @@ module.exports = async client => {
 };
 
 async function waitLoad() {
-    getEl('#pTable').value = `\n🔸A Twitch atualizou e agora só será possivel se conectar em até 20 Canais em menos de 10 segundos, acima disso o servidor irá lhe desconectar.\n🔹A Solução foi colocar sua lista em uma fila onde a cada 18 Canais um delay de 10s é aplicado.`;
+    getEl('#pTable').value = `\n\n\n🔸Só é possivel se conectar em até 20 Canais em menos de 10 segundos, acima disso a Twitch irá lhe desconectar.\n🔹A Solução foi colocar sua lista em uma fila onde a cada 18 Canais um delay de 10s é aplicado.`;
     criarUser();
     changeButtonSide(getEl('#btnEntrar'), 1);
     waitLogin(true)
 }
 
 function waitLogin(valor) {
-    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]', '.sgSom']
+    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]', '.sgSom','#JoinCanalExtra']
     const Mtitle = (txt) => getEl('.mentionsWrapper').children[0].textContent = txt
-    valor == true ? Mtitle('🚨ATENÇÃO🚨') : Mtitle('Menções')
+    valor == true ? getEl('.mentionsWrapper').children[0].style.fontWeight = 100 : getEl('.mentionsWrapper').children[0].removeAttribute('style')
     valor == true ? valor = 'hidden' : valor = 'visible';
     valor == true ? tmp.iniTimer(durantion) : false
     valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
@@ -71,7 +75,7 @@ function genTimer() {
             seconds = parseInt(timer % 60, 10);
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
-            getText(getEl('#Mtimer'), `🕘 ${minutes}m ${seconds}s`)
+            getText(getEl('#Mtimer'), `Tempo Estimado🕘 ${minutes}m ${seconds}s`)
             if (--timer < 0) stopTimer()
         }, 1000);
     }
@@ -80,7 +84,7 @@ function genTimer() {
 }
 
 function removeChannel(canal) {
-    const { remote: { app, dialog } } = require('electron');
+    const { app, dialog } = require('@electron/remote');
     let channels = canal.toString();
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`,
         BackupChannels = `${app.getPath('desktop')}\\SMLurker_Lista.backup.txt`

@@ -1,3 +1,4 @@
+const { initialize, enable } = require('@electron/remote/main'); initialize();
 const { app, BrowserWindow, shell } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
@@ -11,8 +12,8 @@ function CreateWindow() {
     mainWindow = new BrowserWindow({
         title: 'SM Lurker',
         icon: './src/assets/icon.ico',
-        width: 800,
-        height: 400,
+        width: 840,
+        height: 500,
         resizable: false,
         frame: false,
         transparent: true,
@@ -26,6 +27,7 @@ function CreateWindow() {
             enableRemoteModule: true,
         }
     })
+    enable(mainWindow.webContents);
     mainWindow.loadFile('./app/index.html')
 
     //Open Links in Browser
@@ -45,9 +47,9 @@ function CreateWindow() {
 isWin ? app.setAppUserModelId('com.smlurker') : false
 
 app.on('ready', () => {
-    autoUpdater.checkForUpdatesAndNotify();
     initConfigs();
     CreateWindow();
+    //autoUpdater.checkForUpdatesAndNotify();
 });
 
 // Quit when all windows are closed. 
@@ -62,9 +64,14 @@ app.on('activate', () => {
 })
 
 function checkFiles() {
-    const fs = require('fs'), path = require('path');
+    const fs = require('fs');
     let localPath = `${app.getPath('userData')}\\Config`;
     if (!fs.existsSync(localPath)) {
         fs.mkdirSync(localPath, { recursive: true })
     }
 }
+setInterval(() => {
+    console.log("\nProcurandinhu por atualizacoes... \n")
+    if(env(app)=="DEV") console.log("Nada acontece feijoada :)")
+    else autoUpdater.checkForUpdatesAndNotify();
+}, 1000 * 60 * 60);

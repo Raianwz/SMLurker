@@ -6,6 +6,7 @@
     border-bottom-right-radius: 5px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    overflow: hidden;
 }
 
 .hide {
@@ -25,15 +26,15 @@
 
 #Ptotal {
     width: 156px;
-    margin-left: -25px;
+    margin-right: -60px;
 }
 
 /*Linha Vertical*/
 .vline {
     border-left: 1px #18191b solid;
     height: 90vh;
-    margin-top: -25px;
 }
+
 /*Linha Horizontal*/
 .hline {
     border-top: 1px var(--purple) solid;
@@ -41,6 +42,7 @@
     margin-top: 15px;
     margin-left: 8px;
 }
+
 /* Animações de Entrada e Saida */
 @keyframes slide-in {
     0% {
@@ -123,7 +125,7 @@ header w-buttons svg path {
 }
 
 svg[name="menuConfig"] {
-    margin-left: 8px;
+    margin-left: 15px;
 }
 
 .gearConfig {
@@ -168,6 +170,7 @@ svg[name="menuConfig"]:hover path,
     background-color: var(--red);
     box-shadow: 9px 0px 0px 0.2px var(--red), -11px 0px 0px 0.2px var(--red);
 }
+
 /************************************************
 *******************[Wrappers & Boxes]*************
 ************************************************/
@@ -175,22 +178,19 @@ svg[name="menuConfig"]:hover path,
 div.conectBox,
 div.mainBox {
     display: flex;
-    margin-top: 30px;
     width: 100vw;
 }
 
 .UserWrapper {
-    width: 20%;
-    height: 93vh;
-    margin-top: -30px;
+    width: 22vw;
+    height: 100vh;
     background-color: #18191c;
 }
 
 .UserWrapper #UserBox {
     text-align: center;
-    margin-top: 3em;
+    margin-top: 1.8em;
 }
-
 /********************************
 ***********[Login Box]************
 ********************************/
@@ -201,7 +201,9 @@ div.loginBox {
 div.loginBox,
 div.channelsManager {
     text-align: center;
+    height: fit-content;
     margin-inline: 20px;
+    margin-top: 4em;
 }
 
 .loading,
@@ -229,14 +231,14 @@ div.channelsManager {
 }
 
 .loginBox p {
-    margin-top: 12px;
+    margin-top: 15px;
     font-weight: bold;
 }
 
 .channelsManager input[type='text']:focus,
 .channelsManager input[type='text']:hover {
     transition: .2s ease-in-out 0s;
-    width: 70%;
+    width: 75%;
     background-color: #FFF;
     box-shadow: 0px 0px 0px 2px var(--purple);
 }
@@ -246,7 +248,7 @@ div.channelsManager {
 .loginBox input[type='password']:focus,
 .loginBox input[type='text']:focus {
     transition: .2s ease-in-out 0s;
-    width: 76%;
+    width: 78%;
     background-color: #FFF;
     box-shadow: 0px 0px 0px 2px var(--blue);
 }
@@ -260,18 +262,17 @@ div.channelsManager {
     background-color: var(--disable);
     color: white;
     cursor: not-allowed;
-    width: 70%;
+    width: 75%;
     text-align: center;
     box-shadow: none;
 }
 
 .channelsManager input[type='text'],
-.channelsManager input[type='text'],
 .loginBox input[type='password'],
 .loginBox input[type='text'] {
-    margin-top: 4px;
+    margin-top: 5px;
     border-radius: 20px;
-    width: 70%;
+    width: 75%;
     height: 25px;
     padding: 2px 10px 2px 10px;
     font-size: 16px;
@@ -280,13 +281,14 @@ div.channelsManager {
 }
 
 .loginBox .help {
-    display: flex;
-    flex-direction: row-reverse;
-    width: 82%;
+    display: inline-flex;
+    width: 75%;
+    justify-content: end;
 }
 
 .loginBox .help p {
-    margin-top: 3px;
+    margin-top: 8.5px;
+    margin-bottom: 10px;
     font-size: 13.5px;
     text-align: center;
     color: var(--blue);
@@ -405,6 +407,29 @@ a span:hover::after {
     font-weight: bold;
 }
 
+.UserWrapper .channelsManager{
+    text-align: center;
+    width: 100%;
+    margin-inline: 0px;
+    margin-top: 5px;
+}
+.UserWrapper .channelsManager input[type="button"] {
+    width: 40%;
+    margin-left: 0px;
+    height: 25px;
+    display: inline-flex;
+    text-align: center;
+    justify-content: center;
+}
+.UserWrapper .channelsManager input[type='text']{
+    width: 80%;
+}
+
+.UserWrapper .channelsManager input[type='text']:focus,
+.UserWrapper .channelsManager input[type='text']:hover{
+    width: 90%;
+}
+
 /*************************************************
 ********Botões Adicionar & Remover Canais*********
 *************************************************/
@@ -414,7 +439,7 @@ a span:hover::after {
     border: 1px #0099ff solid;
     transition: .5s ease 0s;
 }
-
+.UserWrapper input[type="button"].remove,
 .delete,
 .remove {
     background-color: #d4414100;
@@ -428,7 +453,7 @@ a span:hover::after {
     background-color: var(--blue);
     transition: .5s ease 0s;
 }
-
+.UserWrapper input[type="button"].remove:hover,
 .delete:hover,
 .remove:hover {
     color: #ffffff;
@@ -476,7 +501,7 @@ a span:hover::after {
 
 .channelsManager .status {
     font-weight: 300;
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 #canalLog i {
@@ -521,20 +546,30 @@ a span:hover::after {
     border: 2px solid;
     transition: 1.5s ease-in-out 0s;
 }
+.version{
+    position: fixed;
+    z-index: 1;
+    bottom: 6px;
+    left: 13px;
+    font-size: 14px;
+    color: #ff5555;
+    font-weight: bold;
+}
 /**************************************
 ****************Table de Pings*********
 ***************************************/
 div#mentionsbar {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
 }
 
-div#mentionsbar input[name="clearPing"] {
+div#mentionsbar span[name="clearPing"] {
     cursor: pointer;
-    width: 40px;
+    display: flex;
     border-radius: 5px;
     margin-right: 10px;
+    padding: 0px 5px;
 }
 
 #Mtimer {
@@ -549,8 +584,7 @@ div#mentionsbar input[name="clearPing"] {
 }
 
 .mentionsWrapper {
-    margin-left: 15px;
-    margin-top: -20px;
+    margin-left: 10px;
 }
 
 .mentionsWrapper p {
@@ -558,15 +592,13 @@ div#mentionsbar input[name="clearPing"] {
 }
 
 textarea {
-    resize: vertical;
+    resize: none;
     border-radius: 10px;
     display: inline-block;
     padding: 6px 2px 0px 5px;
-    margin: 6px 6px 0px;
-    width: 600px;
-    height: 220px;
-    min-height: 180px;
-    max-height: 260px;
+    margin: 10px 0px 0px;
+    width: 75.5vw;
+    height: 80vh;
     background-color: #0c0c0c;
     color: #FFF;
 }
@@ -621,14 +653,16 @@ switch_container div {
 switch_container div p {
     margin-inline: 5px;
 }
-
+.UserWrapper .channelsManager .beta,
 p.beta {
     font-size: 11px;
-    margin-left: -8px;
-    margin-top: -6px;
     color: #ff5555;
     font-weight: bold;
     width: 0px;
+    position: relative;
+    margin-left: -25px;
+    bottom: 12px;
+    left: 20px;
 }
 
 span.sgSom {
@@ -637,7 +671,6 @@ span.sgSom {
     width: 0px;
     color: #a5a5a5;
     font-size: 22px;
-    left: 20px;
     top: 0px;
 }
 

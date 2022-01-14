@@ -2,7 +2,7 @@ let tmpTray;
 Controls()
 
 function Controls() {
-    const { remote: { getCurrentWindow, ipcMain, app: { getVersion } } } = require('electron')
+    const { getCurrentWindow, ipcMain, app: { getVersion } } = require('@electron/remote')
     const wButton = btn => document.querySelector(`svg[name=${btn}]`)
 
     wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
@@ -10,22 +10,25 @@ function Controls() {
     if (document.querySelector('h1').textContent != 'Configurações') {
         wButton('hideWindow').addEventListener('click', () => hideWindow())
         wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
-        document.querySelector('header h1#sm').innerText += `\tBeta\t${getVersion()}`;
+        document.querySelector('p.version').innerText += `V\t${getVersion()}\tbeta`;
         clipMenu()
     }
 }
 
 function hideWindow() {
-    const { remote: { app, Menu, Tray, getCurrentWindow, ipcMain, nativeImage: { createFromPath } } } = require('electron')
+    const { Menu, Tray, getCurrentWindow, ipcMain, nativeImage: { createFromPath } } = require('@electron/remote');
+    const app = require('@electron/remote').app;
+    console.log(app.getPath)
     const path = require('path'), win = getCurrentWindow(), env = require('../src/components/helpers/env');
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
+    console.log(configs)
     let dist = process.resourcesPath, distFile = 'assets';
     let tray = null;
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
 
     const ppL = path.join(dist, `${distFile}/ppL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
-    const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' })
+    const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256' })
     path.join(process.resourcesPath, 'data');
 
     if (!configs.NotifyTray) {
@@ -45,6 +48,7 @@ function hideWindow() {
         }]
         const contextMenu = Menu.buildFromTemplate(template);
         tray = new Tray(ppL)
+        console.log(tray)
         tray.setToolTip('SM Twitch Lurker')
         tray.setContextMenu(contextMenu)
         tray.on('click', () => {
@@ -64,7 +68,7 @@ function hideWindow() {
 };
 
 function clipMenu() {
-    const { remote: { app, Menu, getCurrentWindow } } = require('electron');
+    const { app, Menu, getCurrentWindow } = require('@electron/remote');
     const mainWindow = getCurrentWindow();
     const InputMenu = Menu.buildFromTemplate([{
         label: 'Desfazer',
@@ -122,8 +126,14 @@ function clipMenu() {
 }
 
 window.addEventListener('beforeunload', () => {
-    const { remote: { getCurrentWindow } } = require('electron')
+    const { getCurrentWindow, app } = require('@electron/remote'), fs = require('fs');
+    const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
+    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
     let win = getCurrentWindow()
     win.webContents.session.clearCache().then()
     win.webContents.session.clearStorageData().then()
+    configs.NotifyTray = false
+    fs.writeFileSync(configPath, JSON.stringify(configs));
+    tmpTray != null ? tmpTray.destroy() : true
 })
+

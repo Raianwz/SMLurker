@@ -1,4 +1,5 @@
 const { ipcMain, BrowserWindow, shell} = require('electron');
+const { initialize, enable } = require('@electron/remote/main');
 const environment = require('./helpers/env');
 let configWindow;
 
@@ -22,6 +23,7 @@ ipcMain.on('openConfigs', () =>{
               enableRemoteModule: true
             },
           });
+        enable(configWindow.webContents);
         configWindow.loadFile('./app/configs.html');
 
         configWindow.webContents.on('will-navigate', (event, url) => {

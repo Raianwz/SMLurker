@@ -1,5 +1,5 @@
 const tmi = require('tmi.js'), fs = require('fs'), path = require('path');
-const { remote: { app, Notification } } = require('electron');
+const { app, Notification } = require('@electron/remote')
 const env = require('../src/components/helpers/env');
 const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/recreateConfigs'));
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
@@ -28,8 +28,6 @@ async function entrarTwitch() {
             return;
         }
     }
-
-
 
     BlockLogin(true)
     btnEntrar.value = '';
@@ -94,11 +92,12 @@ async function entrarTwitch() {
 
 async function sairTwitch() {
     await client.disconnect();
-    const getInner = (e,txt) => document.getElementById(e).innerHTML = txt
+    const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
 
-    getInner('UserBox','');
-    getInner('msgStatus','');
+    getInner('UserBox', '');
+    getInner('msgStatus', '');
+    getInner('jc_Status','')
     pingMessages(true)
     BlockLogin(false)
     changeButtonSide(btnEntrar, 0)
@@ -146,7 +145,7 @@ function criarUser() {
     let userbox = document.getElementById('UserBox')
     let logo = userData != null ? userData.profile_image_url : 'https://cdn.frankerfacez.com/emoticon/605387/4'
     let displayName = userData != null ? userData.display_name : '';
-    let userColor =  userData != null ? userData.chatColor : '#9148FF';
+    let userColor = userData != null ? userData.chatColor : '#9148FF';
     userbox.innerHTML = ""; //#9148FF
     userbox.innerHTML = `<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`
 }
@@ -219,16 +218,18 @@ function pingMessages(clear) {
 
     client.on("message", async (channel, tags, message, self) => {
         if (message.includes(UserName) || message.includes(DisplayName)) {
-            pingTable.value += `🔴Canal: ${channel}\n💬 ${tags.username}: ${message}\n`;
+            let time = new Date();
+            pingTable.value += `\n🔴 Canal: ${channel}\t\t${time.getHours()}:${("0" + time.getMinutes()).slice(-2)}:${("0" + time.getSeconds()).slice(-2)}\t\t${("0" + time.getUTCDate()).slice(-2)}/${("0" + time.getUTCMonth()+1).slice(-2)}/${time.getUTCFullYear()}\n💬 ${tags.username}: ${message}\n`;
             ping = pingTable.value
-            ping = ping.replaceAll(' ', '').replace('🔴Canal:', '').replace('💬', '').replace('\n', '')
+            ping = ping.replace(new RegExp(/([🔴,💬,—,\s*,\t*]|\b(Canal)|\b([0-9]+)|((\/)|(:)))/gm),'')
             inText(pTotal, `💬 Texto: ${ping.length}/4000`);
             inText(mTotal, `🔔 Menções: ${mentions += 1}`);
             LoadNotifyMe(channel, tags, message)
+            pingTable.scrollTop = pingTable.scrollHeight;
         }
         pingTable.value.length > 4000 ? resetTable() : false
     });
-    client.on('subgift', async (channel, username, streakMonths, recipient, methods, userstate) => {
+    client.on('subgift', async (channel, username, streakMonths, recipient, userstate) => {
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
             LoadNotifySub(channel, username, recipient)
         }
