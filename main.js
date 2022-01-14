@@ -75,3 +75,4 @@ setInterval(() => {
     if(env(app)=="DEV") console.log("Nada acontece feijoada :)")
     else autoUpdater.checkForUpdatesAndNotify();
 }, 1000 * 60 * 60);
+

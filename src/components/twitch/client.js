@@ -28,7 +28,6 @@ async function entrarTwitch() {
             return;
         }
     }
-
     BlockLogin(true)
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');

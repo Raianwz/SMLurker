@@ -22,7 +22,6 @@ module.exports = async client => {
         channels = JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8' }));
     }
     durantion = channels.length;
-
     while (client.readyState() != 'OPEN') await sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {
@@ -76,6 +75,7 @@ function genTimer() {
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
             getText(getEl('#Mtimer'), `Tempo Estimado🕘 ${minutes}m ${seconds}s`)
+
             if (--timer < 0) stopTimer()
         }, 1000);
     }

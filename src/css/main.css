@@ -191,6 +191,7 @@ div.mainBox {
     text-align: center;
     margin-top: 1.8em;
 }
+
 /********************************
 ***********[Login Box]************
 ********************************/
@@ -592,7 +593,7 @@ div#mentionsbar span[name="clearPing"] {
 }
 
 textarea {
-    resize: none;
+    resize: vertical;
     border-radius: 10px;
     display: inline-block;
     padding: 6px 2px 0px 5px;

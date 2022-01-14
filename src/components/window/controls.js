@@ -22,13 +22,12 @@ function hideWindow() {
     const path = require('path'), win = getCurrentWindow(), env = require('../src/components/helpers/env');
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
-    console.log(configs)
     let dist = process.resourcesPath, distFile = 'assets';
     let tray = null;
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
 
     const ppL = path.join(dist, `${distFile}/ppL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
-    const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256' })
+    const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' })
     path.join(process.resourcesPath, 'data');
 
     if (!configs.NotifyTray) {
@@ -48,7 +47,6 @@ function hideWindow() {
         }]
         const contextMenu = Menu.buildFromTemplate(template);
         tray = new Tray(ppL)
-        console.log(tray)
         tray.setToolTip('SM Twitch Lurker')
         tray.setContextMenu(contextMenu)
         tray.on('click', () => {
@@ -136,4 +134,3 @@ window.addEventListener('beforeunload', () => {
     fs.writeFileSync(configPath, JSON.stringify(configs));
     tmpTray != null ? tmpTray.destroy() : true
 })
-

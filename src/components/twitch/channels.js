@@ -67,7 +67,6 @@ function addCanal() {
 
     if (fs.existsSync(channelsFilePath)) {
         let oldChannels = JSON.parse(fs.readFileSync(channelsFilePath));
-
         for (let x in channels) {
             if (oldChannels.includes(channels[x])) onList = true;
         }
