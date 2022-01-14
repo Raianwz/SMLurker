@@ -1,4 +1,4 @@
-const { remote: { app, dialog } } = require('electron');
+const { app, dialog } = require('@electron/remote');
 const fs = require('fs'), path = require('path');
 const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch');
