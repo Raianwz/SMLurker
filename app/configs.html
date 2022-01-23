@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <title>SMLurker</title>
-    <link rel="stylesheet" href="../src/css/configs.css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+        rel="stylesheet">
     <link rel="stylesheet" href="../src/css/index.css">
+    <link rel="stylesheet" href="../src/css/configs.css">
 </head>
 
 <body>
@@ -33,28 +36,33 @@
         <div name="loading"></div>
         <div class="configBox">
             <div class="switch__container">
-                <div style="display: inline-flex;margin-top: 15px;">
+                <div>
                     <input type="checkbox" class="switch switch--shadow" id="swt_ini">
                     <label for="swt_ini"></label>
-                    <p style="padding-left:15px">Iniciar com Windows</p>
+                    <p>Iniciar com Windows</p>
                 </div>
-                <div style="display: inline-flex; margin-top: 15px;">
+                <div>
                     <input type="checkbox" class="switch switch--shadow" id="swt_autologin">
                     <label for="swt_autologin"></label>
-                    <p style="padding-left:15px">Login Autómatico</p>
+                    <p>Login Autómatico</p>
+                </div>
+                <div>
+                    <input type="checkbox" class="switch switch--shadow" id="swt_inimin">
+                    <label for="swt_inimin"></label>
+                    <p>Iniciar Minimizado</p>
                 </div>
             </div>
             <div class="configButtons">
-                <svg height="24px" viewBox="0 0 24 24" width="24px" class="folder" name="abrirLocal">
-                    <path d="M0 0h24v24H0z" fill="none" />
-                    <path
-                        d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8h-8v-1c0-1.33 2.67-2 4-2s4 .67 4 2v1z" />
+                <svg viewBox="0 0 24 24" class="folder" name="abrirLocal">
+                    <path d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
                 </svg>
-                <p style="height: 1px;padding-top: 10px;padding-left:15px">Local dos Arquivos</p>
+                <p>Local dos Arquivos</p>
             </div>
             <div class="configButtons">
-                <span class="material-icons" name="exportarLista">description</span>
-                <p style="height: 1px;padding-top: 6px;padding-left: 15px;">Exportar Lista em txt</p>
+                <svg viewBox="0 0 24 24" name="exportarLista"]>
+                    <path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
+                </svg>
+                <p>Exportar Lista em txt</p>
             </div>
         </div>
     </div>

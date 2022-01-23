@@ -1,12 +1,13 @@
-*{
-    --fundo:#282b30;
+* {
+    --fundo: #282b30;
     --disable: #747f8d;
-    --text:#ffffff;
+    --text: #ffffff;
     --blue: #0099ff;
-    --red:#f04747;
+    --red: #f04747;
     --purple: #9148ff;
 }
-.container{
+
+.container {
     background-color: #222325;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -15,11 +16,13 @@
     border-top-right-radius: 5px;
     transition: .6s ease-in-out;
 }
-.configBox{
+
+.configBox {
     display: flex;
     flex-direction: column;
 }
-.loading{
+
+.loading {
     position: fixed;
     background-color: #222325d0;
     background-image: url('./extra/load.gif');
@@ -32,7 +35,8 @@
     background-position-y: 40px;
     user-select: none;
 }
-.loading::after{
+
+.loading::after {
     display: flex;
     cursor: wait;
     content: 'Aplicando Alterações';
@@ -43,6 +47,7 @@
     font-size: 21px;
     align-items: center;
 }
+
 /********************************
 *********** Header **************
 ********************************/
@@ -55,7 +60,8 @@ header {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
 }
-header h1{
+
+header h1 {
     color: var(--text);
     text-align: center;
     font-size: 1.25rem;
@@ -64,6 +70,7 @@ header h1{
     -webkit-user-select: none;
     -webkit-app-region: drag;
 }
+
 /********************************
 *********** Botões **************
 ********************************/
@@ -72,49 +79,71 @@ header div.window-buttons {
     fill: var(--text);
     margin-top: 6px;
 }
+
 div.window-buttons svg,
-div.window-buttons svg path{
+div.window-buttons svg path {
     cursor: pointer;
 }
+
 .minimizeWindow,
-.closeWindow{
+.closeWindow {
     margin: 0 6px 0;
     cursor: pointer;
     box-shadow: 0px 0px 0px 0px #ffffff00;
-} 
-.minimizeWindow{
-    width: 25px;
-    padding-bottom: 4px;;
 }
-.closeWindow{
+
+.minimizeWindow {
+    width: 25px;
+    padding-bottom: 4px;
+    ;
+}
+
+.closeWindow {
     width: 30px;
     padding-bottom: 4px;
     border-top-right-radius: 1px;
 }
 
-.minimizeWindow:hover{
+.minimizeWindow:hover {
     transition: .05s;
     background-color: var(--blue);
-    box-shadow:  2px -3px 0px 3px var(--blue), -3px -3px 0px 3px var(--blue);
+    box-shadow: 2px -3px 0px 3px var(--blue), -3px -3px 0px 3px var(--blue);
 }
-.closeWindow:hover{
+
+.closeWindow:hover {
     transition: .05s;
     background-color: var(--red);
     box-shadow: 2px -3px 0px 4px var(--red), -3px -3px 0px 4px var(--red);
 }
 
-.ppL{
+.ppL {
     pointer-events: none;
 }
+
 /*********************************************************
 *********************Botões em Switch*********************
 *********************************************************/
-.switch__container{
+.switch__container div {
+    display: flex;
+    align-items: center;
+    align-content: flex-start;
+    flex-direction: row;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+div.configButtons p,
+.switch__container div p {
+    padding-left: 15px;
+}
+
+.switch__container {
     margin-top: 10px;
     flex-direction: column;
     display: flex;
     padding-inline: 50px;
 }
+
 .switch {
     position: absolute;
     margin-left: -9999px;
@@ -123,7 +152,7 @@ div.window-buttons svg path{
     user-select: none;
 }
 
-.switch + label {
+.switch+label {
     display: block;
     position: relative;
     cursor: pointer;
@@ -131,80 +160,91 @@ div.window-buttons svg path{
     user-select: none;
 }
 
-.switch--shadow + label {
+.switch--shadow+label {
     padding: 2px;
     width: 40px;
     height: 20px;
     border-radius: 60px;
 }
-.switch--shadow:disabled + label,
-.switch--shadow:disabled + label::before,
-.switch--shadow:disabled + label::after{
+
+.switch--shadow:disabled+label,
+.switch--shadow:disabled+label::before,
+.switch--shadow:disabled+label::after {
     cursor: not-allowed;
     background-color: var(--disable);
 }
-.switch--shadow + label:before,
-.switch--shadow + label:after {
-  display: block;
-  position: absolute;
-  cursor: pointer;
-  top: 1px;
-  left: 1px;
-  bottom: 1px;
-  content: '';
-}
-.switch--shadow + label:before {
-  right: 1px;
-  background-color: #f1f1f1;
-  border-radius: 60px;
-  transition: all 0.4s;
-}
-.switch--shadow + label:after {
-  width: 18px;
-  background-color: #9148ff;
-  border-radius: 100%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s;
+
+.switch--shadow+label:before,
+.switch--shadow+label:after {
+    display: block;
+    position: absolute;
+    cursor: pointer;
+    top: 1px;
+    left: 1px;
+    bottom: 1px;
+    content: '';
 }
 
-.switch--shadow:checked + label:before {
+.switch--shadow+label:before {
+    right: 1px;
+    background-color: #f1f1f1;
+    border-radius: 60px;
+    transition: all 0.4s;
+}
+
+.switch--shadow+label:after {
+    width: 18px;
+    background-color: #9148ff;
+    border-radius: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s;
+}
+
+.switch--shadow:checked+label:before {
     background-color: var(--purple);
 }
-.switch--shadow:checked + label:after {
+
+.switch--shadow:checked+label:after {
     background-color: #ffffff;
     transform: translateX(20px);
 }
+
 /**********************************************
 *******************Botões Config***************
 **********************************************/
-.configButtons{
+.configButtons {
     display: flex;
     text-align: center;
-    padding-left: 50px;
+    padding-inline-start: 45px;
+    align-items: center;
 }
-.folder{
-    fill: #8e6d03;
-    height: 40px;
-    width: 40px;
-    cursor: pointer;
-    transition: .5s ease 0s;
-}
-.folder:hover{
-    fill: #ffcd28;
-    transition: .5s ease 0s;
-}
-.folder path{
+
+.configBox .configButtons svg,
+.configBox .configButtons svg path {
     cursor: pointer;
 }
 
-div.configButtons span.material-icons{
+.configBox .configButtons svg {
+    fill: #c2c2c2;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
-    font-size: 35px;
-    color: #c2c2c2;
-    padding-left: 5px;
+    margin-left: 5px;
+    margin-right: 0px;
     transition: .5s ease 0s;
 }
-div.configButtons span.material-icons:hover{
+
+div.configBox .configButtons svg.folder {
+    fill: #f5c000;
+    transition: .5s ease 0s;
+}
+
+div.configBox .configButtons svg.folder:hover {
+    fill: #ffcd28;
+    transition: .5s ease 0s;
+}
+
+div.configBox .configButtons svg:hover {
     color: #ffffff;
     transition: .5s ease 0s;
 }

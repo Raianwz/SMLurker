@@ -18,7 +18,8 @@ function Listiners() {
     getEl('input[name="removerCanal"]').addEventListener('click', () => removerCanal())
     getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => loadChannelsFromFile())
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
-    getEl('#JoinCanalExtra').addEventListener('keypress', e => preventSymbols(e))
+    getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })
+    getEl('#txtConexaoCanal').addEventListener('input', e => e.target.value = e.target.value.toLowerCase())
     newChannelInput.addEventListener('keypress', e => preventSymbols(e))
     newChannelInput.addEventListener('input', () => { newChannelInput.classList.remove('warn'); Clog('') })
 }
