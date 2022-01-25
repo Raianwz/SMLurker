@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SM Lurker</title>
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="../src/css/index.css">
     <link rel="stylesheet" href="../src/css/main.css">
 </head>
@@ -53,19 +54,12 @@
             </w-buttons>
         </header>
         <div class="mainBox">
-            <!-- <a href="https://imgur.com/a/VCHFo4s" style="width: 0px;height: 0px;">
-                <span class="material-icons help">help</a></span>
-            </a> -->
             <div class="loginBox">
                 <p>Twitch Username</p>
                 <input type="text" placeholder="DarkJunin123456" id="username">
                 <p>Twitch OAuth</p>
                 <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
-                <div class="help">
-                    <a href="https://twitchapps.com/tmi/">
-                        <p>Gerar Twitch OAuth</p>
-                    </a>
-                </div>
+                <div class="help"><a href="https://twitchapps.com/tmi/"><p>Gerar Twitch OAuth</p></a></div>
                 <p id="msgStatus"></p>
                 <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
                 <p id="cnCount"></p>
@@ -100,17 +94,20 @@
                         <div style="margin-top: 10px;">
                             <input type="checkbox" class="switch switch--shadow" id="swt_notifyGift">
                             <label for="swt_notifyGift"></label>
-                            <p>SubGifts</p><span class="sgSom material-icons" title="Testar Som de SubGift">volume_up</span>
+                            <p>SubGifts</p><span class="sgSom material-icons"
+                                title="Testar Som de SubGift">volume_up</span>
                         </div>
                     </switch_container>
                 </div>
                 <div class="hline"></div>
                 <div id="JoinCanalExtra" class="channelsManager">
-                    <p>Gerenciar Canais<span class="beta">BETA</span></p>
-                    <input type="text" id="txtJoinCanal" placeholder="Nome do Canal">
+                    <p title="Informações" id="jc_Help" class="material-icons-outlined">info</p>
+                    <p>Conexão de Canais</p>
+                    <input type="text" id="txtConexaoCanal" placeholder="Nome do Canal">
                     <input id="jc_Join" type="button" class="material-icons add" value="add" title="Entrar no Canal">
-                    <input id="jc_Part" type="button" class="material-icons remove" value="remove" title="Sair do Canal">
-                    <p id="jc_Status" class="status">Caixa vazia!</p>
+                    <input id="jc_Part" type="button" class="material-icons remove" value="remove"
+                        title="Sair do Canal">
+                    <p id="jc_Status" class="status"></p>
                 </div>
             </div>
             <div class="vline"></div>
@@ -120,8 +117,9 @@
                     <span id="Mtimer">🕘--:--</span>
                     <span id="cntotal">&#x1F7E3 Canais: 0</span>
                     <span id="Mtotal">&#x1F514 Menções: 0</span>
-                    <span id="Ptotal">&#x1F4AC Texto: 0/4000</span>
-                    <span name="clearPing" class="delete">Limpar Texto<span class="material-icons">delete_sweep</span></span>
+                    <span id="Ptotal">&#x1F4AC Texto: 0</span>
+                    <span name="clearPing" class="delete">Limpar Texto<span
+                            class="material-icons">delete_sweep</span></span>
                 </div>
             </div>
         </div>

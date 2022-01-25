@@ -39,8 +39,6 @@
 .hline {
     border-top: 1px var(--purple) solid;
     width: 90%;
-    margin-top: 15px;
-    margin-left: 8px;
 }
 
 /* Animações de Entrada e Saida */
@@ -187,10 +185,18 @@ div.mainBox {
     background-color: #18191c;
 }
 
+.UserWrapper .hline {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    margin-top: 5px;
+}
+
 .UserWrapper #UserBox {
     text-align: center;
     margin-top: 1.8em;
 }
+
 /********************************
 ***********[Login Box]************
 ********************************/
@@ -310,27 +316,34 @@ a span.material-icons.help {
     cursor: pointer;
     color: #0268ac;
     position: fixed;
-    left: 400px;
+    right: 17em;
     font-size: 30px;
     transition: .3s ease 0s;
+    top: 100px;
 }
 
 a span.material-icons.help:hover {
+    position: fixed;
     color: #0097fc;
-    font-size: 30.1px;
+    font-size: 30px;
     transition: .3s ease 0s;
+    right: 17em;
+    font-size: 30px;
+    transition: .3s ease 0s;
+    top: 100px;
 }
 
 a span:hover::after {
     content: 'Tutorial';
-    font-size: 14px;
-    font-weight: bolder;
+    font-size: 15px;
+    font-weight: 500;
     font-family: 'OpenSans', sans-serif;
     color: #ffffff;
-    right: 50px;
-    top: -36px;
+    top: 73px;
+    padding: 5px;
+    right: 32.8em;
     padding-inline: 6px;
-    position: relative;
+    position: fixed;
     border-radius: 5px;
     background-color: #00000085;
     border: 1px solid #0268ac;
@@ -355,8 +368,12 @@ a span:hover::after {
 }
 
 .UserWrapper input[type="button"] {
-    width: 70%;
-    margin-left: 30px;
+    width: 50%;
+}
+
+.UserWrapper .btnSair {
+    display: flex;
+    justify-content: center;
 }
 
 .UserWrapper input[type="button"]:hover,
@@ -407,7 +424,7 @@ a span:hover::after {
     font-weight: bold;
 }
 
-.UserWrapper .channelsManager{
+.UserWrapper .channelsManager {
     text-align: center;
     width: 100%;
     margin-inline: 0px;
@@ -421,12 +438,13 @@ a span:hover::after {
     text-align: center;
     justify-content: center;
 }
-.UserWrapper .channelsManager input[type='text']{
+
+.UserWrapper .channelsManager input[type='text'] {
     width: 80%;
 }
 
 .UserWrapper .channelsManager input[type='text']:focus,
-.UserWrapper .channelsManager input[type='text']:hover{
+.UserWrapper .channelsManager input[type='text']:hover {
     width: 90%;
 }
 
@@ -483,6 +501,7 @@ a span:hover::after {
 .cnFile.block,
 .cnFile.block:hover,
 .channelsManager input[type='text']:disabled,
+.channelsManager input[type='button']:hover:disabled,
 .channelsManager input[type='button']:disabled {
     background-color: var(--disable);
     cursor: not-allowed;
@@ -546,7 +565,8 @@ a span:hover::after {
     border: 2px solid;
     transition: 1.5s ease-in-out 0s;
 }
-.version{
+
+.version {
     position: fixed;
     z-index: 1;
     bottom: 6px;
@@ -554,7 +574,9 @@ a span:hover::after {
     font-size: 14px;
     color: #ff5555;
     font-weight: bold;
+    cursor: pointer;
 }
+
 /**************************************
 ****************Table de Pings*********
 ***************************************/
@@ -579,7 +601,7 @@ div#mentionsbar span[name="clearPing"] {
     padding-inline: 10px;
     border: .5px solid #0184db;
     position: fixed;
-    left: 22.5em;
+    left: 26.5em;
     right: 0em;
 }
 
@@ -641,13 +663,14 @@ textarea::-webkit-scrollbar-thumb:hover {
 .NotifyWrapper switch_container {
     display: flex;
     flex-direction: column;
-    margin-inline: 8px;
     margin-top: 8px;
 }
 
 switch_container div {
     flex-direction: row;
     display: flex;
+    justify-content: flex-start;
+    padding-left: 15px;
 }
 
 switch_container div p {
@@ -746,4 +769,101 @@ span.sgSom:hover {
 .switch--shadow:checked+label:after {
     background-color: #ffffff;
     transform: translateX(20px);
+}
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#jc_Status {
+    visibility: hidden;
+    /* Hidden by default. Visible on click */
+    min-width: 250px;
+    /* Set a default minimum width */
+    margin-left: -134px;
+    /* Divide value of min-width by 2 */
+    background-color: #0c639c;
+    /* Black background color */
+    color: #fff;
+    /* White text color */
+    text-align: center;
+    /* Centered text */
+    border-radius: 8px;
+    /* Rounded borders */
+    padding: 16px;
+    /* Padding */
+    position: fixed;
+    /* Sit on top of the screen */
+    z-index: 5;
+    /* Add a z-index if needed */
+    left: 50%;
+    /* Center the snackbar */
+    bottom: 20%;
+    /* 30px from the bottom */
+}
+
+#jc_Status.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.75s;
+    animation: fadein 0.5s, fadeout 0.5s 2.75s;
+}
+
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 20%;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 20%;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 20%;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 20%;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+p#jc_Help {
+    color: #f1cd17d7;
+    cursor: pointer;
+    position: fixed;
+    width: 0px;
+    height: 0px;
+    font-size: 24px;
+    left: 7.25em;
+    bottom: 199px;
+}
+
+p#jc_Help:hover {
+    color: #ffd502;
 }
