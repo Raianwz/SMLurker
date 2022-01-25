@@ -1,6 +1,5 @@
 const { ipcMain, BrowserWindow, shell } = require('electron');
 const { initialize, enable } = require('@electron/remote/main');
-const environment = require('./helpers/env');
 let configWindow;
 
 ipcMain.on('openConfigs', () => {

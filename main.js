@@ -1,5 +1,5 @@
 const { initialize, enable } = require('@electron/remote/main'); initialize();
-const { app, BrowserWindow, shell, Tray } = require('electron');
+const { app, BrowserWindow, shell } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = require('./src/components/helpers/env');
@@ -16,8 +16,6 @@ function CreateWindow() {
         icon: './src/assets/icon.ico',
         width: 920,
         height: 500,
-        minWidth: 840,
-        minHeight: 500,
         resizable: false,
         frame: false,
         transparent: true,

@@ -430,7 +430,6 @@ a span:hover::after {
     margin-inline: 0px;
     margin-top: 5px;
 }
-
 .UserWrapper .channelsManager input[type="button"] {
     width: 40%;
     margin-left: 0px;
@@ -458,7 +457,6 @@ a span:hover::after {
     border: 1px #0099ff solid;
     transition: .5s ease 0s;
 }
-
 .UserWrapper input[type="button"].remove,
 .delete,
 .remove {
@@ -473,7 +471,6 @@ a span:hover::after {
     background-color: var(--blue);
     transition: .5s ease 0s;
 }
-
 .UserWrapper input[type="button"].remove:hover,
 .delete:hover,
 .remove:hover {
@@ -679,7 +676,6 @@ switch_container div {
 switch_container div p {
     margin-inline: 5px;
 }
-
 .UserWrapper .channelsManager .beta,
 p.beta {
     font-size: 11px;

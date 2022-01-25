@@ -251,6 +251,7 @@ function pingMessages(clear) {
             PingTable(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`);
             inText(mTotal, `🔔 Menções: ${mentions += 1}`);
             LoadNotifyMe(channel, tags, message)
+            pingTable.scrollTop = pingTable.scrollHeight;
         }
     });
     client.on('subgift', async (channel, username, recipient) => {

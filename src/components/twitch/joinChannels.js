@@ -81,6 +81,5 @@ function removeChannel(canal) {
                 message: errMsg,
             })
         }
-
     }
 }
