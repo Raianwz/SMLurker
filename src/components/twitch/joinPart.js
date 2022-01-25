@@ -1,67 +1,80 @@
 
 const fs = require('fs'), path = require('path');
 const { app } = require('@electron/remote');
-let partCanais = [], joinedCanais = [];
+const el = e => document.querySelector(e);
+let joinedCanais = [], check, erro;
 
 function JC_JoinPart(client) {
-    const el = e => document.querySelector(e);
+    const pingArea = (txt) => { let time = new Date(); PingTable(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
+    const inText = (el, txt) => el.innerText = txt
+    const JCtoast = (txt) => {
+        let x = el("#jc_Status"); x.textContent = `${txt}`; x.classList.add('show');
+        setTimeout(() => { x.classList.remove('show'); x.textContent = ""; }, 3 * 1000);
+    }
     let channelPath = `${app.getPath('userData')}\\Config\\channels.json`, channels;
-
+    let btnJoin = el('#jc_Join'), btnPart = el('#jc_Part'), btnSair = el('#btnEntrar'), txtCanal;
 
     if (env(app) === 'DEV') channelPath = path.join(__dirname, '../../../DevData/channels.json');
 
-    const JCtoast = (txt) => {
-        let x = el("#jc_Status"); x.textContent = `${txt}`; x.classList.add('show');
-        setTimeout(() => { x.classList.remove('show'); x.textContent = ""; }, 5 * 1000);
-    }
-    const pingArea = (txt) => { let time = new Date(); PingTable(`\n${txt}\t\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}`) }
-    const inText = (el, txt) => el.innerText = txt
-    let btnJoin = el('#jc_Join'), btnPart = el('#jc_Part'), txtCanal = el('#txtConexaoCanal'), erro = false, canal, aux = 0;
-
-    let cnTotal = el('#cntotal');
-
     if (fs.existsSync(channelPath)) channels = JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8' }))
-    aux = channels.length;
+    joinedCanais = channels || joinedCanais
 
-    btnJoin.addEventListener('click', async (e) => {
-        erro = false;
-        canal = txtCanal.value;
-        if (checkTxtCanal()) {
-            if (channels.includes(`#${canal}`) && !partCanais.includes(`#${canal}`) || joinedCanais.includes(`#${canal}`)) {
-                return JCtoast(`📢 Você já entrou no canal: ${canal}!`);
-            }
-            await client.join(`${canal}`).catch(err => { if (err === 'msg_channel_suspended') erro = true; });
-            erro ? JCtoast(`Este canal #${canal} não existe ou foi suspenso.`) : JCtoast(`Entrou em #${canal}`);
-            if (!erro) { joinedCanais.push(`#${canal}`); pingArea(`🟢 Entrou em #${canal}!`) }
+    btnJoin.addEventListener('click', joinChannel)
+    btnPart.addEventListener('click', partChannel)
+    btnSair.addEventListener('click', () => { btnSair.onclick.name == 'sairTwitch' ? el('#txtConexaoCanal').value = "" : false })
 
-            if (partCanais.includes(`#${canal}`) && joinedCanais.includes(`#${canal}`)) {
-                partCanais = partCanais.filter(channel => channel !== `#${canal}`);
-            }
-
-        }
-    })
-    
-    btnPart.addEventListener('click', async (e) => {
-        erro = false;
-        canal = txtCanal.value;
-        if (checkTxtCanal()) {
-            await client.part(`${canal}`, self).catch(err => console.log(`Erro: ${err}`))
-            JCtoast(`Saiu de ${canal}.`)
-            if (partCanais.includes(`#${canal}`) && !joinedCanais.includes(`#${canal}`)) { JCtoast(`📢 Você já saiu do canal: ${canal}!`); return }
-            if (!erro) { partCanais.push(`#${canal}`); pingArea(`⛔ Saiu de #${canal.toUpperCase()}!`) }
-            if (partCanais.includes(`#${canal}`) && joinedCanais.includes(`#${canal}`)) {
-                joinedCanais = joinedCanais.filter(channel => channel !== `#${canal}`);
-            }
-            console.log(`Entrou:${joinedCanais}\nSaiu: ${partCanais}`)
-        }
-    })
-    function checkTxtCanal() {
-        if (txtCanal.value == '' || txtCanal.value == undefined) {
+    function checkTxtCanal(txtCanal) {
+        if (txtCanal == '' || txtCanal == undefined) {
             JCtoast('Digite o nome do Canal que deseja Entrar ou Sair')
-            txtCanal.focus()
+            el('#txtConexaoCanal').focus()
             return false
         }
         else return true
     }
+    function localSleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    async function joinChannel() {
+        txtCanal = el('#txtConexaoCanal').value; check = joinedCanais.includes(`#${txtCanal}`); erro = false;
+        if (checkTxtCanal(txtCanal)) {
+            if (check) JCtoast(`📢 Você já entrou no canal: ${txtCanal}!`);
+            else {
+                WaitBlock(true)
+                await client.join(`${txtCanal}`).catch(err => { if (err === 'msg_channel_suspended') erro = true; })
+                    .then(async () => { await localSleep(800); WaitBlock() });
+                if (!erro) {
+                    joinedCanais.push(`#${txtCanal}`);
+                    JCtoast(`🟢 Entrou em #${txtCanal}`);
+                    pingArea(`🟢 Entrou em #${txtCanal}!`);
+                    inText(el('#cntotal'), `🟣 Canais: ${joinedCanais.length}`)
+                }
+                else JCtoast(`😕 #${txtCanal} não existe ou foi suspenso.`)
+            }
+        }
+    }
+    async function partChannel() {
+        txtCanal = el('#txtConexaoCanal').value;
+        check = joinedCanais.includes(`#${txtCanal}`);
+        if (checkTxtCanal(txtCanal)) {
+            if (check) {
+                WaitBlock(true)
+                await client.part(`${txtCanal}`, self).catch(err => console.log(`Erro: ${err}`))
+                    .then(async () => { await localSleep(800); WaitBlock() });
+                joinedCanais = joinedCanais.filter(channel => channel !== `#${txtCanal}`);
+                JCtoast(`⛔ Saiu de: #${txtCanal}!`);
+                pingArea(`⛔ Saiu de:  \t#${txtCanal}!`);
+                inText(el('#cntotal'), `🟣 Canais: ${joinedCanais.length}`)
+            } else JCtoast(`📢 Você já saiu do canal: ${txtCanal}!`);
+        }
+    }
+
+    async function WaitBlock(valor) {
+        valor = valor ?? false;
+        let items = ['#txtConexaoCanal', '#jc_Join', '#jc_Part']
+        for (let i = 0; i < items.length; i++) el(items[i]).disabled = valor;
+    }
 }
+
+
+
 module.exports = JC_JoinPart;
+

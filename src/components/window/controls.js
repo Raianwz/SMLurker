@@ -1,33 +1,29 @@
-let tmpTray;
+
 Controls()
 
 function Controls() {
-    const { getCurrentWindow, ipcMain, app: { getVersion } } = require('@electron/remote')
+    const el = (e) => document.querySelector(e);
+    const { getCurrentWindow, ipcMain, app: { getVersion }, shell: { openExternal } } = require('@electron/remote')
     const { ExportTray } = require('../src/components/window/tray')
-    const wButton = btn => document.querySelector(`svg[name=${btn}]`)
+    const wButton = btn => el(`svg[name=${btn}]`)
 
     wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
     wButton('minWindow').addEventListener('click', () => getCurrentWindow().minimize())
-    if (document.querySelector('h1').textContent != 'Configurações') {
-        wButton('hideWindow').addEventListener('click', () => {
-            getCurrentWindow().hide()
-            ExportTray(env)
-        })
+    if (el('h1').textContent != 'Configurações') {
+        wButton('hideWindow').addEventListener('click', () => { getCurrentWindow().hide(); ExportTray(env) })
         wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
-        document.querySelector('p.version').innerText += `V\t${getVersion()}\tbeta`;
-        document.querySelector('#jc_Help').addEventListener('click', () => JCInfo())
-        document.querySelector('#jc_Help').addEventListener('mouseenter', () => {
-            document.querySelector('#jc_Help').classList.add('material-icons')
-            setTimeout(document.querySelector('#jc_Help').classList.remove('material-icons-outlined'), 200)
+        el('p.version').innerText += `V\t${getVersion()}\tbeta`;
+        el('p.version').addEventListener('click', () => openExternal(`https://github.com/Raianwz/SMLurker/releases/tag/v${getVersion()}`))
+        el('#jc_Help').addEventListener('click', () => JCInfo())
+        el('#jc_Help').addEventListener('mouseenter', () => {
+            el('#jc_Help').classList.add('material-icons'); el('#jc_Help').classList.remove('material-icons-outlined')
         })
-        document.querySelector('#jc_Help').addEventListener('mouseleave', () => {
-            document.querySelector('#jc_Help').classList.add('material-icons-outlined')
-            setTimeout(document.querySelector('#jc_Help').classList.remove('material-icons'), 200)
+        el('#jc_Help').addEventListener('mouseleave', () => {
+            el('#jc_Help').classList.add('material-icons-outlined'); el('#jc_Help').classList.remove('material-icons');
         })
         clipMenu()
     }
 }
-
 
 function clipMenu() {
     const { app, Menu, getCurrentWindow } = require('@electron/remote');
@@ -66,9 +62,9 @@ function clipMenu() {
     const ShortMenu = Menu.buildFromTemplate([{
         label: 'Recarregar',
         role: 'reload',
-        accelerator: 'CmdOrCtrl+R'
+        accelerator: 'CmdOrCtrl+R',
     }, {
-        type: 'separator'
+        type: 'separator',
     }, {
         label: 'Reiniciar',
         click: () => { app.relaunch(); app.quit() },
@@ -88,10 +84,10 @@ function clipMenu() {
 }
 
 window.addEventListener('beforeunload', () => {
-    const { getCurrentWindow, app } = require('@electron/remote'), fs = require('fs');
-    const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
+    const { getCurrentWindow } = require('@electron/remote')
+    let btn = document.querySelector('#btnEntrar')
     let win = getCurrentWindow()
+    btn.onclick.name === 'sairTwitch' ? btn.onclick() : false;
     win.webContents.session.clearCache().then()
     win.webContents.session.clearStorageData().then()
 })

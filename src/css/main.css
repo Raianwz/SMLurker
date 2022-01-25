@@ -185,7 +185,7 @@ div.mainBox {
     background-color: #18191c;
 }
 
-.UserWrapper .hline{
+.UserWrapper .hline {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 10px;
@@ -370,7 +370,8 @@ a span:hover::after {
 .UserWrapper input[type="button"] {
     width: 50%;
 }
-.UserWrapper .btnSair{
+
+.UserWrapper .btnSair {
     display: flex;
     justify-content: center;
 }
@@ -423,12 +424,13 @@ a span:hover::after {
     font-weight: bold;
 }
 
-.UserWrapper .channelsManager{
+.UserWrapper .channelsManager {
     text-align: center;
     width: 100%;
     margin-inline: 0px;
     margin-top: 5px;
 }
+
 .UserWrapper .channelsManager input[type="button"] {
     width: 40%;
     margin-left: 0px;
@@ -437,12 +439,13 @@ a span:hover::after {
     text-align: center;
     justify-content: center;
 }
-.UserWrapper .channelsManager input[type='text']{
+
+.UserWrapper .channelsManager input[type='text'] {
     width: 80%;
 }
 
 .UserWrapper .channelsManager input[type='text']:focus,
-.UserWrapper .channelsManager input[type='text']:hover{
+.UserWrapper .channelsManager input[type='text']:hover {
     width: 90%;
 }
 
@@ -455,6 +458,7 @@ a span:hover::after {
     border: 1px #0099ff solid;
     transition: .5s ease 0s;
 }
+
 .UserWrapper input[type="button"].remove,
 .delete,
 .remove {
@@ -469,6 +473,7 @@ a span:hover::after {
     background-color: var(--blue);
     transition: .5s ease 0s;
 }
+
 .UserWrapper input[type="button"].remove:hover,
 .delete:hover,
 .remove:hover {
@@ -499,6 +504,7 @@ a span:hover::after {
 .cnFile.block,
 .cnFile.block:hover,
 .channelsManager input[type='text']:disabled,
+.channelsManager input[type='button']:hover:disabled,
 .channelsManager input[type='button']:disabled {
     background-color: var(--disable);
     cursor: not-allowed;
@@ -562,7 +568,8 @@ a span:hover::after {
     border: 2px solid;
     transition: 1.5s ease-in-out 0s;
 }
-.version{
+
+.version {
     position: fixed;
     z-index: 1;
     bottom: 6px;
@@ -570,7 +577,9 @@ a span:hover::after {
     font-size: 14px;
     color: #ff5555;
     font-weight: bold;
+    cursor: pointer;
 }
+
 /**************************************
 ****************Table de Pings*********
 ***************************************/
@@ -670,6 +679,7 @@ switch_container div {
 switch_container div p {
     margin-inline: 5px;
 }
+
 .UserWrapper .channelsManager .beta,
 p.beta {
     font-size: 11px;
@@ -767,47 +777,87 @@ span.sgSom:hover {
 
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #jc_Status {
-    visibility: hidden; /* Hidden by default. Visible on click */
-    min-width: 250px; /* Set a default minimum width */
-    margin-left: -134px; /* Divide value of min-width by 2 */
-    background-color: #0c639c; /* Black background color */
-    color: #fff; /* White text color */
-    text-align: center; /* Centered text */
-    border-radius: 8px; /* Rounded borders */
-    padding: 16px; /* Padding */
-    position: fixed; /* Sit on top of the screen */
-    z-index: 5; /* Add a z-index if needed */
-    left: 50%; /* Center the snackbar */
-    bottom: 20%; /* 30px from the bottom */
-}
-  
-#jc_Status.show {
-    visibility: visible;
-    -webkit-animation: fadein 0.5s, fadeout 0.5s 4.75s;
-    animation: fadein 0.5s, fadeout 0.5s 4.75s;
+    visibility: hidden;
+    /* Hidden by default. Visible on click */
+    min-width: 250px;
+    /* Set a default minimum width */
+    margin-left: -134px;
+    /* Divide value of min-width by 2 */
+    background-color: #0c639c;
+    /* Black background color */
+    color: #fff;
+    /* White text color */
+    text-align: center;
+    /* Centered text */
+    border-radius: 8px;
+    /* Rounded borders */
+    padding: 16px;
+    /* Padding */
+    position: fixed;
+    /* Sit on top of the screen */
+    z-index: 5;
+    /* Add a z-index if needed */
+    left: 50%;
+    /* Center the snackbar */
+    bottom: 20%;
+    /* 30px from the bottom */
 }
 
-  @-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 20%; opacity: 1;}
-  }
-  
-  @keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 20%; opacity: 1;}
-  }
-  
-  @-webkit-keyframes fadeout {
-    from {bottom: 20%; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
-  }
-  
-  @keyframes fadeout {
-    from {bottom: 20%; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
-  }
-  
-  p#jc_Help {
+#jc_Status.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.75s;
+    animation: fadein 0.5s, fadeout 0.5s 2.75s;
+}
+
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 20%;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 20%;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 20%;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 20%;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+p#jc_Help {
     color: #f1cd17d7;
     cursor: pointer;
     position: fixed;
@@ -817,6 +867,7 @@ span.sgSom:hover {
     left: 7.25em;
     bottom: 199px;
 }
+
 p#jc_Help:hover {
     color: #ffd502;
 }
