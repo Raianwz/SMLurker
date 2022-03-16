@@ -61,7 +61,7 @@
     "electron-builder": "^22.14.13"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.4",
+    "@electron/remote": "^2.0.8",
     "auto-launch": "^5.0.5",
     "electron-updater": "^4.6.5",
     "tmi.js": "^1.8.5"
