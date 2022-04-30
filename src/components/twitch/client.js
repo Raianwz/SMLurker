@@ -1,11 +1,10 @@
 const tmi = require('tmi.js'), fs = require('fs'), path = require('path');
 const { app, Notification } = require('@electron/remote')
 const env = require('../src/components/helpers/env');
-const CreateConfigs = require(path.resolve(__dirname, '../src/components/helpers/recreateConfigs'));
+const { createConfigs } = require(path.resolve(__dirname, '../src/components/helpers/setupConfigs'));
 const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
-const sleep = require(path.resolve(__dirname, '../src/components/helpers/sleep'));
-const getUser = (user) => { fetch(`https://api.chatwz.ga/api/smlurker/${user}/`).then(async (resp) => { const dados = await resp.json(); return userData = dados }) }
-let userData = null;
+const JC_JoinPart = require(path.resolve(__dirname, '../src/components/twitch/joinPart'));
+const supUser = async (user) => { let tmp = await getUser(user); return tmp }
 let client = null;
 loadCredentials();
 
@@ -28,7 +27,6 @@ async function entrarTwitch() {
             return;
         }
     }
-
     BlockLogin(true)
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
@@ -36,7 +34,7 @@ async function entrarTwitch() {
     status('Iniciando Client');
 
     client = new tmi.Client({
-        options: { debug: false },
+        options: { debug: false, skipUpdatingEmotesets: true },
         connection: {
             reconnect: true,
             secure: true,
@@ -61,7 +59,7 @@ async function entrarTwitch() {
 
     if (!error) {
         status('Entrando nos canais...');
-        getUser(username);
+        document.querySelector('#UserBox').innerHTML.length == 0 ? CreateUser() : false;
 
         await joinChannels(client).catch(err => {
             error = true;
@@ -77,9 +75,9 @@ async function entrarTwitch() {
         if (!error) saveCredentials(username, pass);
 
         if (!error) {
+            JC_JoinPart(client)
             changeButtonSide(btnEntrar, 1)
             pingMessages(client, username);
-            criarUser()
             status('Entrou nos canais!');
             btnEntrar.value = 'Sair';
             btnEntrar.classList.remove('loading');
@@ -95,12 +93,14 @@ async function sairTwitch() {
     const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
 
-    getInner('UserBox', '');
-    getInner('msgStatus', '');
-    getInner('jc_Status','')
+    changeButtonSide(btnEntrar, 0)
     pingMessages(true)
     BlockLogin(false)
-    changeButtonSide(btnEntrar, 0)
+    setTimeout(() => {
+        getInner('jc_Status', '')
+        getInner('msgStatus', '');
+        getInner('UserBox', '');
+    }, 200)
 
     client = null;
     btnEntrar.blur();
@@ -128,69 +128,95 @@ async function loadCredentials() {
         credentials = JSON.parse(fs.readFileSync(credentialsPath, { encoding: 'utf8' }));
         getEl('#username').value = credentials.username;
         getEl('#pass').value = credentials.pass;
-        getUser(credentials.username);
         if (fs.existsSync(configPath)) {
             let config = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
             getEl('#swt_notifyMe').checked = config.NotifyMe
             getEl('#swt_notifyGift').checked = config.NotifyGift
-            if (config.autologin === true) {
-                getEl('#btnEntrar').click();
-            };
+            if (config.autologin === true) getEl('#btnEntrar').click();
         }
     }
 
 }
+//Chamando API's da Twitch
+async function getUser(user) {
+    const chatwz = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`);
+    const ivr = await fetch(`https://api.ivr.fi/twitch/resolve/${user}/`);
+    let dados;
+    if (chatwz.status == 200 || ivr.status === 200) {
+        if (chatwz.status == 200) dados = await chatwz.json();
+        else {
+            dados = await ivr.json();
+            dados = {
+                "id": dados.id, "login": dados.login, "display_name": dados.displayName, "chatColor": dados.chatColor,
+                "profile_image_url": dados.logo
+            }
+        }
 
-function criarUser() {
-    let userbox = document.getElementById('UserBox')
-    let logo = userData != null ? userData.profile_image_url : 'https://cdn.frankerfacez.com/emoticon/605387/4'
-    let displayName = userData != null ? userData.display_name : '';
-    let userColor = userData != null ? userData.chatColor : '#9148FF';
-    userbox.innerHTML = ""; //#9148FF
-    userbox.innerHTML = `<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`
+    }
+    return dados;
 }
 
-function changeButtonSide(btnEntrar, destino) {
-    const element = (el) => document.querySelector(el)
-    const elDisplay = (el, style) => element(el).style.display = `${style}`
-    let conectBox = element('.btnSair'), loginBox = element('.loginBox');
-    destino == 1
-        ? conectBox.appendChild(btnEntrar)
-        : loginBox.appendChild(btnEntrar)
-    Notify();
-    if (destino == 1) {
-        userData != null ? criarUser() : false
-        element('.container').style.overflow = 'hidden'
-        element('.conectBox').classList.remove('hide')
-        element('.mainBox').classList.add('hide')
-        setTimeout(() => {
-            element('.conectBox').classList.add('show')
-            elDisplay('.mainBox', 'none')
-            elDisplay('.conectBox', 'flex')
-        }, .1 * 1000)
-    } else {
-        element('.conectBox').classList.remove('show')
-        element('.mainBox').classList.remove('hide')
-        element('.conectBox').classList.add('hide')
-        setTimeout(() => {
-            element('.mainBox').classList.add('show')
-            elDisplay('.mainBox', 'flex')
-            elDisplay('.conectBox', 'none')
-        }, .1 * 1000)
-        setTimeout(() => {
-            element('.container').removeAttribute('style')
-        }, .9 * 1000)
+//Criar o arquivo profile.json() e foto do usuário junto com nick
+async function CreateUser() {
+    const getEl = (el) => document.querySelector(el);
+    const userbox = (e) => document.getElementById('UserBox').innerHTML = `${e}`;
+    const profilePath = `${app.getPath('userData')}\\Config\\profile.json`;
+    let profileData, username, exp, checkExp, oldExp;
+    userbox(`<p>Just Chatting</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
+    if (fs.existsSync(profilePath)) {
+        profileData = JSON.parse(fs.readFileSync(profilePath, { encoding: 'utf8' }));
+        exp = new Date();
+        oldExp = new Date(profileData.expire);
+        if (exp.getDate() > oldExp.getDate()) checkExp = true;
+        else checkExp = false;
+    }
+    else {
+        username = getEl('#username').value;
+        profileData = await getUser(username)
+        if (Object.keys(profileData).length > 0) {
+            exp = new Date().toISOString();
+            profileData.expire = exp;
+            fs.writeFileSync(profilePath, JSON.stringify(profileData))
+        }
     }
 
+    let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
+    let displayName = profileData != null ? profileData.display_name : getEl('#username').value.toLowerCase();
+    let userColor = profileData != null ? profileData.chatColor : '#9148FF';
+    userbox("");
+    userbox(`<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
+
+    if (checkExp) {
+        profileData.expire = new Date().toISOString();
+        fs.writeFileSync(profilePath, JSON.stringify(profileData))
+    }
 }
 
+//Transição entre Tela Login e Tela Principal
+function changeButtonSide(btnEntrar, destino) {
+    const el = (el) => document.querySelector(el)
+    const elDisplay = (ele, style) => el(ele).style.display = `${style}`
+    const rmClass = (ele, Class) => el(`${ele}`).classList.remove(`${Class}`);
+    const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
+    let conectBox = el('.btnSair'), loginBox = el('.loginBox');
+    destino == 1 ? conectBox.appendChild(btnEntrar) : loginBox.appendChild(btnEntrar)
+    Notify();
+    if (destino == 1) {
+        addClass('.mainBox', 'hide');
+        setTimeout(() => { addClass('.conectBox', 'show'); elDisplay('.mainBox', 'none'); elDisplay('.conectBox', 'flex'); }, .1 * 1000)
+    } else {
+        rmClass('.conectBox', 'show'); rmClass('.mainBox', 'hide'); addClass('.conectBox', 'hide');
+        setTimeout(() => { addClass('.mainBox', 'show'); elDisplay('.mainBox', 'flex'); elDisplay('.conectBox', 'none'); }, .1 * 1000)
+    }
+}
+
+//Desativar inputs e botões durante a mudança de telas
 function BlockLogin(valor) {
     const items = ['#username', '#pass', '#txtCanal', 'input[type="button"].add', 'input[type="button"].remove'];
     let btnFiles = document.querySelector('.cnFile');
     for (let i = 0; i < items.length; i++) {
         document.querySelector(items[i]).disabled = valor
     }
-
     if (valor == true) {
         btnFiles.classList.add('block')
         btnFiles.onclick = null;
@@ -203,33 +229,33 @@ function BlockLogin(valor) {
 function pingMessages(clear) {
     const element = (el) => document.querySelector(el)
     const inText = (el, text) => el.innerText = text
-    const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬 Texto: 0/4000`); inText(mTotal, `🔔 Menções: 0`) }
-    const DisplayName = userData.display_name, UserName = userData.login;
+    const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬 Texto: 0/6000`); inText(mTotal, `🔔 Menções: 0`) }
+    const profilePath = `${app.getPath('userData')}\\Config\\profile.json`;
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/870396181174452224/gift.mp3');
+    let profileData;
+
+    if (fs.existsSync(profilePath)) { profileData = JSON.parse(fs.readFileSync(profilePath, { encoding: 'utf8' })); }
+    else profileData = supUser(`${element('#username').value}`).then(async (resp) => profileData = resp);
+
+    let DisplayName = profileData.display_name ?? element('#username').value.toLowerCase(), UserName = profileData.login ?? element('#username').value.toLowerCase();
     audio.volume = 0.30
 
-    let dist = process.resourcesPath;
-    let distFile = 'assets';
+    let dist = process.resourcesPath, distFile = 'assets';
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../src/assets' }
 
-    let pingTable = element('#pTable'), ping;
-    let pTotal = element('#Ptotal'), mTotal = element('#Mtotal'), mentions = 0;
+    let pingTable = element('#pTable'), pTotal = element('#Ptotal'), mTotal = element('#Mtotal'), mentions = 0;
 
     client.on("message", async (channel, tags, message, self) => {
         if (message.includes(UserName) || message.includes(DisplayName)) {
             let time = new Date();
-            pingTable.value += `\n🔴 Canal: ${channel}\t\t${time.getHours()}:${("0" + time.getMinutes()).slice(-2)}:${("0" + time.getSeconds()).slice(-2)}\t\t${("0" + time.getUTCDate()).slice(-2)}/${("0" + time.getUTCMonth()+1).slice(-2)}/${time.getUTCFullYear()}\n💬 ${tags.username}: ${message}\n`;
-            ping = pingTable.value
-            ping = ping.replace(new RegExp(/([🔴,💬,—,\s*,\t*]|\b(Canal)|\b([0-9]+)|((\/)|(:)))/gm),'')
-            inText(pTotal, `💬 Texto: ${ping.length}/4000`);
+            PingTable(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`);
             inText(mTotal, `🔔 Menções: ${mentions += 1}`);
             LoadNotifyMe(channel, tags, message)
             pingTable.scrollTop = pingTable.scrollHeight;
         }
-        pingTable.value.length > 4000 ? resetTable() : false
     });
-    client.on('subgift', async (channel, username, streakMonths, recipient, userstate) => {
+    client.on('subgift', async (channel, username, recipient) => {
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
             LoadNotifySub(channel, username, recipient)
         }
@@ -267,6 +293,16 @@ function pingMessages(clear) {
     };
 }
 
+function PingTable(text) {
+    let element = (el) => document.querySelector(el), pingTable = element('#pTable'), ping;
+    let inText = (el, text) => el.innerText = text, resetTable = () => { pingTable.value = ""; mentions = 0; inText(element('#Ptotal'), `💬 Texto: 0/6000`); inText(element('#Mtotal'), `🔔 Menções: 0`) }
+    pingTable.value += `${text}`
+    ping = pingTable.value; ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b([0-9]+)|((\/)|(:)))/gm), '')
+    pingTable.scrollTop = pingTable.scrollHeight;
+    ping.length >= 6000 ? resetTable() : false
+    inText(element('#Ptotal'), `💬 Texto: ${ping.length}/6000`);
+}
+
 function Notify() {
     const getEl = (el) => document.querySelector(el);
     const mentions = getEl('#swt_notifyMe'), subgift = getEl('#swt_notifyGift');
@@ -281,7 +317,7 @@ function Notify() {
             configs.NotifyGift = subgift.checked;
             fs.writeFileSync(configPath, JSON.stringify(configs))
         } else {
-            CreateConfigs(configPath, mentions.checked, subgift.checked)
+            createConfigs(configPath, mentions.checked, subgift.checked)
         }
     }
 }

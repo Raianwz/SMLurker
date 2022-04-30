@@ -1,17 +1,19 @@
-@font-face{
-    font-family: 'OpenSans' ;
-    src:url('../fonts/OpenSans-Light.ttf');
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../fonts/OpenSans-Light.ttf');
     font-weight: lighter;
 }
-@font-face{
-    font-family: 'OpenSans' ;
-    src:url('../fonts/OpenSans-Regular.ttf');
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../fonts/OpenSans-Regular.ttf');
     font-style: normal;
     font-weight: normal;
 }
-@font-face{
-    font-family: 'OpenSans' ;
-    src:url('../fonts/OpenSans-Bold.ttf');
+
+@font-face {
+    font-family: 'OpenSans';
+    src: url('../fonts/OpenSans-Bold.ttf');
     font-weight: bold;
 }
 
@@ -22,8 +24,15 @@
     src: url('../fonts/material\ icons.woff2') format('woff2');
 }
 
+@font-face {
+    font-family: 'Material Icons Outlined';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/material\ icons-outlined.woff2') format('woff2');
+}
+
 /*Reset*/
-*{
+* {
     margin: 0;
     padding: 0;
     border: 0;
@@ -32,42 +41,47 @@
     font-weight: normal;
 }
 
-*{
-    --fundo:#3b3b3b;
+* {
+    --fundo: #3b3b3b;
     --disable: #747f8d;
-    --text:#ffffff;
+    --text: #ffffff;
     --blue: #0099ff;
-    --red:#f04747;
+    --red: #f04747;
     --purple: #9148ff;
 }
-html{
+
+html {
     color: var(--text);
 }
+
 /* disable highlighting/selecting https://github.com/electron/electron/issues/2538#issuecomment-133083181 */
 :not(input):not(textarea),
 :not(input):not(textarea)::after,
 :not(input):not(textarea)::before {
-  -webkit-user-select: none;
-  user-select: none;
-  cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
 }
+
 input,
 button,
 textarea,
 :focus {
-  outline: none;
+    outline: none;
 }
-:disabled(input):disabled(textarea){
+
+:disabled(input):disabled(textarea) {
     -webkit-user-select: none;
     user-select: none;
     cursor: default;
 }
 
 .material-icons {
-    font-family: 'Material Icons';
+    font-family: 'Material Icons' !important;
     font-weight: normal;
     font-style: normal;
-    font-size: 24px;  /* Preferred icon size */
+    font-size: 24px;
+    /* Preferred icon size */
     display: inline-block;
     line-height: 1;
     text-transform: none;
@@ -80,4 +94,20 @@ textarea,
     /* Support for Safari and Chrome. */
     text-rendering: optimizeLegibility;
     font-feature-settings: 'liga';
+}
+
+.material-icons-outlined {
+    font-family: 'Material Icons Outlined' !important;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
 }
