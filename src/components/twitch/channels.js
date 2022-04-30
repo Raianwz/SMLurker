@@ -88,7 +88,7 @@ function addCanal() {
     }
 }
 function removerCanal() {
-    const { remote: { app } } = require('electron');
+    const { app } = require('@electron/remote');
     const fs = require('fs');
     let channels = newChannelInput.value.toLowerCase();
     let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;

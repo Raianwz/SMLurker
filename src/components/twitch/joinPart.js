@@ -57,7 +57,7 @@ function JC_JoinPart(client) {
         if (checkTxtCanal(txtCanal)) {
             if (check) {
                 WaitBlock(true)
-                await client.part(`${txtCanal}`, self).catch(err => console.log(`Erro: ${err}`))
+                await client.part(`${txtCanal}`, self).catch(err => console.log(`[DEBUG] - Erro: ${err}`))
                     .then(async () => { await localSleep(800); WaitBlock() });
                 joinedCanais = joinedCanais.filter(channel => channel !== `#${txtCanal}`);
                 JCtoast(`⛔ Saiu de: #${txtCanal}!`);

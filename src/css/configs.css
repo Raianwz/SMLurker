@@ -248,3 +248,14 @@ div.configBox .configButtons svg:hover {
     color: #ffffff;
     transition: .5s ease 0s;
 }
+div.configBox svg[name="githubChange"]{
+    position: fixed;
+    width: 30px;
+    bottom: 5px;
+    right: 10px;
+    fill: #0a598f;
+}
+div.configBox svg[name="githubChange"]:hover path{
+    fill: var(--blue);
+    transition: .5s ease 0s;
+}

@@ -36,6 +36,7 @@ function exportTray(env) {
     const { app } = require('@electron/remote')
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' });
+    let dist = process.resourcesPath, distFile = 'assets';
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
     ppL = path.join(dist, `${distFile}/ppL.ico`)
     if (fs.existsSync(configPath)) {

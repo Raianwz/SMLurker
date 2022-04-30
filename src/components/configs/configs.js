@@ -1,4 +1,4 @@
-const { app, dialog } = require('@electron/remote');
+const { app, dialog, shell: { openExternal } } = require('@electron/remote');
 const fs = require('fs'), path = require('path');
 const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch'), childprocess = require('child_process');
@@ -7,6 +7,7 @@ const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
 const sleep = require(path.resolve(__dirname, '../src/components/helpers/sleep'));
 const { createConfigs } = require(path.resolve(__dirname, '../src/components/helpers/setupConfigs'));
 const loading = getEl('div[name="loading"]');
+let checkIniMin = false;
 LoadConfigs()
 
 function LoadConfigs() {
@@ -17,13 +18,14 @@ function LoadConfigs() {
         getEl('#swt_autologin').checked = configs.autologin;
         getEl('#swt_inimin').checked = configs.inimin;
     } else createConfigs(configPath);
-    let abrirLocal = getEl('[name="abrirLocal"]'), exLista = getEl('[name="exportarLista"]');
+    let abrirLocal = getEl('[name="abrirLocal"]'), exLista = getEl('[name="exportarLista"]'), GBChange = getEl('[name=githubChange]');
 
     getEl('#swt_ini').addEventListener('click', () => changeIni())
     getEl('#swt_autologin').addEventListener('click', () => { changeConfigs() })
     getEl('#swt_inimin').addEventListener('click', () => { changeConfigs() })
     abrirLocal.addEventListener('click', () => childprocess.exec(`start ${localPath}`))
     exLista.addEventListener('click', () => exportarLista())
+    GBChange.addEventListener('click', ()=> openExternal("https://github.com/Raianwz/SMLurker/releases/latest"))
 
     abrirLocal.addEventListener('mouseenter', () => { changePath(abrirLocal, `M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z`) })
     abrirLocal.addEventListener('mouseleave', () => { changePath(abrirLocal, `M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z`) })
@@ -38,7 +40,7 @@ function changeConfigs() {
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
         if (swtIniMin && swtAutoLogin == false) {
-            alert('Por favor habilite Login Autómatico antes Iniciar Minimizado!')
+            if(!checkIniMin){ infoIniMin(); checkIniMin = true}
             getEl('#swt_inimin').checked = false;
             return
         }
@@ -89,4 +91,14 @@ async function exportarLista() {
             message: 'Você não tem nenhum canal adicionado para exportar como lista.',
         })
     }
+}
+
+function infoIniMin() {
+    const { dialog } = require('@electron/remote');
+    let textao = `Por favor habilite Login Autómatico antes Iniciar Minimizado!`;
+    dialog.showMessageBoxSync({
+        type: 'info',
+        title: 'Configurações — SMLurker',
+        message: textao,
+    })
 }

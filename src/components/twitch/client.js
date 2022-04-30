@@ -34,7 +34,7 @@ async function entrarTwitch() {
     status('Iniciando Client');
 
     client = new tmi.Client({
-        options: { debug: false },
+        options: { debug: false, skipUpdatingEmotesets: true },
         connection: {
             reconnect: true,
             secure: true,
@@ -139,7 +139,7 @@ async function loadCredentials() {
 }
 //Chamando API's da Twitch
 async function getUser(user) {
-    const chatwz = await fetch(`https://api.chatwz.ga/smlurker/${user}/`);
+    const chatwz = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`);
     const ivr = await fetch(`https://api.ivr.fi/twitch/resolve/${user}/`);
     let dados;
     if (chatwz.status == 200 || ivr.status === 200) {
@@ -161,12 +161,13 @@ async function CreateUser() {
     const getEl = (el) => document.querySelector(el);
     const userbox = (e) => document.getElementById('UserBox').innerHTML = `${e}`;
     const profilePath = `${app.getPath('userData')}\\Config\\profile.json`;
-    let profileData, username, exp, checkExp;
+    let profileData, username, exp, checkExp, oldExp;
     userbox(`<p>Just Chatting</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
     if (fs.existsSync(profilePath)) {
-        exp = new Date().toDateString()
-        profileData = JSON.parse(fs.readFileSync(profilePath, { encoding: 'utf8' }))
-        if (exp > new Date(profileData.expire).toDateString()) checkExp = true;
+        profileData = JSON.parse(fs.readFileSync(profilePath, { encoding: 'utf8' }));
+        exp = new Date();
+        oldExp = new Date(profileData.expire);
+        if (exp.getDate() > oldExp.getDate()) checkExp = true;
         else checkExp = false;
     }
     else {
@@ -201,10 +202,10 @@ function changeButtonSide(btnEntrar, destino) {
     destino == 1 ? conectBox.appendChild(btnEntrar) : loginBox.appendChild(btnEntrar)
     Notify();
     if (destino == 1) {
-        addClass('.mainBox','hide');
+        addClass('.mainBox', 'hide');
         setTimeout(() => { addClass('.conectBox', 'show'); elDisplay('.mainBox', 'none'); elDisplay('.conectBox', 'flex'); }, .1 * 1000)
     } else {
-        rmClass('.conectBox', 'show'); rmClass('.mainBox','hide'); addClass('.conectBox', 'hide');
+        rmClass('.conectBox', 'show'); rmClass('.mainBox', 'hide'); addClass('.conectBox', 'hide');
         setTimeout(() => { addClass('.mainBox', 'show'); elDisplay('.mainBox', 'flex'); elDisplay('.conectBox', 'none'); }, .1 * 1000)
     }
 }
@@ -298,8 +299,8 @@ function PingTable(text) {
     pingTable.value += `${text}`
     ping = pingTable.value; ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b([0-9]+)|((\/)|(:)))/gm), '')
     pingTable.scrollTop = pingTable.scrollHeight;
-    inText(element('#Ptotal'), `💬 Texto: ${ping.length}/6000`);
     ping.length >= 6000 ? resetTable() : false
+    inText(element('#Ptotal'), `💬 Texto: ${ping.length}/6000`);
 }
 
 function Notify() {

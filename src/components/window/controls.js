@@ -3,14 +3,15 @@ Controls()
 
 function Controls() {
     const el = (e) => document.querySelector(e);
-    const { getCurrentWindow, ipcMain, app: { getVersion }, shell: { openExternal } } = require('@electron/remote')
-    const { ExportTray } = require('../src/components/window/tray')
+    const { getCurrentWindow, ipcMain, app: { getVersion }, shell: { openExternal } } = require('@electron/remote'), path = require('path');
+    const { ExportTray } = require(path.resolve(__dirname,'../src/components/window/tray'))
     const wButton = btn => el(`svg[name=${btn}]`)
 
     wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
     wButton('minWindow').addEventListener('click', () => getCurrentWindow().minimize())
-    if (el('h1').textContent != 'Configurações') {
-        wButton('hideWindow').addEventListener('click', () => { getCurrentWindow().hide(); ExportTray(env) })
+    if (el('h1').textContent != 'Configurações') { 
+        
+        wButton('hideWindow').addEventListener('click', () => { getCurrentWindow().hide(); ExportTray(env);})
         wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
         el('p.version').innerText += `V\t${getVersion()}\tbeta`;
         el('p.version').addEventListener('click', () => openExternal(`https://github.com/Raianwz/SMLurker/releases/tag/v${getVersion()}`))
