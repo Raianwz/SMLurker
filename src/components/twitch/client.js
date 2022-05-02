@@ -232,7 +232,7 @@ function pingMessages(clear) {
     const resetTable = () => { pingTable.value = ""; mentions = 0; inText(pTotal, `💬 Texto: 0/6000`); inText(mTotal, `🔔 Menções: 0`) }
     const profilePath = `${app.getPath('userData')}\\Config\\profile.json`;
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/870396181174452224/gift.mp3');
+    const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/970807861770846278/Chaos.mp3');
     let profileData;
 
     if (fs.existsSync(profilePath)) { profileData = JSON.parse(fs.readFileSync(profilePath, { encoding: 'utf8' })); }
@@ -255,9 +255,11 @@ function pingMessages(clear) {
             pingTable.scrollTop = pingTable.scrollHeight;
         }
     });
-    client.on('subgift', async (channel, username, recipient) => {
+    client.on('subgift', async (channel, username, streakMonths, recipient, methods, tags) => {
+        console.log('%c[DEBUG]','color:green',`Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
             LoadNotifySub(channel, username, recipient)
+            console.log('%c[DEBUG]','color:green',`Você @${recipient} ganhou Sub de @${username} no Canal ${channel}`)
         }
     })
     element('.sgSom').addEventListener('click', () => audio.play());
