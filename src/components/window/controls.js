@@ -1,18 +1,19 @@
-
-Controls()
+const APICore = window.api.getRemote();
+Controls();
 
 function Controls() {
+    const { app: { getVersion }, shell: { openExternal } } = APICore;
     const el = (e) => document.querySelector(e);
-    const { getCurrentWindow, ipcMain, app: { getVersion }, shell: { openExternal } } = require('@electron/remote'), path = require('path');
-    const { ExportTray } = require(path.resolve(__dirname,'../src/components/window/tray'))
+    //const { getCurrentWindow, ipcMain, app: { getVersion }, shell: { openExternal } } = require('@electron/remote'), path = require('path');
+    //const { ExportTray } = require(path.resolve(__dirname, '../src/components/window/tray'))
     const wButton = btn => el(`svg[name=${btn}]`)
 
-    wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
-    wButton('minWindow').addEventListener('click', () => getCurrentWindow().minimize())
-    if (el('h1').textContent != 'Configurações') { 
-        
-        wButton('hideWindow').addEventListener('click', () => { getCurrentWindow().hide(); ExportTray(env);})
-        wButton('gearConfig').addEventListener('click', () => { ipcMain.emit('openConfigs') })
+    wButton('closeWindow').addEventListener('click', () => api.getWnd().close())
+    wButton('minWindow').addEventListener('click', () => api.getWnd().minimize())
+    if (el('h1').textContent != 'Configurações') {
+
+        wButton('hideWindow').addEventListener('click', () => { api.getWnd().hide(); ExportTray(env); })
+        wButton('gearConfig').addEventListener('click', () => { api.getIPCMain.emit('openConfigs') })
         el('p.version').innerText += `V\t${getVersion()}\tbeta`;
         el('p.version').addEventListener('click', () => openExternal(`https://github.com/Raianwz/SMLurker/releases/tag/v${getVersion()}`))
         el('#jc_Help').addEventListener('click', () => JCInfo())
@@ -27,9 +28,9 @@ function Controls() {
 }
 
 function clipMenu() {
-    const { app, Menu, getCurrentWindow } = require('@electron/remote');
-    const mainWindow = getCurrentWindow();
-    const InputMenu = Menu.buildFromTemplate([{
+    const mainWindow = api.getWnd().thisW();;
+    const Popup = (obj, win) => api.getMenu.popup(obj, win)
+    const InputMenu = [{
         label: 'Desfazer',
         role: 'undo',
         accelerator: 'CmdOrCtrl+Z',
@@ -59,8 +60,9 @@ function clipMenu() {
         role: 'selectall',
         accelerator: "CmdOrCtrl+A",
     },
-    ]);
-    const ShortMenu = Menu.buildFromTemplate([{
+    ];
+
+    const ShortMenu = [{
         label: 'Recarregar',
         role: 'reload',
         accelerator: 'CmdOrCtrl+R',
@@ -68,33 +70,31 @@ function clipMenu() {
         type: 'separator',
     }, {
         label: 'Reiniciar',
-        click: () => { app.relaunch(); app.quit() },
-    }])
-
+        click: () => { api.getRemote().app.relaunch(); api.getRemote().app.quit() },
+    }]
     document.querySelector('svg[name="menuConfig"]').addEventListener('click', () => {
-        ShortMenu.popup(mainWindow);
+        Popup(ShortMenu, mainWindow);
     })
     window.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         let ele = e.target
         if (ele.type === "text" || ele.type === "textarea" || ele.type === "password") {
-            InputMenu.popup(mainWindow);
+            Popup(InputMenu, mainWindow);
         }
     })
 
 }
 
 window.addEventListener('beforeunload', () => {
-    const { getCurrentWindow } = require('@electron/remote')
     let btn = document.querySelector('#btnEntrar')
-    let win = getCurrentWindow()
+    let win = api.getWnd()
     btn.onclick.name === 'sairTwitch' ? btn.onclick() : false;
     win.webContents.session.clearCache().then()
     win.webContents.session.clearStorageData().then()
 })
 
 function JCInfo() {
-    const { dialog } = require('@electron/remote');
+    //const { dialog } = require('@electron/remote');
     let textao = `Conexão de canais lhe permite entrar/sair de canais sem você precisar deslogar.\nNenhum canal que você entrar ou sair será adicionado ou removido da Lista de Canais.\nConexão de Canais não salva os canais que você entrou e não afeta sua Lista de Canais.`;
     dialog.showMessageBoxSync({
         type: 'info',
