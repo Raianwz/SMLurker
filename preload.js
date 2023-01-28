@@ -1,18 +1,19 @@
 // Preload (Isolated World)
 const { contextBridge } = require('electron')
 const Eremote = require('@electron/remote')
+const pfs = require('fs')
 const { WControls } = require('./src/internal/controls')
+const { SCore } = require('./src/internal/smcore')
 
 WControls(Eremote)
 
-
-
 const api = {
     oi: 'Oiê',
-    clipmenu:{
+    clipmenu: {
         show: (obj, win) => Eremote.Menu.buildFromTemplate(obj).popup(win),
     },
-    ecr: Eremote,
+    elcr: Eremote,
+    app: Eremote.app,
     ipc: {
         emit: (obj) => Eremote.ipcMain.emit(obj),
     },
@@ -23,7 +24,17 @@ const api = {
         minimize: () => Eremote.getCurrentWindow().minimize(),
         show: () => Eremote.getCurrentWindow().show(),
     },
-
+    tw: SCore,
+    helpers: {
+        sleep: async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) },
+        env: () => Eremote.isPackaged ? 'PRODUCTION' : 'DEV',
+    },
+    fs: {
+        exist: (path) => pfs.existsSync(path),
+        read: (path, args) => pfs.readFileSync(path, args),
+        rd: (path) => pfs.readFileSync(path, { encoding: 'utf8' }),
+        write: (path, args) => pfs.writeFileSync(path, args),
+    },
 }
 
 

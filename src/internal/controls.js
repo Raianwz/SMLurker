@@ -2,7 +2,6 @@ module.exports.WControls = windowButtonsContols;
 
 function windowButtonsContols(app) {
     const win = app.getCurrentWindow()
-    //const ec = require('@electron/remote')
     win.webContents.on('dom-ready', () => {
         let wbt = `let el = (e) => document.querySelector(e)
         let wButton = (btn) => el(\`svg[name=\${btn}]\`)
@@ -14,10 +13,10 @@ function windowButtonsContols(app) {
             type: 'separator',
         }, {
             label: 'Reiniciar',
-            click: () => { api.ecr.app.relaunch(); api.ecr.app.quit() },
+            click: () => { api.app.relaunch(); api.app.quit() },
         }]
-        el('p.version').innerText += \`V\t\${api.ecr.app.getVersion()}\tbeta\`;
-        el('p.version').addEventListener('click', () => api.ecr.shell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.ecr.app.getVersion()}\`))
+        el('p.version').innerText += \`V\t\${api.app.getVersion()}\tbeta\`;
+        el('p.version').addEventListener('click', () => api.elcr.shell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.app.getVersion()}\`))
     
         wButton('closeWindow').addEventListener('click', () => api.wb.close());
         wButton('gearConfig').addEventListener('click', () => api.ipc.emit('openConfigs') )

@@ -274,7 +274,7 @@ function pingMessages(clear) {
             pingTable.scrollTop = pingTable.scrollHeight;
         }
     });
-    client.on('subgift', async (channel, username, streakMonths, recipient, methods, tags) => {
+    client.on('subgift', async (channel, username, recipient) => {
         console.log('%c[DEBUG]', 'color:green', `Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
             LoadNotifySub(channel, username, recipient)
