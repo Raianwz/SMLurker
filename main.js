@@ -1,10 +1,10 @@
-const { initialize, enable } = require('@electron/remote/main'); 
+const { initialize, enable } = require('@electron/remote/main');
 initialize();
 const { app, BrowserWindow, shell } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
-const env = require('./src/components/helpers/env');
-const { SetUpTray } = require('./src/components/window/tray');
+const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
+const { SetUpTray } = require('./src/components/helpers/tray');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
 const path = require('path')
 const gotTheLock = app.requestSingleInstanceLock();
@@ -19,8 +19,9 @@ function CreateWindow() {
         width: 920,
         height: 500,
         resizable: false,
+        autoHideMenuBar: true,
         frame: false,
-        transparent: false,
+        transparent: true,
         fullscreen: false,
         show: false,
         maximizable: false,
@@ -61,9 +62,9 @@ else {
 }
 
 app.on('ready', () => {
-    //initConfigs();
+    initConfigs();
     CreateWindow();
-    //SetUpTray(app, mainWindow, env);
+    SetUpTray(app, mainWindow, env);
     autoUpdater.checkForUpdatesAndNotify();
 });
 
