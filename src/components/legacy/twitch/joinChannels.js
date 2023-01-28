@@ -3,12 +3,12 @@ const { app } = require('@electron/remote');
 const sleep = require('../helpers/sleep');
 const env = require('../helpers/env');
 const ClockTimer = require('../helpers/timer');
-const getEl = (el) => document.querySelector(el)
-const getText = (el, txt) => el.textContent = `${txt}`
 let y = 0, durantion;
 
 
-module.exports = async client => {
+module.exports = async (client, el) => {
+    const getEl = (el) => document.querySelector(el)
+    const getText = (el, txt) => el.textContent = `${txt}`
     let channelPath = `${app.getPath('userData')}\\Config\\channels.json`,
         channels, cnTotal = getEl('#cntotal'), txtArea = getEl('#pTable');
 

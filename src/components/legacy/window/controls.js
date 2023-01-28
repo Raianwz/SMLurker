@@ -4,15 +4,15 @@ Controls();
 function Controls() {
     const { app: { getVersion }, shell: { openExternal } } = APICore;
     const el = (e) => document.querySelector(e);
+    const env = api.env()
     //const { getCurrentWindow, ipcMain, app: { getVersion }, shell: { openExternal } } = require('@electron/remote'), path = require('path');
-    //const { ExportTray } = require(path.resolve(__dirname, '../src/components/window/tray'))
     const wButton = btn => el(`svg[name=${btn}]`)
 
     wButton('closeWindow').addEventListener('click', () => api.getWnd().close())
     wButton('minWindow').addEventListener('click', () => api.getWnd().minimize())
     if (el('h1').textContent != 'Configurações') {
 
-        wButton('hideWindow').addEventListener('click', () => { api.getWnd().hide(); ExportTray(env); })
+        wButton('hideWindow').addEventListener('click', () => { api.getWnd().minimize(); api.trayExport(); })
         wButton('gearConfig').addEventListener('click', () => { api.getIPCMain.emit('openConfigs') })
         el('p.version').innerText += `V\t${getVersion()}\tbeta`;
         el('p.version').addEventListener('click', () => openExternal(`https://github.com/Raianwz/SMLurker/releases/tag/v${getVersion()}`))

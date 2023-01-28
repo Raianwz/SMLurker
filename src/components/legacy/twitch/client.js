@@ -1,9 +1,11 @@
-const tmi = require('tmi.js'), fs = require('fs'), path = require('path');
-const { app, Notification } = require('@electron/remote')
-const env = require('../src/components/helpers/env');
-const { createConfigs } = require(path.resolve(__dirname, '../src/components/helpers/setupConfigs'));
-const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
-const JC_JoinPart = require(path.resolve(__dirname, '../src/components/twitch/joinPart'));
+const fs = api.getFs()/*require('fs')*/, path = api.path/*require('path')*/;
+const { app, Notification } = api.getRemote()//require('@electron/remote')
+const env = api.env() //require('../src/components/helpers/env');
+const { createConfigs } = api.setupConfigs
+console.log(`\n${createConfigs}\n${api.setupConfigs}`)
+//const { createConfigs } = require(path.resolve(__dirname, '../src/components/helpers/setupConfigs'));
+//const joinChannels = require(path.resolve(__dirname, '../src/components/twitch/joinChannels'));
+//const JC_JoinPart = require(path.resolve(__dirname, '../src/components/twitch/joinPart'));
 const supUser = async (user) => { let tmp = await getUser(user); return tmp }
 let client = null;
 loadCredentials();
@@ -33,7 +35,7 @@ async function entrarTwitch() {
     btnEntrar.onclick = null;
     status('Iniciando Client');
 
-    client = new tmi.Client({
+    client = {
         options: { debug: false, skipUpdatingEmotesets: true },
         connection: {
             reconnect: true,
@@ -44,11 +46,28 @@ async function entrarTwitch() {
             password: pass,
         },
         channels: [],
-    });
+    };
+    client = api.ftmi.create(client)
+    console.log(`\nBefore:${client}`)
+
+    // client = new tmi.Client({
+    //     options: { debug: false, skipUpdatingEmotesets: true },
+    //     connection: {
+    //         reconnect: true,
+    //         secure: true,
+    //     },
+    //     identity: {
+    //         username: username,
+    //         password: pass,
+    //     },
+    //     channels: [],
+    // });
+
+    console.log(`${username}\n${client}`)
 
     status('Tentando conectar');
 
-    await client.connect().catch(err => {
+    await api.ftmi.connect().catch(err => {
         error = true;
         BlockLogin(false)
         status(`${err}`);
@@ -256,10 +275,10 @@ function pingMessages(clear) {
         }
     });
     client.on('subgift', async (channel, username, streakMonths, recipient, methods, tags) => {
-        console.log('%c[DEBUG]','color:green',`Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
+        console.log('%c[DEBUG]', 'color:green', `Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
         if (recipient.includes(DisplayName) || recipient.includes(UserName)) {
             LoadNotifySub(channel, username, recipient)
-            console.log('%c[DEBUG]','color:green',`Você @${recipient} ganhou Sub de @${username} no Canal ${channel}`)
+            console.log('%c[DEBUG]', 'color:green', `Você @${recipient} ganhou Sub de @${username} no Canal ${channel}`)
         }
     })
     element('.sgSom').addEventListener('click', () => audio.play());
