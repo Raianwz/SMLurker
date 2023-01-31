@@ -1,5 +1,7 @@
 const supUser = async (user) => { let tmp = await getUser(user); return tmp }
+const tmi = api.tw.tmi;
 let client = null;
+let gCount = () => api.tw.lv.get(), aCount = () => api.tw.lv.add();
 loadUserData();
 
 async function entrarTwitch() {
@@ -7,6 +9,7 @@ async function entrarTwitch() {
     let username = document.getElementById('username').value.toLowerCase()
     let pass = document.getElementById('pass').value;
     let error = false;
+    let localCount = document.querySelector('#cntotal').textContent;
 
     let btnEntrar = document.getElementById('btnEntrar');
     btnEntrar.blur();
@@ -41,11 +44,11 @@ async function entrarTwitch() {
         channels: [],
     };
 
-    client = api.tw.tmi.ini(client);
+    client = tmi.ini(client);
 
     status('Tentando conectar');
 
-    await api.tw.tmi.cn().catch(err => {
+    await tmi.cn().catch(err => {
         error = true;
         BlockLogin(false)
         status(`${err}`);
@@ -58,7 +61,7 @@ async function entrarTwitch() {
         status('Entrando nos canais...');
         document.querySelector('#UserBox').innerHTML.length == 0 ? createProfile() : false;
 
-        await api.tw.tmi.join('twitch').catch(err => {
+        await joinChannels().catch(err => {
             error = true;
             BlockLogin(false)
             status(`${err}`);
@@ -79,12 +82,13 @@ async function entrarTwitch() {
             btnEntrar.classList.remove('loading');
             btnEntrar.classList.add('conectado');
             btnEntrar.onclick = sairTwitch;
+            console.log(gCount())
         }
     }
 }
 
 async function sairTwitch() {
-    await api.tw.tmi.dc()
+    await tmi.dc()
     const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
 
@@ -103,9 +107,126 @@ async function sairTwitch() {
     btnEntrar.classList.remove('conectado');
     btnEntrar.onclick = entrarTwitch;
 }
+/*==============================================(ENTRANDO EM CANAIS)===========================================*/
 
-/*===========================================(GERENCIAMENTO DE DADOS)===========)===============================*/
+//Ativar/Desativar tempo estimado
+function waitLogin(valor) {
+    const getEl = (el) => document.querySelector(el)
+    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]', '.sgSom', '#JoinCanalExtra']
+    valor == true ? valor = 'hidden' : valor = 'visible';
+    valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
+    for (let i = 0; i < items.length; i++) {
+        getEl(items[i]).style.visibility = valor
+    }
+}
 
+//Entrar em canais & Gerênciar fila
+async function joinChannels() {
+    const getEl = (el) => document.querySelector(el)
+    const getText = (el, txt) => el.textContent = `${txt}`
+    let channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`
+    let totalCN = getEl('#cntotal'), txtArea = getEl('#pTable'), channels = {};
+    let y = 0, durantion = 0;
+
+    const ClockTimer = {
+        start: (time) => {
+            var self = this;
+            let minutes, seconds;
+            this.intervalo = setInterval(() => {
+                minutes = parseInt(time / 60, 10);
+                seconds = parseInt(time % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                getText(getEl('#Mtimer'), `Tempo Estimado 🕘 ${minutes}m ${seconds}s`);
+                --time < 0 ? clearInterval(this.intervalo) : false
+            }, 1000)
+        },
+        stop: () => {
+            clearInterval(this.intervalo);
+            getText(getEl('#Mtimer'), `--:--`);
+        }
+    }
+
+    console.log('passou aqui')
+    if (api.helpers.env() === 'DEV') channelPath = api.path.join('./DevData/channels.json')
+
+    if (!api.fs.exist(channelPath)) {
+        throw 'Nenhum canal adicionado, por favor adicione um canal'
+    } else if (JSON.parse(api.fs.rd(channelPath)).length <= 0) {
+        throw 'Nenhum canal adicionado, por favor adicione um canal'
+    } else {
+        channels = JSON.parse(api.fs.rd(channelPath))
+    }
+    durantion = channels.length
+    console.log(durantion)
+    let tmc = await api.tw.tmi.rds();
+
+    while (tmc != 'OPEN') await api.helpers.sleep(1000);
+
+    for (let x = 0; x < channels.length; x++) {
+        console.log(`\nAntes: ${channels[x]}`)
+        tmi.join(channels[x]).catch(err => {
+            if (err === 'msg_channel_suspended') {
+                aCount();
+                api.helpers.sleep(300).then(() => removeChannel(`${channels[x]}`));
+            }
+        })
+        console.log(`\nDepois: ${channels[x]}`)
+        y++
+        if (x === 0) {
+            getEl('#pTable').value = `\n\n\n🔸Só é possivel se conectar em até 20 Canais em menos de 10 segundos, acima disso a Twitch irá lhe desconectar.\n🔹Sua lista foi coloca em uma fila onde a cada 18 Canais um delay de 10 segundos é aplicado.`;
+            changeButtonSide(getEl('#btnEntrar'), 1);
+            waitLogin(true)
+            ClockTimer.start(durantion)
+        }
+        getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
+        if (y > 17) {
+            getText(totalCN, `🟡 Aguarde: ${x + 1}/${channels.length -
+                gCount()}`)
+            y = 0;
+            await api.helpers.sleep(10.5 * 1000)
+        }
+        await api.helpers.sleep(200)
+    }
+    ClockTimer.stop()
+    waitLogin(false)
+    txtArea.value = "";
+    await api.helpers.sleep(200)
+    getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
+}
+
+//Remover canais banidos/suspensos ou inexistente
+function removeChannel(chn) {
+    let channels = chn.toString()
+    let dt = new Date().toLocaleDateString().replaceAll('/', '.')
+    let channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`;
+    let bkChannels = `${api.app.getPath('desktop')}\\smlurker_lista.backup.${dt}.txt`;
+    if (api.helpers.env() === 'DEV') channelPath = api.path.join('./DevData/channels.json')
+    if (api.fs.exist(channelPath)) {
+        let currentCn = JSON.parse(api.fs.rd(channelPath))
+        let errMsg = `O canal ${channels.toUpperCase()} foi removido da sua Lista de Canais\n\tMotivo: Este canal não existe ou foi suspenso.\n\nUm arquivo de backup foi criado em sua área de trabalho!`;
+        let onList = false, filtro;
+
+        if (currentCn.includes(channels)) onList = true;
+        if (onList) {
+            filtro = currentCn.filter(channel => channel !== channels);
+            currentCn.sort()
+            currentCn = JSON.stringify(currentCn).replace(/[\"\[\]]/g, '')
+            api.fs.write(channelPath, JSON.stringify(filtro))
+            api.fs.write(bkChannels, currentCn)
+            api.dg.showMB({
+                type: 'info',
+                title: 'Canal Removido — SMLurker',
+                message: errMsg,
+            });
+        }
+    }
+}
+
+/*===========================================(ENTRANDO/SAINDO DE CANAIS)=======================================*/
+
+
+/*============================================(GERENCIAMENTO DE DADOS)=========================================*/
 //Salvando dados
 async function saveUserData(user, pass) {
     let dataPath = `${api.app.getPath('userData')}\\Config\\credentials.json`
@@ -159,7 +280,7 @@ async function createProfile() {
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
     userbox("");
     userbox(`<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
-    
+
     if (checkExp) {
         profileData.expire = new Date().toLocaleDateString()
         api.fs.write(profilePath, JSON.stringify(profileData))
@@ -181,40 +302,4 @@ async function getUser(user) {
         }
     }
     return udata
-}
-
-/*===========================================(ANIMAÇÃO DE TRANSIÇÃO)===========================================*/
-
-//Desativar inputs e botões durante a mudança de telas
-function BlockLogin(valor) {
-    const items = ['#username', '#pass', '#txtCanal', 'input[type="button"].add', 'input[type="button"].remove'];
-    let btnFiles = document.querySelector('.cnFile');
-    for (let i = 0; i < items.length; i++) {
-        document.querySelector(items[i]).disabled = valor
-    }
-    if (valor == true) {
-        btnFiles.classList.add('block')
-        btnFiles.onclick = null;
-    } else {
-        btnFiles.classList.remove('block')
-        btnFiles.onclick = console.log('click')//loadChannelsFromFile;
-    }
-}
-
-//Transição entre Tela Login e Tela Principal
-function changeButtonSide(btnEntrar, destino) {
-    const el = (el) => document.querySelector(el)
-    const elDisplay = (ele, style) => el(ele).style.display = `${style}`
-    const rmClass = (ele, Class) => el(`${ele}`).classList.remove(`${Class}`);
-    const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
-    let conectBox = el('.btnSair'), loginBox = el('.loginBox');
-    destino == 1 ? conectBox.appendChild(btnEntrar) : loginBox.appendChild(btnEntrar)
-    //Notify();
-    if (destino == 1) {
-        addClass('.mainBox', 'hide');
-        setTimeout(() => { addClass('.conectBox', 'show'); elDisplay('.mainBox', 'none'); elDisplay('.conectBox', 'flex'); }, .1 * 1000)
-    } else {
-        rmClass('.conectBox', 'show'); rmClass('.mainBox', 'hide'); addClass('.conectBox', 'hide');
-        setTimeout(() => { addClass('.mainBox', 'show'); elDisplay('.mainBox', 'flex'); elDisplay('.conectBox', 'none'); }, .1 * 1000)
-    }
 }
