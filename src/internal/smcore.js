@@ -24,6 +24,24 @@ const smcore = {
         get: () => { return n },
         reset: () => { return n = 0 },
     },
+    jcn: async () => {
+        let { jc } = require('../components/twitch/joinchannels')
+        jc();
+    },
+    data: {
+        createProfile: () => {
+            let { createProfile } = require('../components/smdata/coredata')
+            createProfile()
+        },
+        loadUserData: async () => {
+            let { loadUserData } = require('../components/smdata/coredata')
+            loadUserData()
+        },
+        saveUserData: async (user, pass) => {
+            let { saveUserData } = require('../components/smdata/coredata')
+            saveUserData(user, pass)
+        }
+    }
 }
 
 function createClient(options) {
