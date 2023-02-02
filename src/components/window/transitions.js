@@ -1,5 +1,4 @@
 /*===========================================(ANIMAÇÃO DE TRANSIÇÃO)===========================================*/
-
 //Desativar inputs e botões durante a mudança de telas
 function BlockLogin(valor) {
     const items = ['#username', '#pass', '#txtCanal', 'input[type="button"].add', 'input[type="button"].remove'];
