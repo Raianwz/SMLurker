@@ -43,6 +43,7 @@ const api = {
     },
     dg: {
         showMB: (opts) => Eremote.dialog.showMessageBoxSync(opts),
+        showODS: (opts) => Eremote.dialog.showOpenDialogSync(opts),
     },
     tr: {
         changeside: (btn, dest) => {
