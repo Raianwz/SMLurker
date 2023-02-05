@@ -37,6 +37,10 @@ const smcore = {
             let { loadUserData } = require('../components/smdata/coredata')
             loadUserData()
         },
+        loadNotify: () => {
+            let { loadNotify } = require('../components/smdata/coredata')
+            loadNotify()
+        },
         saveUserData: async (user, pass) => {
             let { saveUserData } = require('../components/smdata/coredata')
             saveUserData(user, pass)

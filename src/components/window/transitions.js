@@ -1,4 +1,7 @@
 /*===========================================(ANIMAÇÃO DE TRANSIÇÃO)===========================================*/
+
+const { API } = require("../../../preload");
+
 //Desativar inputs e botões durante a mudança de telas
 function BlockLogin(valor) {
     const items = ['#username', '#pass', '#txtCanal', 'input[type="button"].add', 'input[type="button"].remove'];
@@ -11,7 +14,6 @@ function BlockLogin(valor) {
         btnFiles.onclick = null;
     } else {
         btnFiles.classList.remove('block')
-        btnFiles.onclick = console.log('click')//loadChannelsFromFile;
     }
 }
 
@@ -21,9 +23,10 @@ function changeButtonSide(btnEntrar, destino) {
     const elDisplay = (ele, style) => el(ele).style.display = `${style}`
     const rmClass = (ele, Class) => el(`${ele}`).classList.remove(`${Class}`);
     const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
+    const Notify = async () => API.tw.data.loadNotify();
     let conectBox = el('.btnSair'), loginBox = el('.loginBox');
     destino == 1 ? conectBox.appendChild(btnEntrar) : loginBox.appendChild(btnEntrar)
-    //Notify();
+    Notify()
     if (destino == 1) {
         addClass('.mainBox', 'hide');
         setTimeout(() => { addClass('.conectBox', 'show'); elDisplay('.mainBox', 'none'); elDisplay('.conectBox', 'flex'); }, .1 * 1000)

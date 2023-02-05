@@ -24,10 +24,28 @@ async function loadUserData() {
         getEl('#pass').value = data.pass
         if (api.fs.exist(configPath)) {
             let config = JSON.parse(api.fs.read(configPath, { encoding: 'utf8' }))
+            getEl('#swt_notifyMe').checked = config.NotifyMe
+            getEl('#swt_notifyGift').checked = config.NotifyGift
         }
     }
 
 }
+
+//Gerenciando dados de Configurações de Notificações
+async function loadNotify() {
+    const getEl = (el) => document.querySelector(el);
+    const configPath = `${api.app.getPath('userData')}\\Config\\configs.json`;
+    const mentions = getEl('#swt_notifyMe'), subgift = getEl('#swt_notifyGift');
+    if (api.fs.exist(configPath)) {
+        let config = JSON.parse(api.fs.read(configPath, { encoding: 'utf8' }))
+        config.NotifyMe = mentions.checked;
+        config.NotifyGift = subgift.checked;
+        api.fs.write(configPath, JSON.stringify(config));
+    } else {
+        api.tw.config.create(configPath, mentions.checked, subgift.checked)
+    }
+}
+
 
 //Criando Profile data
 async function createProfile() {
@@ -48,7 +66,7 @@ async function createProfile() {
 
         exp = new Date();
         oldExp = new Date(profileData.expire);
-        (exp.toDateString() > oldExp.toDateString()) ? checkExp = true : checkExp = false
+        (exp.toDateString() !== oldExp.toDateString()) ? checkExp = true : checkExp = false
     } else {
         profileData = await getUser(username)
         if (Object.keys(profileData).length > 0) {
@@ -89,3 +107,4 @@ async function getUser(user) {
 module.exports.saveUserData = saveUserData;
 module.exports.createProfile = createProfile;
 module.exports.loadUserData = loadUserData;
+module.exports.loadNotify = loadNotify;
