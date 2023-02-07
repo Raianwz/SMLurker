@@ -54,6 +54,26 @@ const api = {
             let { blockInputs } = require('./src/components/window/transitions')
             blockInputs(value)
         }
+    },
+    console: {
+        manager: () => {
+            let { consoleMng } = require('./src/components/window/console')
+            consoleMng()
+        },
+        panel: (txt) => {
+            let { panel } = require('./src/components/window/console')
+            panel(txt)
+        },
+        reset: () => {
+            let { barReset } = require('./src/components/window/console')
+            barReset()
+        }
+    },
+    tray: {
+        export: () => {
+            let { ExportTray } = require('./src/components/helpers/tray')
+            ExportTray()
+        }
     }
 
 }
