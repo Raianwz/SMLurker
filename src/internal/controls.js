@@ -1,3 +1,5 @@
+const { API } = require("../../preload");
+
 module.exports.WControls = windowButtonsContols;
 
 function windowButtonsContols(app) {
@@ -20,7 +22,7 @@ function windowButtonsContols(app) {
     
         wButton('closeWindow').addEventListener('click', () => api.wb.close());
         wButton('gearConfig').addEventListener('click', () => api.ipc.emit('openConfigs') )
-        wButton('hideWindow').addEventListener('click', () => api.wb.hide());
+        wButton('hideWindow').addEventListener('click', () => {api.wb.hide(); api.tray.export()});
         wButton('minWindow').addEventListener('click', () => api.wb.minimize());
         wButton('menuConfig').addEventListener('click', () => api.clipmenu.show(ShortMenu));`;
         let clipeMenu = `const InputMenu = [{label: 'Desfazer', role: 'undo',accelerator: 'CmdOrCtrl+Z',},
