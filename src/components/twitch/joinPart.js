@@ -19,7 +19,8 @@ function jpManager() {
     joinedChn = channels || joinedChn
     btnJoin.addEventListener('click', jpJoinChn)
     btnPart.addEventListener('click', jpPartChn)
-    btnSair.addEventListener('click', () => { btnSair.onclick.name == 'sairTwitch' ? getEl('#txtConexaoCanal').value = "" : false })
+    btnSair.addEventListener('click', () => getEl('#txtConexaoCanal').value = "")
+    getEl('#jc_Help').addEventListener('click', JCInfo)
 
     function checkChn(tchn) {
         if (tchn == "" || tchn == undefined) {
@@ -73,6 +74,14 @@ function jpManager() {
         valor = valor ?? false;
         let items = ['#txtConexaoCanal', '#jc_Join', '#jc_Part']
         for (let i = 0; i < items.length; i++) getEl(items[i]).disabled = valor;
+    }
+    async function JCInfo() {
+        let textao = `Conexão de canais te permite 'Entrar/Sair' de canais sem precisar deslogar.\nAlém de não afeta sua lista de canais e não salva essas ações.`;
+        api.dg.showMB({
+            type: 'info',
+            title: 'Conexão de Canais — SMLurker',
+            message: textao,
+        })
     }
 }
 
