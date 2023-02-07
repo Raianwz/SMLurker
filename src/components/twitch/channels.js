@@ -60,7 +60,7 @@ function addChannel() {
 
     if (!channels || !channels.replace(/ /g, '')) {
         newChannelInput.classList.add('warn');
-        Clog('Por favor digite algo');
+        Clog('Por favor digite um nome de canal');
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
