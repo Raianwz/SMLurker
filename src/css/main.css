@@ -181,6 +181,7 @@ div.mainBox {
 
 .UserWrapper {
     width: 22vw;
+    max-width: 210px;
     height: 100vh;
     background-color: #18191c;
 }
@@ -629,6 +630,26 @@ textarea {
     color: #FFF;
 }
 
+@media (min-width: 1000px) and (max-height:500px) {
+    textarea {
+        width: calc(75.5vw + 2vw);
+        height: 423px;
+    }
+}
+@media (min-width: 1080px) and (max-height:500px) {
+    textarea {
+        width: calc(75vw + 85px);
+        height: 423px;
+    }
+}
+
+@media (min-width:1280px) and (min-height: 700px) {
+    textarea {
+        width: 81.9vw;
+        height: 85vh;
+    }
+}
+
 textarea::-webkit-scrollbar {
     width: 14px;
     border-radius: 5px;
@@ -862,11 +883,9 @@ p#jc_Help {
     color: #f1cd17d7;
     cursor: pointer;
     position: fixed;
-    width: 0px;
-    height: 0px;
     font-size: 24px;
-    left: 7.25em;
-    bottom: 199px;
+    z-index: 85;
+    left: 175px;
 }
 
 p#jc_Help:hover {
