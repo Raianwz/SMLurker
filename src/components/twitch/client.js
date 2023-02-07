@@ -86,7 +86,6 @@ async function entrarTwitch() {
             btnEntrar.classList.remove('loading');
             btnEntrar.classList.add('conectado');
             btnEntrar.onclick = sairTwitch;
-            console.log(gCount())
         }
     }
 }

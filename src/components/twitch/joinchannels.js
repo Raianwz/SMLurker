@@ -24,7 +24,6 @@ async function joinChannels() {
     let channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`
     let totalCN = getEl('#cntotal'), txtArea = getEl('#pTable'), channels = {};
     let y = 0, durantion = 0;
-    console.log('oi')
     const ClockTimer = {
         start: (time) => {
             var self = this;
@@ -54,20 +53,18 @@ async function joinChannels() {
         channels = JSON.parse(api.fs.rd(channelPath))
     }
     durantion = channels.length
-    console.log(durantion)
     let tmc = await tmi.rds();
 
     while (tmc != 'OPEN') await api.helpers.sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {
-        console.log(`\nAntes: ${channels[x]}`)
         tmi.join(channels[x]).catch(err => {
             if (err === 'msg_channel_suspended') {
                 aCount();
                 api.helpers.sleep(300).then(() => removeChannel(`${channels[x]}`));
             }
         })
-        console.log(`\nDepois: ${channels[x]}`)
+
         y++
         if (x === 0) {
             getEl('#pTable').value = `\n\n\n🔸Só é possivel se conectar em até 20 Canais em menos de 10 segundos, acima disso a Twitch irá lhe desconectar.\n🔹Sua lista foi coloca em uma fila onde a cada 18 Canais um delay de 10 segundos é aplicado.`;

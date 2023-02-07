@@ -31,8 +31,6 @@ function consoleManager() {
 
     api.tw.tmi.on('message', async (channel, tags, message) => {
         let time = new Date();
-        console.log(`UserName: ${userName}\nDisplay: ${userDisplayName}\n${message.includes(userName)}`)
-        console.log(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
         if (message.includes(`${userName}`) || message.includes(`${userDisplayName}`)) {
             consoleChange(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
             barText(mTotal, `🔔 Menções: ${mentions += 1}`)
@@ -45,7 +43,7 @@ function consoleManager() {
         if (recipient.includes(userName) || recipient.includes(userDisplayName)) {
             checkNotifySub(channel, username, recipient)
         }
-        console.log('%c[DEBUG]', 'color:green', `Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
+        //console.log('%c[DEBUG]', 'color:green', `Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
     })
 
 }
@@ -64,7 +62,6 @@ function checkNotifyMe(channel, tags, message) {
         let configs = JSON.parse(api.fs.rd(configPath))
         if (configs.NotifyMe === true) {
             let mention = path.join(dist, `${distFile}/metion.png`);
-            console.log(mention)
             let notifica = new Notification({
                 icon: mention,
                 title: `Mencionado(a) em ${channel}`,
