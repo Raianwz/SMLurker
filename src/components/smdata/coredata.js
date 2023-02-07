@@ -40,12 +40,24 @@ async function loadNotify() {
         let config = JSON.parse(api.fs.read(configPath, { encoding: 'utf8' }))
         config.NotifyMe = mentions.checked;
         config.NotifyGift = subgift.checked;
+        giftVol(subgift.checked)
         api.fs.write(configPath, JSON.stringify(config));
     } else {
         api.tw.config.create(configPath, mentions.checked, subgift.checked)
     }
 }
 
+function giftVol(chk) {
+    const getEl = (el) => document.querySelector(el);
+    if (chk === true) {
+        getEl('#volBox').style.display = 'flex'
+        getEl('span.sgSom').style.display = 'flex'
+    }
+    else { 
+        getEl('#volBox').style.display = 'none' 
+        getEl('span.sgSom').style.display = 'none'
+    }
+}
 
 //Criando Profile data
 async function createProfile() {
