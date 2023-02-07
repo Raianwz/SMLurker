@@ -65,7 +65,7 @@ async function entrarTwitch() {
         status('Entrando nos canais...');
         document.querySelector('#UserBox').innerHTML.length == 0 ? createProfile() : false;
 
-        await tmi.join('pabot').catch(err => {
+        await joinChannels().catch(err => {
             error = true;
             BlockLogin(false)
             status(`${err}`);
@@ -75,22 +75,12 @@ async function entrarTwitch() {
             tmi.dc();
             client = null;
         });
-        // await joinChannels().catch(err => {
-        //     error = true;
-        //     BlockLogin(false)
-        //     status(`${err}`);
-        //     btnEntrar.value = 'Entrar';
-        //     btnEntrar.classList.remove('loading');
-        //     btnEntrar.onclick = entrarTwitch;
-        //     tmi.dc();
-        //     client = null;
-        // });
 
         if (!error) {
             saveUserData(username, pass)
-            //JC_JoinPart(client)
+            api.console.manager()
+            api.tw.jp()
             changeButtonSide(btnEntrar, 1)
-            //pingMessages(client, username);
             status('Entrou nos canais!');
             btnEntrar.value = 'Sair';
             btnEntrar.classList.remove('loading');
@@ -107,7 +97,6 @@ async function sairTwitch() {
     const btnEntrar = document.getElementById('btnEntrar');
 
     changeButtonSide(btnEntrar, 0)
-    //pingMessages(true)
     BlockLogin(false)
     setTimeout(() => {
         getInner('jc_Status', '')
