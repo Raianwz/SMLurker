@@ -10,6 +10,8 @@ const gCount = () => api.tw.lv.get(), aCount = () => api.tw.lv.add();
 function waitLogin(valor) {
     const getEl = (el) => document.querySelector(el)
     const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]', '.sgSom', '#JoinCanalExtra']
+    valor == true ? getEl('#swt_notifyMe').disabled = valor : getEl('#swt_notifyMe').disabled = valor
+    valor == true ? getEl('#swt_notifyGift').disabled = valor : getEl('#swt_notifyGift').disabled = valor
     valor == true ? valor = 'hidden' : valor = 'visible';
     valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
     for (let i = 0; i < items.length; i++) {
@@ -67,7 +69,7 @@ async function joinChannels() {
 
         y++
         if (x === 0) {
-            getEl('#pTable').value = `\n\n\n🔸Só é possivel se conectar em até 20 Canais em menos de 10 segundos, acima disso a Twitch irá lhe desconectar.\n🔹Sua lista foi coloca em uma fila onde a cada 18 Canais um delay de 10 segundos é aplicado.`;
+            getEl('#pTable').value = `\n\n\n🟠Só é possivel se conectar em até 20 'Canais' em menos de 10 segundos, acima disso a Twitch não conecta.\n🔵Sua lista foi coloca em fila onde a cada 18 Canais um delay de 10 segundos é aplicado.`;
             changeButtonSide(getEl('#btnEntrar'), 1);
             waitLogin(true)
             ClockTimer.start(durantion)
