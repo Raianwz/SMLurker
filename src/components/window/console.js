@@ -29,9 +29,12 @@ function consoleManager() {
 
     getEl('span[name=clearPing]').addEventListener('click', barReset)
 
+    if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
+
     api.tw.tmi.on('message', async (channel, tags, message) => {
         let time = new Date();
-        if (message.includes(`${userName}`) || message.includes(`${userDisplayName}`)) {
+        let checkUserName = (message.toLowerCase()).includes(`${userName}`)
+        if (checkUserName || message.includes(`${userDisplayName}`)) {
             consoleChange(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
             barText(mTotal, `🔔 Menções: ${mentions += 1}`)
             checkNotifyMe(channel, tags, message)
@@ -40,10 +43,14 @@ function consoleManager() {
     })
 
     api.tw.tmi.on('subgift', async (channel, username, recipient) => {
-        if (recipient.includes(userName) || recipient.includes(userDisplayName)) {
+        let checkUserName = (message.toLowerCase()).includes(`${userName}`)
+        if (checkUserName || recipient.includes(userDisplayName)) {
             checkNotifySub(channel, username, recipient)
         }
-        //console.log('%c[DEBUG]', 'color:green', `Recebendo SubGift de @${username} para @${recipient} em ${channel}`);
+        if (localStorage.getItem('showGifts') === true) {
+            let time = new Date();
+            consoleChange(`\n${time.toLocaleDateString()} 🔎[DEBUG]: @${username} presentou @${recipient} em #${channel}`)
+        }
     })
 
 }
