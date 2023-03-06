@@ -203,6 +203,7 @@ div.mainBox {
 ********************************/
 div.loginBox {
     width: 50%;
+    max-width: 500px;
 }
 
 div.loginBox,
@@ -411,6 +412,7 @@ a span:hover::after {
 **************************************************/
 .channelsManager {
     width: 40%;
+    max-width: 400px;
     height: 185px;
     border-radius: 5%;
     transition: 2s ease 0s;
@@ -620,11 +622,11 @@ div#mentionsbar span[name="clearPing"] {
 
 textarea {
     resize: none;
-    border-radius: 10px;
+    border-radius: 0px 0px 10px 10px;
     display: inline-block;
-    padding: 6px 2px 0px 5px;
-    margin: 10px 0px 0px;
-    width: 75.5vw;
+    border: solid red;
+    margin: 0px -10px 0px;
+    width: 77.9vw;
     height: 80vh;
     background-color: #0c0c0c;
     color: #FFF;
@@ -632,20 +634,27 @@ textarea {
 
 @media (min-width: 1000px) and (max-height:500px) {
     textarea {
-        width: calc(75.5vw + 2vw);
+        width: calc(77.9vw + 2vw);
         height: 423px;
     }
 }
+
 @media (min-width: 1080px) and (max-height:500px) {
     textarea {
-        width: calc(75vw + 85px);
+        width: calc(77.9vw + 85px);
         height: 423px;
+    }
+}
+
+@media (min-width:1280px) {
+    textarea {
+        width: calc(77.9vw + 16%);
     }
 }
 
 @media (min-width:1280px) and (min-height: 700px) {
     textarea {
-        width: 81.9vw;
+        width: calc(77.9vw + 16%);
         height: 85vh;
     }
 }
