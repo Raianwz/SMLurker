@@ -34,11 +34,11 @@ function jpManager() {
     function checkSmDebug(cmd) {
         if (cmd.startsWith('_smdebug')) {
             if (cmd === '_smdebug.showgifts') {
-                if (localStorage.getItem('showGifts') === false) {
+                if (localStorage.getItem('showGifts') === 'false') {
                     localStorage.setItem('showGifts', true)
-                    JCtoast(`🐸Ativando: 'ShowGifts'`)
+                    JCtoast(`🐸Ativando: 'ShowGifts'💡`)
                 } else {
-                    JCtoast(`🐸Desativando: 'ShowGifts'`)
+                    JCtoast(`🐸Desativando: 'ShowGifts'⛔`)
                     localStorage.setItem('showGifts', false)
                 }
             } else {
