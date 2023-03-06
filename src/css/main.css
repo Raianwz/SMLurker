@@ -632,30 +632,10 @@ textarea {
     color: #FFF;
 }
 
-@media (min-width: 1000px) and (max-height:500px) {
+@media (min-width: 1080px) {
     textarea {
-        width: calc(77.9vw + 2vw);
-        height: 423px;
-    }
-}
-
-@media (min-width: 1080px) and (max-height:500px) {
-    textarea {
-        width: calc(77.9vw + 85px);
-        height: 423px;
-    }
-}
-
-@media (min-width:1280px) {
-    textarea {
-        width: calc(77.9vw + 16%);
-    }
-}
-
-@media (min-width:1280px) and (min-height: 700px) {
-    textarea {
-        width: calc(77.9vw + 16%);
-        height: 85vh;
+        height: calc(90vh - 20px);
+        width: calc(85vw - 20px);
     }
 }
 
@@ -809,29 +789,18 @@ span.sgSom:hover {
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #jc_Status {
     visibility: hidden;
-    /* Hidden by default. Visible on click */
     min-width: 250px;
-    /* Set a default minimum width */
+    min-height: 54px;
     margin-left: -134px;
-    /* Divide value of min-width by 2 */
     background-color: #0c639c;
-    /* Black background color */
     color: #fff;
-    /* White text color */
     text-align: center;
-    /* Centered text */
     border-radius: 8px;
-    /* Rounded borders */
     padding: 16px;
-    /* Padding */
     position: fixed;
-    /* Sit on top of the screen */
     z-index: 5;
-    /* Add a z-index if needed */
     left: 50%;
-    /* Center the snackbar */
     bottom: 20%;
-    /* 30px from the bottom */
 }
 
 #jc_Status.show {
