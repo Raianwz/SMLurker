@@ -58,7 +58,7 @@ function consoleManager() {
 function consoleChange(text) {
     panel.value += text;
     ping = panel.value;
-    ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b([0-9]+)|((\/)|(:)))/gm), '')
+    ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
     panel.scrollTop = panel.scrollHeight;
     ping.length >= 6000 ? resetTable() : false
     barText(pTotal, `💬 Texto: ${ping.length}/6000`)
