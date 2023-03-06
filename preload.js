@@ -27,7 +27,14 @@ const api = {
     tw: SCore,
     helpers: {
         sleep: async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) },
-        env: () => Eremote.isPackaged ? 'PRODUCTION' : 'DEV',
+        env: () => {
+            let elcr = require('@electron/remote');
+            if (elcr.app.isPackaged) {
+                return 'PRODUCTION';
+            } else {
+                return 'DEV';
+            }
+        }
     },
     fs: {
         exist: (path) => pfs.existsSync(path),
