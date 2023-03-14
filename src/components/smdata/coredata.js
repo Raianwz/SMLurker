@@ -26,6 +26,8 @@ async function loadUserData() {
             let config = JSON.parse(api.fs.read(configPath, { encoding: 'utf8' }))
             getEl('#swt_notifyMe').checked = config.NotifyMe
             getEl('#swt_notifyGift').checked = config.NotifyGift
+            config.autologin === true ? getEl('#btnEntrar').click() : false
+            console.log(`AutoLogin:\t${config.autologin}`)
         }
     }
 
@@ -53,8 +55,8 @@ function giftVol(chk) {
         getEl('#volBox').style.display = 'flex'
         getEl('span.sgSom').style.display = 'flex'
     }
-    else { 
-        getEl('#volBox').style.display = 'none' 
+    else {
+        getEl('#volBox').style.display = 'none'
         getEl('span.sgSom').style.display = 'none'
     }
 }
