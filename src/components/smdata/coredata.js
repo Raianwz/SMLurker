@@ -27,7 +27,6 @@ async function loadUserData() {
             getEl('#swt_notifyMe').checked = config.NotifyMe
             getEl('#swt_notifyGift').checked = config.NotifyGift
             config.autologin === true ? getEl('#btnEntrar').click() : false
-            console.log(`AutoLogin:\t${config.autologin}`)
         }
     }
 
