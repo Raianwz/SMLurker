@@ -42,14 +42,14 @@ function consoleManager() {
         }
     })
 
-    api.tw.tmi.on('subgift', async (channel, username, recipient) => {
-        let checkUserName = (message.toLowerCase()).includes(`${userName}`)
-        if (checkUserName || recipient.includes(userDisplayName)) {
-            checkNotifySub(channel, username, recipient)
+    api.tw.tmi.on('subgift', async (channel, username, recipient, userstate) => {
+        if (userstate.includes(userName) || userstate.includes(userDisplayName)) {
+            checkNotifySub(channel, username, userstate)
         }
-        if (localStorage.getItem('showGifts') === true) {
+        if (localStorage.getItem('showGifts') === 'true') {
             let time = new Date();
-            consoleChange(`\n${time.toLocaleDateString()} 🔎[DEBUG]: @${username} presentou @${recipient} em #${channel}`)
+            consoleChange(`\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: @${username} presentou @${userstate} em ${channel}`)
+            console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${userstate} em ${channel}`);
         }
     })
 
@@ -60,7 +60,7 @@ function consoleChange(text) {
     ping = panel.value;
     ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
     panel.scrollTop = panel.scrollHeight;
-    ping.length >= 6000 ? resetTable() : false
+    ping.length >= 6000 ? barReset() : false
     barText(pTotal, `💬 Texto: ${ping.length}/6000`)
 }
 
@@ -91,7 +91,7 @@ function checkNotifySub(channel, username, recipient) {
                 body: `Você(@${recipient}) ganhou um SubGift de @${username} em ${channel}`,
                 timeoutType: 'default', urgency: 'normal', sound: audio.play(), silent: true
             })
-            notifica.addListener('click', () => { shell.openExternal(`https://twitch.tv/${channel.replace('#', '')}`) })
+            notifica.addListener('click', () => { api.elcr.shell.openExternal(`https://twitch.tv/${channel.replace('#', '')}`) })
             notifica.show()
 
         }
