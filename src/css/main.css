@@ -624,7 +624,6 @@ textarea {
     resize: none;
     border-radius: 0px 0px 10px 10px;
     display: inline-block;
-    border: solid red;
     margin: 0px -10px 0px;
     width: 77.9vw;
     height: 80vh;
@@ -785,6 +784,18 @@ span.sgSom:hover {
     background-color: #ffffff;
     transform: translateX(20px);
 }
+
+.switch--shadow:checked:disabled+label:before {
+    background-color: var(--disable);
+    border: 1px solid #731cf5;
+    cursor: not-allowed;
+}
+
+.switch--shadow:checked:disabled+label:after {
+    background-color: #3b3b3b;
+    cursor: not-allowed;
+}
+
 
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #jc_Status {
