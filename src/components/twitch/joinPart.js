@@ -62,7 +62,7 @@ function jpManager() {
         txtChannel = getEl('#txtConexaoCanal').value;
         check = joinedChn.includes(`#${txtChannel}`);
         error = false;
-        if (checkSmDebug(txtChannel) === true) { return }
+        if (checkSmDebug(txtChannel) === true) { return null }
         if (checkChn(txtChannel)) {
             if (!check) {
                 waitBlock(true)
