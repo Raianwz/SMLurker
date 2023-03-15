@@ -32,16 +32,25 @@ function jpManager() {
     }
 
     function checkSmDebug(cmd) {
+        const enable = (cm) => JCtoast(`🐸Ativando: ${cm}💡`);
+        const disable = (cm) => JCtoast(`🐸Desativando: ${cm}⛔`)
         if (cmd.startsWith('_smdebug')) {
             if (cmd === '_smdebug.showgifts') {
                 if (localStorage.getItem('showGifts') === 'false') {
                     localStorage.setItem('showGifts', true)
-                    JCtoast(`🐸Ativando: 'ShowGifts'💡`)
+                    enable('ShowGifts')
                 } else {
-                    JCtoast(`🐸Desativando: 'ShowGifts'⛔`)
+                    disable('ShowGifts')
                     localStorage.setItem('showGifts', false)
                 }
-            } else {
+            }
+            else if (cmd === '_smdebug.devtools') {
+                api.elcr.getCurrentWindow().webContents.openDevTools();
+                enable('Trapaças')
+                console.log('%c🐸Tenha cuidado! As coisas podem sair do controle.', 'color: red; font-size: 20pt;');
+                getEl('#txtConexaoCanal').value = ""
+            }
+            else {
                 JCtoast(`❌Comando desconhecido!`)
             }
             return true
