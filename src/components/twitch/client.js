@@ -1,7 +1,6 @@
 const tmi = api.tw.tmi;
 const changeButtonSide = (btn, dest) => api.tr.changeside(btn, dest);
 const BlockLogin = (value) => api.tr.blockinput(value);
-const joinChannels = async () => api.tw.jcn();
 const createProfile = async () => api.tw.data.createProfile();
 const loadUserData = async () => api.tw.data.loadUserData();
 const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass)
@@ -65,7 +64,7 @@ async function entrarTwitch() {
         status('Entrando nos canais...');
         document.querySelector('#UserBox').innerHTML.length == 0 ? createProfile() : false;
 
-        await joinChannels().catch(err => {
+        await api.tw.jcnc(err => {
             error = true;
             BlockLogin(false)
             status(`${err}`);
