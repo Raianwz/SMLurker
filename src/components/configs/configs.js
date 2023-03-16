@@ -4,12 +4,15 @@ const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch'), childprocess = require('child_process');
 const localPath = `${app.getPath('userData')}\\Config`, configPath = `${localPath}\\configs.json`;
 const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
-const sleep = require(path.resolve(__dirname, '../src/components/helpers/sleep'));
 const { createConfigs } = require(path.resolve(__dirname, '../src/components/helpers/setupConfigs'));
+const sleep = async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 const loading = getEl('div[name="loading"]');
 let checkIniMin = false;
+Controls()
 LoadConfigs()
 
+
+//Carregar, Alterar configurações de arquivos JSON 
 function LoadConfigs() {
     const changePath = (e, path) => e.children[0].setAttribute("d", `${path}`)
     if (fs.existsSync(configPath)) {
@@ -25,7 +28,7 @@ function LoadConfigs() {
     getEl('#swt_inimin').addEventListener('click', () => { changeConfigs() })
     abrirLocal.addEventListener('click', () => childprocess.exec(`start ${localPath}`))
     exLista.addEventListener('click', () => exportarLista())
-    GBChange.addEventListener('click', ()=> openExternal("https://github.com/Raianwz/SMLurker/releases/latest"))
+    GBChange.addEventListener('click', () => openExternal("https://github.com/Raianwz/SMLurker/releases/latest"))
 
     abrirLocal.addEventListener('mouseenter', () => { changePath(abrirLocal, `M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z`) })
     abrirLocal.addEventListener('mouseleave', () => { changePath(abrirLocal, `M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z`) })
@@ -40,14 +43,14 @@ function changeConfigs() {
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
         if (swtIniMin && swtAutoLogin == false) {
-            if(!checkIniMin){ infoIniMin(); checkIniMin = true}
+            if (!checkIniMin) { infoIniMin(); checkIniMin = true }
             getEl('#swt_inimin').checked = false;
             return
         }
         configs.ini = swtIniciar
         configs.autologin = swtAutoLogin
         configs.inimin = swtIniMin
-
+        
         fs.writeFileSync(configPath, JSON.stringify(configs));
     }
 }
@@ -73,11 +76,12 @@ async function exportarLista() {
         let channels = JSON.parse(fs.readFileSync(channelsFilePath, { encoding: 'utf8' }))
         channels.sort()
         channels = JSON.stringify(channels).replace(/[\"\[\]]/g, '');
+        let dt = new Date().toLocaleDateString().replaceAll("/",'.')
 
         const listaDialog = dialog.showSaveDialog({
             properties: ['dontAddToRecent'],
             filters: [{ name: 'txt', extensions: ['txt'] }],
-            defaultPath: '*/minha_lista',
+            defaultPath: `*/minha_lista.${dt}`,
             title: 'Exportar Lista',
         })
         const listaTxt = await listaDialog
@@ -101,4 +105,12 @@ function infoIniMin() {
         title: 'Configurações — SMLurker',
         message: textao,
     })
+}
+
+function Controls() {
+    const el = (e) => document.querySelector(e);
+    const { getCurrentWindow } = require('@electron/remote');
+    const wButton = btn => el(`svg[name=${btn}]`)
+    wButton('closeWindow').addEventListener('click', () => getCurrentWindow().close())
+    wButton('minWindow').addEventListener('click', () => getCurrentWindow().minimize())
 }

@@ -1,80 +1,117 @@
+let api = require('../../../preload').API
+let joinedChn = [], check, error;
 
-const fs = require('fs'), path = require('path');
-const { app } = require('@electron/remote');
-const el = e => document.querySelector(e);
-let joinedCanais = [], check, erro;
 
-function JC_JoinPart(client) {
-    const pingArea = (txt) => { let time = new Date(); PingTable(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
+function jpManager() {
+    const getEl = (el) => document.querySelector(el)
+    const channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`;
+    const pingArea = (txt) => { let time = new Date(); api.console.panel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
     const inText = (el, txt) => el.innerText = txt
+    const waiting = () => api.helpers.sleep(800).then(() => waitBlock())
     const JCtoast = (txt) => {
-        let x = el("#jc_Status"); x.textContent = `${txt}`; x.classList.add('show');
-        setTimeout(() => { x.classList.remove('show'); x.textContent = ""; }, 3 * 1000);
+        let x = getEl("#jc_Status"); x.textContent = `${txt}`; x.classList.add('show');
+        api.helpers.sleep('3000').then(() => { x.classList.remove('show'); x.textContent = ""; })
     }
-    let channelPath = `${app.getPath('userData')}\\Config\\channels.json`, channels;
-    let btnJoin = el('#jc_Join'), btnPart = el('#jc_Part'), btnSair = el('#btnEntrar'), txtCanal;
+    let btnJoin = getEl('#jc_Join'), btnPart = getEl('#jc_Part'), btnSair = getEl('#btnEntrar'), txtChannel;
+    api.helpers.env() === 'DEV' ? channels = JSON.parse(api.fs.rd(channelPath)) : false
 
-    if (env(app) === 'DEV') channelPath = path.join(__dirname, '../../../DevData/channels.json');
+    if (api.fs.exist(channelPath)) channels = JSON.parse(api.fs.rd(channelPath))
+    joinedChn = channels || joinedChn
+    btnJoin.addEventListener('click', jpJoinChn)
+    btnPart.addEventListener('click', jpPartChn)
+    btnSair.addEventListener('click', () => getEl('#txtConexaoCanal').value = "")
+    getEl('#jc_Help').addEventListener('click', JCInfo)
 
-    if (fs.existsSync(channelPath)) channels = JSON.parse(fs.readFileSync(channelPath, { encoding: 'utf8' }))
-    joinedCanais = channels || joinedCanais
-
-    btnJoin.addEventListener('click', joinChannel)
-    btnPart.addEventListener('click', partChannel)
-    btnSair.addEventListener('click', () => { btnSair.onclick.name == 'sairTwitch' ? el('#txtConexaoCanal').value = "" : false })
-
-    function checkTxtCanal(txtCanal) {
-        if (txtCanal == '' || txtCanal == undefined) {
-            JCtoast('Digite o nome do Canal que deseja Entrar ou Sair')
-            el('#txtConexaoCanal').focus()
+    function checkChn(tchn) {
+        if (tchn == "" || tchn == undefined) {
+            JCtoast('Digite o nome do Canal que deseja Entrar/Sair')
+            getEl('#txtConexaoCanal').focus()
             return false
         }
-        else return true
+        return true
     }
-    function localSleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-    async function joinChannel() {
-        txtCanal = el('#txtConexaoCanal').value; check = joinedCanais.includes(`#${txtCanal}`); erro = false;
-        if (checkTxtCanal(txtCanal)) {
-            if (check) JCtoast(`📢 Você já entrou no canal: ${txtCanal}!`);
-            else {
-                WaitBlock(true)
-                await client.join(`${txtCanal}`).catch(err => { if (err === 'msg_channel_suspended') erro = true; })
-                    .then(async () => { await localSleep(800); WaitBlock() });
-                if (!erro) {
-                    joinedCanais.push(`#${txtCanal}`);
-                    JCtoast(`🟢 Entrou em #${txtCanal}`);
-                    pingArea(`🟢 Entrou em #${txtCanal}!`);
-                    inText(el('#cntotal'), `🟣 Canais: ${joinedCanais.length}`)
+    function checkSmDebug(cmd) {
+        const enable = (cm) => JCtoast(`🐸Ativando: ${cm}💡`);
+        const disable = (cm) => JCtoast(`🐸Desativando: ${cm}⛔`)
+        if (cmd.startsWith('_smdebug')) {
+            if (cmd === '_smdebug.showgifts') {
+                if (localStorage.getItem('showGifts') === 'false') {
+                    localStorage.setItem('showGifts', true)
+                    enable('ShowGifts')
+                } else {
+                    disable('ShowGifts')
+                    localStorage.setItem('showGifts', false)
                 }
-                else JCtoast(`😕 #${txtCanal} não existe ou foi suspenso.`)
             }
+            else if (cmd === '_smdebug.devtools') {
+                api.elcr.getCurrentWindow().webContents.openDevTools();
+                enable('Trapaças')
+                console.log('%c🐸Tenha cuidado! As coisas podem sair do controle.', 'color: red; font-size: 20pt;');
+                getEl('#txtConexaoCanal').value = ""
+            }
+            else {
+                JCtoast(`❌Comando desconhecido!`)
+            }
+            return true
         }
+        return false
     }
-    async function partChannel() {
-        txtCanal = el('#txtConexaoCanal').value;
-        check = joinedCanais.includes(`#${txtCanal}`);
-        if (checkTxtCanal(txtCanal)) {
-            if (check) {
-                WaitBlock(true)
-                await client.part(`${txtCanal}`, self).catch(err => console.log(`[DEBUG] - Erro: ${err}`))
-                    .then(async () => { await localSleep(800); WaitBlock() });
-                joinedCanais = joinedCanais.filter(channel => channel !== `#${txtCanal}`);
-                JCtoast(`⛔ Saiu de: #${txtCanal}!`);
-                pingArea(`⛔ Saiu de:  \t#${txtCanal}!`);
-                inText(el('#cntotal'), `🟣 Canais: ${joinedCanais.length}`)
-            } else JCtoast(`📢 Você já saiu do canal: ${txtCanal}!`);
+
+    async function jpJoinChn() {
+        txtChannel = getEl('#txtConexaoCanal').value;
+        check = joinedChn.includes(`#${txtChannel}`);
+        error = false;
+        if (checkSmDebug(txtChannel) === true) { return null }
+        if (checkChn(txtChannel)) {
+            if (!check) {
+                waitBlock(true)
+                await api.tw.tmi.join(`${txtChannel}`)
+                    .catch(err => { if (err === 'msg_channel_suspended') error = true; })
+                    .then(() => waiting())
+                if (!error) {
+                    joinedChn.push(`#${txtChannel}`)
+                    JCtoast(`🟢 Entrou em #${txtChannel}`);
+                    pingArea(`🟢 Entrou em #${txtChannel}!`);
+                    inText(getEl('#cntotal'), `🟣 Canais: ${joinedChn.length}`)
+                }
+                else JCtoast(`😕 #${txtChannel} Inexistente/Suspenso`)
+            }
+            else JCtoast(`📢 Você já entrou no canal: ${txtChannel}!`);
         }
     }
 
-    async function WaitBlock(valor) {
+    async function jpPartChn() {
+        txtChannel = getEl('#txtConexaoCanal').value;
+        check = joinedChn.includes(`#${txtChannel}`);
+        if (checkSmDebug(txtChannel) === true) { return }
+        if (checkChn(txtChannel)) {
+            if (check) {
+                waitBlock(true)
+                await api.tw.tmi.part(`${txtChannel}`)
+                    .catch(err => console.log(`[DEBUG] - Erro: ${err}`))
+                    .then(() => waiting())
+                joinedChn = joinedChn.filter(chn => chn !== `#${txtChannel}`)
+                JCtoast(`⛔ Saiu de: #${txtChannel}!`);
+                pingArea(`⛔ Saiu de:  \t#${txtChannel}!`);
+                inText(getEl('#cntotal'), `🟣 Canais: ${joinedChn.length}`)
+            } else JCtoast(`📢 Você já saiu do canal: ${txtChannel}!`);
+        }
+    }
+
+    async function waitBlock(valor) {
         valor = valor ?? false;
         let items = ['#txtConexaoCanal', '#jc_Join', '#jc_Part']
-        for (let i = 0; i < items.length; i++) el(items[i]).disabled = valor;
+        for (let i = 0; i < items.length; i++) getEl(items[i]).disabled = valor;
+    }
+    async function JCInfo() {
+        let textao = `Conexão de canais te permite 'Entrar/Sair' de canais sem precisar deslogar.\nAlém de não afeta sua lista de canais e não salva essas ações.`;
+        api.dg.showMB({
+            type: 'info',
+            title: 'Conexão de Canais — SMLurker',
+            message: textao,
+        })
     }
 }
 
-
-
-module.exports = JC_JoinPart;
-
+module.exports.joinpart = jpManager;

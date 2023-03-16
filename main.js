@@ -2,9 +2,10 @@ const { initialize, enable } = require('@electron/remote/main'); initialize();
 const { app, BrowserWindow, shell } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
-const env = require('./src/components/helpers/env');
-const { SetUpTray } = require('./src/components/window/tray');
+const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
+const { SetUpTray } = require('./src/components/helpers/tray');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
+const path = require('path')
 const gotTheLock = app.requestSingleInstanceLock();
 require('./src/components/ipc');
 let mainWindow;
@@ -16,17 +17,22 @@ function CreateWindow() {
         icon: './src/assets/icon.ico',
         width: 920,
         height: 500,
-        resizable: false,
+        resizable: true,
+        minWidth: 920,
+        maxWidth: 1280,
+        minHeight: 500,
+        maxHeight: 720,
+        autoHideMenuBar: true,
         frame: false,
         transparent: true,
         fullscreen: false,
         show: false,
         maximizable: false,
         webPreferences: {
-            contextIsolation: false,
             nodeIntegration: true,
-            webSecurity: true,
             enableRemoteModule: true,
+            webSecurity: true,
+            preload: path.join(__dirname, "./preload.js"),
         }
     })
     enable(mainWindow.webContents);

@@ -181,6 +181,7 @@ div.mainBox {
 
 .UserWrapper {
     width: 22vw;
+    max-width: 210px;
     height: 100vh;
     background-color: #18191c;
 }
@@ -202,6 +203,7 @@ div.mainBox {
 ********************************/
 div.loginBox {
     width: 50%;
+    max-width: 500px;
 }
 
 div.loginBox,
@@ -410,6 +412,7 @@ a span:hover::after {
 **************************************************/
 .channelsManager {
     width: 40%;
+    max-width: 400px;
     height: 185px;
     border-radius: 5%;
     transition: 2s ease 0s;
@@ -430,6 +433,7 @@ a span:hover::after {
     margin-inline: 0px;
     margin-top: 5px;
 }
+
 .UserWrapper .channelsManager input[type="button"] {
     width: 40%;
     margin-left: 0px;
@@ -457,6 +461,7 @@ a span:hover::after {
     border: 1px #0099ff solid;
     transition: .5s ease 0s;
 }
+
 .UserWrapper input[type="button"].remove,
 .delete,
 .remove {
@@ -471,6 +476,7 @@ a span:hover::after {
     background-color: var(--blue);
     transition: .5s ease 0s;
 }
+
 .UserWrapper input[type="button"].remove:hover,
 .delete:hover,
 .remove:hover {
@@ -601,6 +607,7 @@ div#mentionsbar span[name="clearPing"] {
     padding-inline: 10px;
     border: .5px solid #0184db;
     position: fixed;
+    margin-inline: calc(3em);
     left: 26.5em;
     right: 0em;
 }
@@ -615,14 +622,20 @@ div#mentionsbar span[name="clearPing"] {
 
 textarea {
     resize: none;
-    border-radius: 10px;
+    border-radius: 0px 0px 10px 10px;
     display: inline-block;
-    padding: 6px 2px 0px 5px;
-    margin: 10px 0px 0px;
-    width: 75.5vw;
+    margin: 0px -10px 0px;
+    width: 77.9vw;
     height: 80vh;
     background-color: #0c0c0c;
     color: #FFF;
+}
+
+@media (min-width: 1080px) {
+    textarea {
+        height: calc(90vh - 20px);
+        width: calc(85vw - 20px);
+    }
 }
 
 textarea::-webkit-scrollbar {
@@ -676,6 +689,7 @@ switch_container div {
 switch_container div p {
     margin-inline: 5px;
 }
+
 .UserWrapper .channelsManager .beta,
 p.beta {
     font-size: 11px;
@@ -771,32 +785,33 @@ span.sgSom:hover {
     transform: translateX(20px);
 }
 
+.switch--shadow:checked:disabled+label:before {
+    background-color: var(--disable);
+    border: 1px solid #731cf5;
+    cursor: not-allowed;
+}
+
+.switch--shadow:checked:disabled+label:after {
+    background-color: #3b3b3b;
+    cursor: not-allowed;
+}
+
+
 /* The snackbar - position it at the bottom and in the middle of the screen */
 #jc_Status {
     visibility: hidden;
-    /* Hidden by default. Visible on click */
     min-width: 250px;
-    /* Set a default minimum width */
+    min-height: 54px;
     margin-left: -134px;
-    /* Divide value of min-width by 2 */
     background-color: #0c639c;
-    /* Black background color */
     color: #fff;
-    /* White text color */
     text-align: center;
-    /* Centered text */
     border-radius: 8px;
-    /* Rounded borders */
     padding: 16px;
-    /* Padding */
     position: fixed;
-    /* Sit on top of the screen */
     z-index: 5;
-    /* Add a z-index if needed */
     left: 50%;
-    /* Center the snackbar */
     bottom: 20%;
-    /* 30px from the bottom */
 }
 
 #jc_Status.show {
@@ -857,11 +872,9 @@ p#jc_Help {
     color: #f1cd17d7;
     cursor: pointer;
     position: fixed;
-    width: 0px;
-    height: 0px;
     font-size: 24px;
-    left: 7.25em;
-    bottom: 199px;
+    z-index: 85;
+    left: 175px;
 }
 
 p#jc_Help:hover {

@@ -32,12 +32,13 @@ function setUpTray(app, win, env) {
     }
 };
 
-function exportTray(env) {
-    const { app } = require('@electron/remote')
+function exportTray() {
+    const { app, Notification } = require('@electron/remote');
+    const { API } = require('../../../preload');
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' });
     let dist = process.resourcesPath, distFile = 'assets';
-    if (env(app) == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
+    if (API.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
     ppL = path.join(dist, `${distFile}/ppL.ico`)
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));

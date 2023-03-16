@@ -1,6 +1,6 @@
 {
   "name": "SMlurker",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "description": "Twich Lurker app",
   "main": "main.js",
   "scripts": {
@@ -57,13 +57,13 @@
     }
   },
   "devDependencies": {
-    "electron": "^17.4.2",
-    "electron-builder": "^22.14.13"
+    "electron": "^23.1.2",
+    "electron-builder": "^23.6.0"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.8",
+    "@electron/remote": "^2.0.9",
     "auto-launch": "^5.0.5",
-    "electron-updater": "^4.6.5",
+    "electron-updater": "^5.3.0",
     "tmi.js": "^1.8.5"
   }
 }
