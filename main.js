@@ -45,7 +45,7 @@ function CreateWindow() {
     });
 
     if (env(app) == 'DEV') mainWindow.webContents.openDevTools();
-
+    app.commandLine.appendSwitch("disable-site-isolation-trials")
     mainWindow.focus();
     mainWindow.once('ready-to-show', () => mainWindow.show())
     iniMin(mainWindow)
