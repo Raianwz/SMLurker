@@ -6,8 +6,6 @@ const { WControls } = require('./src/internal/controls')
 const { SCore } = require('./src/internal/smcore')
 const path = require('path')
 
-WControls(Eremote)
-
 const api = {
     clipmenu: {
         show: (obj, win) => Eremote.Menu.buildFromTemplate(obj).popup(win),
@@ -23,6 +21,7 @@ const api = {
         hide: () => Eremote.getCurrentWindow().hide(),
         minimize: () => Eremote.getCurrentWindow().minimize(),
         show: () => Eremote.getCurrentWindow().show(),
+        controls: () => WControls(Eremote),
     },
     tw: SCore,
     helpers: {
@@ -34,7 +33,7 @@ const api = {
             } else {
                 return 'DEV';
             }
-        }
+        },
     },
     fs: {
         exist: (path) => pfs.existsSync(path),
