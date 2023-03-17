@@ -10,13 +10,13 @@ function setUpTray(app, win, env) {
     let dist = process.resourcesPath, distFile = 'assets';
     if (env(app) == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
     ppL = path.join(dist, `${distFile}/ppL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
-    const WinClosed = () => { try { win.show() } catch (err) { app.quit() } }
+    const WinClosed = () => { try { if (win.isVisible()) { win.hide() } else { win.show() } } catch (err) { app.quit() } }
 
     const template = [{ label: 'SM Lurker', icon: ezy, enabled: false, }, { type: 'separator' },
-    { label: 'Mostrar Janela', click: () => { WinClosed() } },
+    { label: 'Mostrar/Ocultar', click: () => { WinClosed() } },
     { label: 'Configurações', click: () => { ipcMain.emit('openConfigs'); } },
     { label: 'Reiniciar', click: () => { app.relaunch(); app.quit() } },
-    { type: 'separator' }, { label: 'Fechar/Sair', click: () => app.quit(), }]
+    { type: 'separator' }, { label: 'Fechar e Sair', click: () => app.quit(), }]
 
     const contextMenu = Menu.buildFromTemplate(template);
     tray = new Tray(ppL)
