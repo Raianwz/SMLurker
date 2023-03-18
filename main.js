@@ -1,14 +1,14 @@
 const { initialize, enable } = require('@electron/remote/main'); initialize();
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, Notification } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
 const { SetUpTray } = require('./src/components/helpers/tray');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
-const path = require('path')
+const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
 require('./src/components/ipc');
-let mainWindow;
+let mainWindow, auxcheck;
 checkFiles();
 
 function CreateWindow() {
@@ -67,12 +67,14 @@ app.on('ready', () => {
     initConfigs();
     CreateWindow();
     SetUpTray(app, mainWindow, env);
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
+    autoUpdater.addListener('update-downloaded', () => updateNotify())
 });
 
 
 // Quit when all windows are closed. 
 app.on('window-all-closed', () => {
+    autoUpdater.quitAndInstall(true, true)
     if (process.platform !== 'darwin') app.quit()
 })
 
@@ -81,6 +83,15 @@ app.on('activate', () => {
         CreateWindow();
     }
 })
+
+function updateNotify() {
+    let ntf = new Notification({
+        title: 'Atualização Baixada!',
+        body: `Para instalar a versão ${auxcheck.releaseName} basta fechar o SMLurker.\nClique aqui para conferir o que mudou nessa versão.`
+    })
+    ntf.show()
+    ntf.on('click', () => shell.openExternal('https://github.com/Raianwz/SMLurker/releases/latest'))
+}
 
 function checkFiles() {
     const fs = require('fs');
@@ -101,5 +112,8 @@ function iniMin(mainWindow) {
 setInterval(() => {
     console.log("\nProcurandinhu por atualizacoes... \n")
     if (env(app) == "DEV") console.log("Nada acontece feijoada :)")
-    else autoUpdater.checkForUpdatesAndNotify();
+    else {
+        autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
+        autoUpdater.addListener('update-downloaded', () => updateNotify())
+    };
 }, 1000 * 60 * 60);
