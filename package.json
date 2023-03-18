@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
-    "pack": "electron-builder --dir",
+    "pack": "electron-builder --dir --ia32",
     "build": "electron-builder --ia32",
     "release": "electron-builder --ia32 --publish always",
     "nodemon": "nodemon --watch . --exec electron ."
@@ -23,7 +23,7 @@
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",
-    "copyright": "Copyright © 2022 ${author}",
+    "copyright": "Copyright © 2023 ${author}",
     "directories": {
       "buildResources": "src/assets",
       "output": "releases"
@@ -50,6 +50,7 @@
       "releaseType": "release",
       "repo": "SMLurker"
     },
+    "artifactName": "${productName}.${ext}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
