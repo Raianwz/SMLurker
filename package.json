@@ -1,6 +1,6 @@
 {
   "name": "SMlurker",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Twich Lurker app",
   "main": "main.js",
   "scripts": {
@@ -50,6 +50,7 @@
       "releaseType": "release",
       "repo": "SMLurker"
     },
+    "artifactName": "${productName}.${ext}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
