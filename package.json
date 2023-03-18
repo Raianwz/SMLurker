@@ -50,7 +50,6 @@
       "releaseType": "release",
       "repo": "SMLurker"
     },
-    "artifactName": "${productName}.${ext}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
