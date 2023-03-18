@@ -1,11 +1,11 @@
 {
   "name": "SMlurker",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Twich Lurker app",
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
-    "pack": "electron-builder --dir",
+    "pack": "electron-builder --dir --ia32",
     "build": "electron-builder --ia32",
     "release": "electron-builder --ia32 --publish always",
     "nodemon": "nodemon --watch . --exec electron ."
@@ -23,7 +23,7 @@
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",
-    "copyright": "Copyright © 2022 ${author}",
+    "copyright": "Copyright © 2023 ${author}",
     "directories": {
       "buildResources": "src/assets",
       "output": "releases"
@@ -50,6 +50,7 @@
       "releaseType": "release",
       "repo": "SMLurker"
     },
+    "artifactName": "${productName}.${ext}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
@@ -58,7 +59,7 @@
   },
   "devDependencies": {
     "electron": "^23.1.4",
-    "electron-builder": "^23.6.0"
+    "electron-builder": "^24.0.0"
   },
   "dependencies": {
     "@electron/remote": "^2.0.9",

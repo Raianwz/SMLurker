@@ -1,29 +1,27 @@
-const { API } = require('../../../preload')
-const api = API
-
+const { appcore } = require('../../internal/appcore')
 /*============================================(GERENCIAMENTO DE DADOS)=========================================*/
 //Salvando dados
 async function saveUserData(user, pass) {
-    let dataPath = `${api.app.getPath('userData')}\\Config\\credentials.json`
+    let dataPath = `${appcore.appr.getPath('userData')}\\Config\\credentials.json`
     let data = {};
     data.username = user
     data.pass = pass
-    api.fs.write(dataPath, `${JSON.stringify(data)}`)
+    appcore.fs.write(dataPath, `${JSON.stringify(data)}`)
 }
 
 //Carregando dados salvos
 async function loadUserData() {
     const getEl = (el) => document.querySelector(el);
-    const configPath = `${api.app.getPath('userData')}\\Config\\configs.json`;
-    const dataPath = `${api.app.getPath('userData')}\\Config\\credentials.json`
+    const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
+    const dataPath = `${appcore.appr.getPath('userData')}\\Config\\credentials.json`
     let data = {};
 
-    if (api.fs.exist(dataPath)) {
-        data = JSON.parse(api.fs.read(dataPath, { encoding: 'utf8' }))
+    if (appcore.fs.exist(dataPath)) {
+        data = JSON.parse(appcore.fs.read(dataPath, { encoding: 'utf8' }))
         getEl('#username').value = data.username
         getEl('#pass').value = data.pass
-        if (api.fs.exist(configPath)) {
-            let config = JSON.parse(api.fs.read(configPath, { encoding: 'utf8' }))
+        if (appcore.fs.exist(configPath)) {
+            let config = JSON.parse(appcore.fs.read(configPath, { encoding: 'utf8' }))
             getEl('#swt_notifyMe').checked = config.NotifyMe
             getEl('#swt_notifyGift').checked = config.NotifyGift
             config.autologin === true ? getEl('#btnEntrar').click() : false
@@ -35,16 +33,16 @@ async function loadUserData() {
 //Gerenciando dados de Configurações de Notificações
 async function loadNotify() {
     const getEl = (el) => document.querySelector(el);
-    const configPath = `${api.app.getPath('userData')}\\Config\\configs.json`;
+    const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
     const mentions = getEl('#swt_notifyMe'), subgift = getEl('#swt_notifyGift');
-    if (api.fs.exist(configPath)) {
-        let config = JSON.parse(api.fs.read(configPath, { encoding: 'utf8' }))
+    if (appcore.fs.exist(configPath)) {
+        let config = JSON.parse(appcore.fs.read(configPath, { encoding: 'utf8' }))
         config.NotifyMe = mentions.checked;
         config.NotifyGift = subgift.checked;
         giftVol(subgift.checked)
-        api.fs.write(configPath, JSON.stringify(config));
+        appcore.fs.write(configPath, JSON.stringify(config));
     } else {
-        api.tw.config.create(configPath, mentions.checked, subgift.checked)
+        appcore.tw.config.create(configPath, mentions.checked, subgift.checked)
     }
 }
 
@@ -63,18 +61,18 @@ function giftVol(chk) {
 //Criando Profile data
 async function createProfile() {
     const userbox = (e) => document.getElementById('UserBox').innerHTML = `${e}`;
-    const profilePath = `${api.app.getPath('userData')}\\Config\\profile.json`;
+    const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
     let profileData, exp, checkExp, oldExp, legacyColor;
     let username = document.querySelector('#username').value.toString();
     userbox(`<p>Just Chatting</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
 
-    if (api.fs.exist(profilePath)) {
-        profileData = JSON.parse(api.fs.read(profilePath, { encoding: 'utf8' }))
+    if (appcore.fs.exist(profilePath)) {
+        profileData = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }))
 
         if (Object.keys(profileData).length < 5) {
             profileData = await getUser(username)
             profileData.expire = new Date().toLocaleDateString();
-            api.fs.write(profilePath, JSON.stringify(profileData));
+            appcore.fs.write(profilePath, JSON.stringify(profileData));
         }
 
         exp = new Date();
@@ -85,7 +83,7 @@ async function createProfile() {
         if (Object.keys(profileData).length > 0) {
             exp = new Date().toISOString();
             profileData.expire = exp;
-            api.fs.write(profilePath, JSON.stringify(profileData))
+            appcore.fs.write(profilePath, JSON.stringify(profileData))
         }
     }
     let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
@@ -99,7 +97,7 @@ async function createProfile() {
         profileData = await getUser(username)
         if (legacyColor != '#9148FF') profileData.chatColor = legacyColor
         profileData.expire = new Date().toISOString()
-        api.fs.write(profilePath, JSON.stringify(profileData))
+        appcore.fs.write(profilePath, JSON.stringify(profileData))
     }
 }
 

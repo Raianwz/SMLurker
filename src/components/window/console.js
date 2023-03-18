@@ -1,20 +1,20 @@
 const { Notification } = require('@electron/remote')
 const path = require('path')
-const api = require('../../../preload').API
+const { appcore } = require('../../internal/appcore')
 const getEl = (el) => document.querySelector(el)
 const barText = (el, txt) => el.innerText = txt;
-const profilePath = `${api.app.getPath('userData')}\\Config\\profile.json`;
-const configPath = `${api.app.getPath('userData')}\\Config\\configs.json`;
+const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
+const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
 const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/970807861770846278/Chaos.mp3');
 let ping, mentions = 0, userdata;
 let panel = getEl('#pTable'), pTotal = getEl('#Ptotal'), mTotal = getEl('#Mtotal')
 const barReset = () => { panel.value = ""; mentions = 0; barText(pTotal, `💬 Texto: 0/6000`); barText(getEl("#Mtotal"), `🔔 Menções: 0`) }
 let dist = process.resourcesPath, distFile = 'assets';
-if (api.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
+if (appcore.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
 
 function consoleManager() {
-    if (api.fs.exist(profilePath)) userdata = JSON.parse(api.fs.rd(profilePath))
-    else api.tw.data.createProfile()
+    if (appcore.fs.exist(profilePath)) userdata = JSON.parse(appcore.fs.rd(profilePath))
+    else appcore.sc.data.createProfile()
     let userDisplayName = userdata.display_name ?? getEl('#username').value.toLowerCase()
     let userName = userdata.login ?? getEl('#username').value.toLowerCase()
 
@@ -31,7 +31,7 @@ function consoleManager() {
 
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
 
-    api.tw.tmi.on('message', async (channel, tags, message) => {
+    appcore.sc.tmi.on('message', async (channel, tags, message) => {
         let time = new Date();
         let checkUserName = (message.toLowerCase()).includes(`${userName}`)
         if (checkUserName || message.includes(`${userDisplayName}`)) {
@@ -42,7 +42,7 @@ function consoleManager() {
         }
     })
 
-    api.tw.tmi.on('subgift', async (channel, username, recipient, userstate) => {
+    appcore.sc.tmi.on('subgift', async (channel, username, recipient, userstate) => {
         if (userstate.includes(userName) || userstate.includes(userDisplayName)) {
             checkNotifySub(channel, username, userstate)
         }
@@ -65,8 +65,8 @@ function consoleChange(text) {
 }
 
 function checkNotifyMe(channel, tags, message) {
-    if (api.fs.exist(configPath)) {
-        let configs = JSON.parse(api.fs.rd(configPath))
+    if (appcore.fs.exist(configPath)) {
+        let configs = JSON.parse(appcore.fs.rd(configPath))
         if (configs.NotifyMe === true) {
             let mention = path.join(dist, `${distFile}/metion.png`);
             let notifica = new Notification({
@@ -75,15 +75,15 @@ function checkNotifyMe(channel, tags, message) {
                 body: `@${tags.username} diz: ${message}`,
                 timeoutType: 'default', urgency: 'low'
             })
-            notifica.addListener('click', () => { api.elcr.shell.openExternal(`https://twitch.tv/${channel.replace('#', '')}`) })
+            notifica.addListener('click', () => { appcore.eshell.openExternal(`https://twitch.tv/${channel.replace('#', '')}`) })
             notifica.show()
         }
     }
 }
 
 function checkNotifySub(channel, username, recipient) {
-    if (api.fs.exist(configPath)) {
-        let configs = JSON.parse(api.fs.rd(configPath))
+    if (appcore.fs.exist(configPath)) {
+        let configs = JSON.parse(appcore.fs.rd(configPath))
         if (configs.NotifyGift === true) {
             let gift = path.join(dist, `${distFile}/gift.png`)
             let notifica = new Notification({
@@ -91,7 +91,7 @@ function checkNotifySub(channel, username, recipient) {
                 body: `Você(@${recipient}) ganhou um SubGift de @${username} em ${channel}`,
                 timeoutType: 'default', urgency: 'normal', sound: audio.play(), silent: true
             })
-            notifica.addListener('click', () => { api.elcr.shell.openExternal(`https://twitch.tv/${channel.replace('#', '')}`) })
+            notifica.addListener('click', () => { appcore.eshell.openExternal(`https://twitch.tv/${channel.replace('#', '')}`) })
             notifica.show()
 
         }

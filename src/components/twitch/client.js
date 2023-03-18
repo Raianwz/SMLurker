@@ -1,6 +1,6 @@
 const tmi = api.tw.tmi;
-const changeButtonSide = (btn, dest) => api.tr.changeside(btn, dest);
-const BlockLogin = (value) => api.tr.blockinput(value);
+const changeButtonSide = (btn, dest) => api.cr.tr.changeside(btn, dest);
+const BlockLogin = (value) => api.cr.tr.blockinput(value);
 const createProfile = async () => api.tw.data.createProfile();
 const loadUserData = async () => api.tw.data.loadUserData();
 const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass)

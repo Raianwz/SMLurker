@@ -1,9 +1,7 @@
-const { API } = require("../../preload");
-
 module.exports.WControls = windowButtonsContols;
 
 function windowButtonsContols(app) {
-    const win = app.getCurrentWindow()
+    const win = app()
     win.webContents.on('dom-ready', () => {
         let wbt = `let el = (e) => document.querySelector(e)
         let wButton = (btn) => el(\`svg[name=\${btn}]\`)
@@ -15,16 +13,16 @@ function windowButtonsContols(app) {
             type: 'separator',
         }, {
             label: 'Reiniciar',
-            click: () => { api.app.relaunch(); api.app.quit() },
+            click: () => { api.cr.appr.relaunch(); api.cr.appr.quit() },
         }]
-        el('p.version').innerText += \`V\t\${api.app.getVersion()}\tbeta\`;
-        el('p.version').addEventListener('click', () => api.elcr.shell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.app.getVersion()}\`))
+        el('p.version').innerText += \`V\t\${api.cr.appr.getVersion()}\tbeta\`;
+        el('p.version').addEventListener('click', () => api.cr.eshell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.cr.appr.getVersion()}\`))
     
-        wButton('closeWindow').addEventListener('click', () => api.wb.close());
-        wButton('gearConfig').addEventListener('click', () => api.ipc.emit('openConfigs') )
-        wButton('hideWindow').addEventListener('click', () => {api.wb.hide(); api.tray.export()});
-        wButton('minWindow').addEventListener('click', () => api.wb.minimize());
-        wButton('menuConfig').addEventListener('click', () => api.clipmenu.show(ShortMenu));`;
+        wButton('closeWindow').addEventListener('click', () => api.cr.wb.close());
+        wButton('gearConfig').addEventListener('click', () => api.cr.ipc.emit('openConfigs') )
+        wButton('hideWindow').addEventListener('click', () => {api.cr.wb.hide(); api.tray.export()});
+        wButton('minWindow').addEventListener('click', () => api.cr.wb.minimize());
+        wButton('menuConfig').addEventListener('click', () => api.cr.clipmenu.show(ShortMenu));`;
         let clipeMenu = `const InputMenu = [{label: 'Desfazer', role: 'undo',accelerator: 'CmdOrCtrl+Z',},
         {
             label: 'Refazer',
@@ -55,7 +53,8 @@ function windowButtonsContols(app) {
             e.preventDefault();
             let ele = e.target
             if (ele.type === "text" || ele.type === "textarea" || ele.type === "password") {
-                api.clipmenu.show(InputMenu);
+                api.cr.clipmenu.show(InputMenu);
+
             }
         })`;
         win.webContents.executeJavaScript(`${wbt}\n${clipeMenu}`);
