@@ -1,7 +1,6 @@
 let joinedChn = [], check, error;
 let { appcore } = require('../../internal/appcore')
 
-
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
     const channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`;

@@ -1,3 +1,4 @@
+//const api = require("../../../preload").API
 const getEl = (el) => document.querySelector(el)
 const Clog = (txt) => getEl('#canalLog').innerText = txt;
 const newChannelInput = getEl('#txtCanal');

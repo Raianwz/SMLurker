@@ -3,7 +3,6 @@ const { appcore } = require('../../internal/appcore')
 const tmi = smcore.tmi;
 const changeButtonSide = (btn, dest) => appcore.tr.changeside(btn, dest)
 const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
-
 /*==============================================(ENTRANDO EM CANAIS)===========================================*/
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
@@ -55,7 +54,7 @@ async function joinChannels() {
     }
     durantion = channels.length
     let tmc = await tmi.rds();
-
+    
     while (tmc != 'OPEN') await appcore.helpers.sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {

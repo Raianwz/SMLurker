@@ -54,6 +54,7 @@ function windowButtonsContols(app) {
             let ele = e.target
             if (ele.type === "text" || ele.type === "textarea" || ele.type === "password") {
                 api.cr.clipmenu.show(InputMenu);
+
             }
         })`;
         win.webContents.executeJavaScript(`${wbt}\n${clipeMenu}`);
