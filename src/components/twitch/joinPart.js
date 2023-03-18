@@ -1,21 +1,21 @@
-let api = require('../../../preload').API
 let joinedChn = [], check, error;
+let { appcore } = require('../../internal/appcore')
 
 
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
-    const channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`;
-    const pingArea = (txt) => { let time = new Date(); api.console.panel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
+    const channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`;
+    const pingArea = (txt) => { let time = new Date(); appcore.console.panel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
     const inText = (el, txt) => el.innerText = txt
-    const waiting = () => api.helpers.sleep(800).then(() => waitBlock())
+    const waiting = () => appcore.helpers.sleep(800).then(() => waitBlock())
     const JCtoast = (txt) => {
         let x = getEl("#jc_Status"); x.textContent = `${txt}`; x.classList.add('show');
-        api.helpers.sleep('3000').then(() => { x.classList.remove('show'); x.textContent = ""; })
+        appcore.helpers.sleep('3000').then(() => { x.classList.remove('show'); x.textContent = ""; })
     }
     let btnJoin = getEl('#jc_Join'), btnPart = getEl('#jc_Part'), btnSair = getEl('#btnEntrar'), txtChannel;
-    api.helpers.env() === 'DEV' ? channels = JSON.parse(api.fs.rd(channelPath)) : false
+    appcore.helpers.env() === 'DEV' ? channels = JSON.parse(appcore.fs.rd(channelPath)) : false
 
-    if (api.fs.exist(channelPath)) channels = JSON.parse(api.fs.rd(channelPath))
+    if (appcore.fs.exist(channelPath)) channels = JSON.parse(appcore.fs.rd(channelPath))
     joinedChn = channels || joinedChn
     btnJoin.addEventListener('click', jpJoinChn)
     btnPart.addEventListener('click', jpPartChn)
@@ -45,7 +45,7 @@ function jpManager() {
                 }
             }
             else if (cmd === '_smdebug.devtools') {
-                api.elcr.getCurrentWindow().webContents.openDevTools();
+                appcore.egetW().webContents.openDevTools();
                 enable('Trapaças')
                 console.log('%c🐸Tenha cuidado! As coisas podem sair do controle.', 'color: red; font-size: 20pt;');
                 getEl('#txtConexaoCanal').value = ""
@@ -66,7 +66,7 @@ function jpManager() {
         if (checkChn(txtChannel)) {
             if (!check) {
                 waitBlock(true)
-                await api.tw.tmi.join(`${txtChannel}`)
+                await appcore.sc.tmi.join(`${txtChannel}`)
                     .catch(err => { if (err === 'msg_channel_suspended') error = true; })
                     .then(() => waiting())
                 if (!error) {
@@ -88,7 +88,7 @@ function jpManager() {
         if (checkChn(txtChannel)) {
             if (check) {
                 waitBlock(true)
-                await api.tw.tmi.part(`${txtChannel}`)
+                await appcore.sc.tmi.part(`${txtChannel}`)
                     .catch(err => console.log(`[DEBUG] - Erro: ${err}`))
                     .then(() => waiting())
                 joinedChn = joinedChn.filter(chn => chn !== `#${txtChannel}`)
@@ -106,7 +106,7 @@ function jpManager() {
     }
     async function JCInfo() {
         let textao = `Conexão de canais te permite 'Entrar/Sair' de canais sem precisar deslogar.\nAlém de não afeta sua lista de canais e não salva essas ações.`;
-        api.dg.showMB({
+        appcore.dg.showMB({
             type: 'info',
             title: 'Conexão de Canais — SMLurker',
             message: textao,

@@ -1,8 +1,7 @@
 const tmijs = require('tmi.js')
 const { createConfigs } = require('../components/helpers/setupConfigs')
 let localClient = null
-let localtmi = tmijs.Client({});
-let n = 0;
+let n = 0
 
 const smcore = {
     config: {
@@ -60,4 +59,4 @@ function createClient(options) {
     return localClient = new tmijs.Client(options)
 }
 
-module.exports.SCore = smcore;
+module.exports = { smcore };

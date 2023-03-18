@@ -1,4 +1,3 @@
-//const api = require("../../../preload").API
 const getEl = (el) => document.querySelector(el)
 const Clog = (txt) => getEl('#canalLog').innerText = txt;
 const newChannelInput = getEl('#txtCanal');
@@ -33,10 +32,10 @@ function btnsListener() {
 }
 
 async function loadChannelsFromFile() {
-    const channelFilePath = `${api.app.getPath('userData')}\\Config\\channels.json`;
+    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
     if (!dialogOpen) {
         dialogOpen = true;
-        let file = api.dg.showODS({
+        let file = api.cr.dg.showODS({
             properties: ['openFile'],
             filters: [{ name: 'txt', extensions: ['txt'] }],
         })
@@ -44,17 +43,17 @@ async function loadChannelsFromFile() {
             dialogOpen = false;
             return
         }
-        let data = api.fs.rd(file[0])
+        let data = api.cr.fs.rd(file[0])
         let channels = data.replace(/ /g, '').split(',')
         channels = fixChannels(channels);
-        api.fs.write(channelFilePath, JSON.stringify(channels))
+        api.cr.fs.write(channelFilePath, JSON.stringify(channels))
         Clog('🟢Arquivo adicionado!');
         dialogOpen = false;
     }
 }
 
 function addChannel() {
-    const channelFilePath = `${api.app.getPath('userData')}\\Config\\channels.json`;;
+    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;;
     let channels = newChannelInput.value.toLowerCase()
     let onList = false;
 
@@ -64,30 +63,30 @@ function addChannel() {
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
-    if (api.fs.exist(channelFilePath)) {
-        let oldChannels = JSON.parse(api.fs.rd(channelFilePath))
+    if (api.cr.fs.exist(channelFilePath)) {
+        let oldChannels = JSON.parse(api.cr.fs.rd(channelFilePath))
         for (let x in channels) {
             if (oldChannels.includes(channels[x])) onList = true
         }
         if (!onList) {
             channels.forEach(chn => oldChannels.push(chn))
-            api.fs.write(channelFilePath, JSON.stringify(oldChannels))
+            api.cr.fs.write(channelFilePath, JSON.stringify(oldChannels))
             Clog(`✅Adicionado com Sucesso!`)
             newChannelInput.value = ""
-            api.helpers.sleep('1750').then(() => clearInputs())
+            api.cr.helpers.sleep('1750').then(() => clearInputs())
         } else {
             Clog(`${JSON.stringify(channels).replace(/[\[\#\]"]/g, '')} já existe em sua lista!📝`);
         }
     } else {
-        api.fs.write(channelFilePath, JSON.stringify(channels))
+        api.cr.fs.write(channelFilePath, JSON.stringify(channels))
         Clog(`✅Adicionado com Sucesso!`);
         newChannelInput.value = "";
-        api.helpers.sleep('1750').then(() => clearInputs())
+        api.cr.helpers.sleep('1750').then(() => clearInputs())
     }
 }
 
 function removeChannel() {
-    const channelFilePath = `${api.app.getPath('userData')}\\Config\\channels.json`;;
+    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
     let channels = newChannelInput.value.toLowerCase()
 
     if (!channels || !channels.replace(/ /g, '')) {
@@ -96,8 +95,8 @@ function removeChannel() {
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
-    if (api.fs.read(channelFilePath)) {
-        let currentChns = JSON.parse(api.fs.rd(channelFilePath));
+    if (api.cr.fs.read(channelFilePath)) {
+        let currentChns = JSON.parse(api.cr.fs.rd(channelFilePath));
         let onList = false
         for (let x in channels) { if (currentChns.includes(channels[x])) onList = true }
 
@@ -105,19 +104,19 @@ function removeChannel() {
             for (let x in channels) currentChns = currentChns.filter(
                 chn => chn !== channels[x]
             )
-            api.fs.write(channelFilePath, JSON.stringify(currentChns))
-            Clog("❎Removido com Sucesso!")
-            api.helpers.sleep('2750').then(() => clearInputs())
+            api.cr.fs.write(channelFilePath, JSON.stringify(currentChns))
+            Clog('❎Removido com Sucesso!')
+            api.cr.helpers.sleep('2750').then(() => clearInputs())
         } else {
             newChannelInput.classList.add('warn')
             Clog('🫤Canal não encontrado!');
-            api.helpers.sleep('15000').then(() => clearInputs())
+            api.cr.helpers.sleep('15000').then(() => clearInputs())
             return
         }
     } else {
         newChannelInput.classList.add('warn');
         Clog('⛔Não há nenhum canal para remover!');
-        api.helpers.sleep('30000').then(() => clearInputs())
+        api.cr.helpers.sleep('30000').then(() => clearInputs())
         return;
     }
 }

@@ -1,9 +1,8 @@
-const { API } = require('../../../preload')
-const { SCore } = require('../../internal/smcore')
-const api = API;
-const tmi = SCore.tmi;
-const changeButtonSide = (btn, dest) => api.tr.changeside(btn, dest)
-const gCount = () => api.tw.lv.get(), aCount = () => api.tw.lv.add();
+const { smcore } = require('../../internal/smcore')
+const { appcore } = require('../../internal/appcore')
+const tmi = smcore.tmi;
+const changeButtonSide = (btn, dest) => appcore.tr.changeside(btn, dest)
+const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 
 /*==============================================(ENTRANDO EM CANAIS)===========================================*/
 //Ativar/Desativar tempo estimado
@@ -23,7 +22,7 @@ function waitLogin(valor) {
 async function joinChannels() {
     const getEl = (el) => document.querySelector(el)
     const getText = (el, txt) => el.textContent = `${txt}`
-    let channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`
+    let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`
     let totalCN = getEl('#cntotal'), txtArea = getEl('#pTable'), channels = {};
     let y = 0, durantion = 0;
     const ClockTimer = {
@@ -45,25 +44,25 @@ async function joinChannels() {
         }
     }
 
-    if (api.helpers.env() === 'DEV') channelPath = api.path.join('./DevData/channels.json')
+    //if (appcore.helpers.env() === 'DEV') channelPath = appcore.path.join('./DevData/channels.json')
 
-    if (!api.fs.exist(channelPath)) {
+    if (!appcore.fs.exist(channelPath)) {
         throw 'Nenhum canal adicionado, por favor adicione um canal'
-    } else if (JSON.parse(api.fs.rd(channelPath)).length <= 0) {
+    } else if (JSON.parse(appcore.fs.rd(channelPath)).length <= 0) {
         throw 'Nenhum canal adicionado, por favor adicione um canal'
     } else {
-        channels = JSON.parse(api.fs.rd(channelPath))
+        channels = JSON.parse(appcore.fs.rd(channelPath))
     }
     durantion = channels.length
     let tmc = await tmi.rds();
 
-    while (tmc != 'OPEN') await api.helpers.sleep(1000);
+    while (tmc != 'OPEN') await appcore.helpers.sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {
         tmi.join(channels[x]).catch(err => {
             if (err === 'msg_channel_suspended') {
                 aCount();
-                api.helpers.sleep(300).then(() => removeChannel(`${channels[x]}`));
+                appcore.helpers.sleep(300).then(() => removeChannel(`${channels[x]}`));
             }
         })
 
@@ -79,14 +78,14 @@ async function joinChannels() {
             getText(totalCN, `🟡 Aguarde: ${x + 1}/${channels.length -
                 gCount()}`)
             y = 0;
-            await api.helpers.sleep(10.5 * 1000)
+            await appcore.helpers.sleep(10.5 * 1000)
         }
-        await api.helpers.sleep(200)
+        await appcore.helpers.sleep(200)
     }
     ClockTimer.stop()
     waitLogin(false)
     txtArea.value = "";
-    await api.helpers.sleep(200)
+    await appcore.helpers.sleep(200)
     getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
 }
 
@@ -94,11 +93,11 @@ async function joinChannels() {
 function removeChannel(chn) {
     let channels = chn.toString()
     let dt = new Date().toLocaleDateString().replaceAll('/', '.')
-    let channelPath = `${api.app.getPath('userData')}\\Config\\channels.json`;
-    let bkChannels = `${api.app.getPath('desktop')}\\smlurker_lista.backup.${dt}.txt`;
-    if (api.helpers.env() === 'DEV') channelPath = api.path.join('./DevData/channels.json')
-    if (api.fs.exist(channelPath)) {
-        let currentCn = JSON.parse(api.fs.rd(channelPath))
+    let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`;
+    let bkChannels = `${appcore.appr.getPath('desktop')}\\smlurker_lista.backup.${dt}.txt`;
+    if (appcore.helpers.env() === 'DEV') channelPath = appcore.path.join('./DevData/channels.json')
+    if (appcore.fs.exist(channelPath)) {
+        let currentCn = JSON.parse(appcore.fs.rd(channelPath))
         let errMsg = `O canal ${channels.toUpperCase()} foi removido da sua Lista de Canais\n\tMotivo: Este canal não existe ou foi suspenso.\n\nUm arquivo de backup foi criado em sua área de trabalho!`;
         let onList = false, filtro;
 
@@ -107,9 +106,9 @@ function removeChannel(chn) {
             filtro = currentCn.filter(channel => channel !== channels);
             currentCn.sort()
             currentCn = JSON.stringify(currentCn).replace(/[\"\[\]]/g, '')
-            api.fs.write(channelPath, JSON.stringify(filtro))
-            api.fs.write(bkChannels, currentCn)
-            api.dg.showMB({
+            appcore.fs.write(channelPath, JSON.stringify(filtro))
+            appcore.fs.write(bkChannels, currentCn)
+            appcore.dg.showMB({
                 type: 'info',
                 title: 'Canal Removido — SMLurker',
                 message: errMsg,

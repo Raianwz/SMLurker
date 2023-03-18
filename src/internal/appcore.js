@@ -14,6 +14,7 @@ const appcore = {
     },
     appr: app,
     eshell: shell,
+    egetW: getCurrentWindow,
     wb: {
         close: () => getCurrentWindow().close(),
         focus: () => getCurrentWindow().focus(),
