@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix: 
-        node-version: [16.x]
+        node-version: [18.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
-      run: yarn
+      run: npm install
 
     - name: Electron Builder Action
       uses: samuelmeuli/action-electron-builder@v1.6.0
