@@ -1,6 +1,6 @@
-module.exports.WControls = windowButtonsContols;
+module.exports.WControls = windowButtonsControls;
 
-function windowButtonsContols(app) {
+function windowButtonsControls(app) {
     const win = app()
     win.webContents.on('dom-ready', () => {
         let wbt = `let el = (e) => document.querySelector(e)
