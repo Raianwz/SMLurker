@@ -41,7 +41,7 @@ const appcore = {
     },
     path: {
         fjoin: (args) => join(__filename, args),
-        fresolve: (args) => resolve(__filenamem, args),
+        fresolve: (args) => resolve(__filename, args),
         join: (args) => join(__dirname, args),
         resolve: (args) => resolve(__dirname, args),
     },
