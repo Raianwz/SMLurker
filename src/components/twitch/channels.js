@@ -20,8 +20,8 @@ function btnsListener() {
     localStorage.getItem('volume') === null ? localStorage.setItem('volume', 30) : getEl('input#volBar').value = localStorage.getItem('volume');
     localStorage.getItem('volume') !== null ? getEl('#volTxt').innerText = localStorage.getItem('volume') : false
     getEl('input#volBar').addEventListener('input', () => { localStorage.setItem('volume', getEl('input#volBar').value); getEl('#volTxt').innerText = getEl('input#volBar').value })
-    getEl('input[name="addCanal"]').addEventListener('click', () => getEl('input[name="addCanal"]').className.includes('block') ? true : addChannel())
-    getEl('input[name="removerCanal"]').addEventListener('click', () => getEl('input[name="removerCanal"]').className.includes('block') ? true : removeChannel())
+    getEl('div[name="addCanal"]').addEventListener('click', () => getEl('div[name="addCanal"]').className.includes('block') ? true : addChannel())
+    getEl('div[name="removerCanal"]').addEventListener('click', () => getEl('div[name="removerCanal"]').className.includes('block') ? true : removeChannel())
     getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => getEl('div[name="loadChannelsFromFile"]').className.includes('block') ? true : loadChannelsFromFile())
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
     getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })

@@ -14,6 +14,11 @@
     animation: slide-out .5s forwards;
 }
 
+.none {
+    transition: .2s ease-in-out 0s;
+    display: none;
+}
+
 .show {
     opacity: 100%;
     animation: slide-in .5s forwards;
@@ -33,6 +38,12 @@
 .vline {
     border-left: 1px #18191b solid;
     height: 90vh;
+}
+
+.vlinep {
+    border-left: 1px var(--purple) solid;
+    height: 92vh;
+    margin-top: 6px;
 }
 
 /*Linha Horizontal*/
@@ -172,18 +183,22 @@ svg[name="menuConfig"]:hover path,
 /************************************************
 *******************[Wrappers & Boxes]*************
 ************************************************/
-
+div.main,
 div.conectBox,
 div.mainBox {
     display: flex;
     width: 100vw;
+    height: 100%;
+}
+
+div.menu-bar {
+    padding-top: 40px;
+    width: 40px;
+    background-color: #202225;
 }
 
 .UserWrapper {
-    width: 22vw;
-    max-width: 210px;
-    height: 100vh;
-    background-color: #18191c;
+    width: 100%;
 }
 
 .UserWrapper .hline {
@@ -198,19 +213,81 @@ div.mainBox {
     margin-top: 1.8em;
 }
 
+/************************************************
+*******************[MENU BAR]*************
+************************************************/
+div.menu-bar .gearConfig {
+    margin-inline: 5px;
+    margin-bottom: 20px;
+    margin-top: -25px;
+    margin-inline: 10px;
+    fill-rule: var(--text);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+div.menu-bar>svg,
+div.menu-bar .gearConfig path {
+    fill: var(--text);
+    cursor: pointer;
+}
+
+div.menu-bar>section {
+    font-size: 30px;
+    color: #fff;
+    padding-inline: 5px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+div.menu-bar #refresh {
+    margin-top: -20px;
+    position: relative;
+    bottom: 20px;
+    border-bottom: 1px solid #18191b;
+}
+
+div.menu-bar>section#refresh:hover {
+    color: var(--purple);
+    background-color: #0000;
+}
+
+div.menu-bar .avatar {
+    width: 30px;
+}
+
+div.menu-bar>section:hover {
+    color: #FFF;
+    background-color: var(--purple);
+    cursor: pointer;
+}
+
+div.menu-bar>section.selected {
+    color: var(--purple);
+}
+
+div.menu-bar>section.selected:hover {
+    color: var(--text);
+}
+
+div.loginBox.actived,
+div.channelsManager.actived {
+    visibility: visible;
+    transition: .2s ease-in-out 0s;
+}
+
 /********************************
 ***********[Login Box]************
 ********************************/
 div.loginBox {
-    width: 50%;
-    max-width: 500px;
+    width: 86%;
 }
 
 div.loginBox,
 div.channelsManager {
     text-align: center;
     height: fit-content;
-    margin-inline: 20px;
     margin-top: 4em;
 }
 
@@ -246,7 +323,7 @@ div.channelsManager {
 .channelsManager input[type='text']:focus,
 .channelsManager input[type='text']:hover {
     transition: .2s ease-in-out 0s;
-    width: 75%;
+    width: 95%;
     background-color: #FFF;
     box-shadow: 0px 0px 0px 2px var(--purple);
 }
@@ -369,9 +446,9 @@ a span:hover::after {
     transition: .5s ease 0s;
 }
 
-.UserWrapper input[type="button"] {
+/* .UserWrapper input[type="button"] {
     width: 50%;
-}
+} */
 
 .UserWrapper .btnSair {
     display: flex;
@@ -411,11 +488,17 @@ a span:hover::after {
 ******** Gerenciar Canais *************************
 **************************************************/
 .channelsManager {
-    width: 40%;
-    max-width: 400px;
-    height: 185px;
+    width: 80%;
     border-radius: 5%;
+    margin-left: auto;
+    margin-right: auto;
     transition: 2s ease 0s;
+}
+
+.channelsManager div[type='button']{
+    margin-top: 10px;
+    display: inline-block;
+    margin-inline: 30px;
 }
 
 .channelsManager input::placeholder {
@@ -496,9 +579,9 @@ a span:hover::after {
 .channelsManager input[type='text'] {
     margin-top: 4px;
     border-radius: 20px;
-    width: 70%;
+    width: 90%;
     height: 25px;
-    padding: 2px 10px 2px 10px;
+    padding: 15px 10px 15px 10px;
     font-size: 16px;
     background-color: #d0d0d0;
     transition: .3s ease 0s;
@@ -514,6 +597,14 @@ a span:hover::after {
     color: #282b30;
     transition: .5s ease 0s;
     border: 1px solid #282b30;
+}
+
+.channelsManager div[type='button'] {
+    border-radius: 20px;
+    cursor: pointer;
+    width: 120px;
+    padding-bottom: 5px;
+    padding-top: 0px;
 }
 
 .channelsManager input[type='button'] {
@@ -536,24 +627,40 @@ a span:hover::after {
 }
 
 /* Botão Carregar Arquivos */
-.cnFile {
+div[type='button'].cnFile {
     font-size: 15px;
     height: 35px;
     width: 180px;
     background: #0099ff54;
-    margin-top: 15px;
+    margin-top: 30px;
     margin-left: auto;
     margin-right: auto;
     border-radius: 20px;
     cursor: pointer;
     transition: .5s ease 0s;
+    margin-inline: 10px;
 }
 
-.cnFile:hover {
+div[type='button'].cnFile.export {
+    color: #ffffff;
+    border: 1px #ffffff solid;
+    background: #00000000;
+    transition: .5s ease 0s;
+}
+
+.channelsManager div[type='button'].cnFile:hover.export{
+    color: var(--blue);
+    transition: 1s ease 0s;
+    background-color: #ffffff;
+}
+
+.channelsManager div[type='button'].cnFile:hover {
     transition: 1s ease 0s;
     background-color: #0099ff;
+    border: 1px var(--blue) solid;
 }
 
+.channelsManager div[type='button'] i,
 .cnFile i {
     position: relative;
     cursor: pointer;
@@ -576,7 +683,7 @@ a span:hover::after {
     position: fixed;
     z-index: 1;
     bottom: 6px;
-    left: 13px;
+    right: 13px;
     font-size: 14px;
     color: #ff5555;
     font-weight: bold;
@@ -591,7 +698,7 @@ div#mentionsbar {
     justify-content: space-between;
     align-items: center;
 }
-
+div#mentionsbar span[name="jc_clean"],
 div#mentionsbar span[name="clearPing"] {
     cursor: pointer;
     display: flex;
@@ -664,13 +771,14 @@ textarea::-webkit-scrollbar-thumb:hover {
 *********NOTIFICAÇÕES************
 *********************************/
 .NotifyWrapper {
-    margin-top: 10px;
+    margin-top: 25px;
     text-align: center;
+    padding-inline: 130px;
 }
 
-.NotifyWrapper p .title {
+.NotifyWrapper p.title {
     font-weight: 700;
-    font-size: 12px;
+    font-size: 16px;
 }
 
 .NotifyWrapper switch_container {
@@ -874,9 +982,31 @@ p#jc_Help {
     position: fixed;
     font-size: 24px;
     z-index: 85;
-    left: 175px;
+    right: 114px;
+    bottom: 0px;
+    top: 90px;
+    height: 25px;
 }
 
 p#jc_Help:hover {
     color: #ffd502;
+}
+
+.JoinLeave textarea{
+    width: 380px;
+    height: 180px;
+    margin-top: 30px;
+    resize: none;
+    border-radius: 10px 10px 10px 10px;
+    padding: 5px 10px 5px 10px;
+}
+
+.JoinLeave div#mentionsbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: -7px;
+}
+.JoinLeave div#mentionsbar span{
+    cursor: pointer;
 }

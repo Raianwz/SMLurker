@@ -18,7 +18,15 @@ const api = {
         reset: () => {
             let { barReset } = require('./src/components/window/console')
             barReset()
-        }
+        },
+        jcPanel: (txt) => {
+            let { jcPanel } = require('./src/components/window/console')
+            jcPanel(txt)
+        },
+        jcPanelReset: () =>{
+            let { jcPNReset} = require('./src/components/window/console')
+            jcPNReset()
+        },
     },
     tray: {
         export: () => {

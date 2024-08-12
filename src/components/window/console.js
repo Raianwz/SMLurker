@@ -5,10 +5,11 @@ const getEl = (el) => document.querySelector(el)
 const barText = (el, txt) => el.innerText = txt;
 const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
 const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
-const audio = new Audio('https://cdn.discordapp.com/attachments/743995893665235034/970807861770846278/Chaos.mp3');
+const audio = new Audio('https://github.com/Raianwz/json-sv-wz/raw/main/Chaos.mp3');
 let ping, mentions = 0, userdata;
-let panel = getEl('#pTable'), pTotal = getEl('#Ptotal'), mTotal = getEl('#Mtotal')
+let panel = getEl('#pTable'), pTotal = getEl('#Ptotal'), mTotal = getEl('#Mtotal'),jcConsolePanel = getEl('#jcConsole')
 const barReset = () => { panel.value = ""; mentions = 0; barText(pTotal, `💬 Texto: 0/6000`); barText(getEl("#Mtotal"), `🔔 Menções: 0`) }
+const jcConsoleReset = () => {jcConsolePanel.value=""}
 let dist = process.resourcesPath, distFile = 'assets';
 if (appcore.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
 
@@ -28,6 +29,7 @@ function consoleManager() {
     })
 
     getEl('span[name=clearPing]').addEventListener('click', barReset)
+    getEl('span[name=jc_clean]').addEventListener('click', jcConsoleReset)
 
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
 
@@ -62,6 +64,14 @@ function consoleChange(text) {
     panel.scrollTop = panel.scrollHeight;
     ping.length >= 6000 ? barReset() : false
     barText(pTotal, `💬 Texto: ${ping.length}/6000`)
+}
+
+function jcConsoleChange(text){
+    jcConsolePanel.value += text;
+    ping = jcConsolePanel.value;
+    ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
+    jcConsolePanel.scrollTop = jcConsolePanel.scrollHeight;
+    ping.length >= 2000 ? jcConsoleReset() : false
 }
 
 function checkNotifyMe(channel, tags, message) {
@@ -101,3 +111,5 @@ function checkNotifySub(channel, username, recipient) {
 module.exports.barReset = barReset;
 module.exports.consoleMng = consoleManager;
 module.exports.panel = consoleChange;
+module.exports.jcPanel =  jcConsoleChange;
+module.exports.jcPNReset = jcConsoleReset;

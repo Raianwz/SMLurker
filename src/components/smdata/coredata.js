@@ -61,10 +61,12 @@ function giftVol(chk) {
 //Criando Profile data
 async function createProfile() {
     const userbox = (e) => document.getElementById('UserBox').innerHTML = `${e}`;
+    const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
     let profileData, exp, checkExp, oldExp, legacyColor;
     let username = document.querySelector('#username').value.toString();
     userbox(`<p>Just Chatting</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
+    btnuser(`<img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
 
     if (appcore.fs.exist(profilePath)) {
         profileData = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }))
@@ -90,7 +92,9 @@ async function createProfile() {
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
     userbox("");
+    btnuser("");
     userbox(`<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
+    btnuser(`<img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
 
     if (checkExp) {
         legacyColor = profileData.chatColor

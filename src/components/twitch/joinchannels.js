@@ -7,7 +7,7 @@ const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
     const getEl = (el) => document.querySelector(el)
-    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]', '.sgSom', '#JoinCanalExtra']
+    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]'] //'.sgSom', '#JoinCanalExtra'
     valor == true ? getEl('#swt_notifyMe').disabled = valor : getEl('#swt_notifyMe').disabled = valor
     valor == true ? getEl('#swt_notifyGift').disabled = valor : getEl('#swt_notifyGift').disabled = valor
     valor == true ? valor = 'hidden' : valor = 'visible';

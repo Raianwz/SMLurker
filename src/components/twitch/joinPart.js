@@ -1,10 +1,11 @@
 let joinedChn = [], check, error;
 let { appcore } = require('../../internal/appcore')
+let { jcPanel, jcPNReset } = require('../window/console')
 
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
     const channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`;
-    const pingArea = (txt) => { let time = new Date(); appcore.console.panel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
+    const pingArea = (txt) => { let time = new Date(); jcPanel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
     const inText = (el, txt) => el.innerText = txt
     const waiting = () => appcore.helpers.sleep(800).then(() => waitBlock())
     const JCtoast = (txt) => {
@@ -13,6 +14,7 @@ function jpManager() {
     }
     let btnJoin = getEl('#jc_Join'), btnPart = getEl('#jc_Part'), btnSair = getEl('#btnEntrar'), txtChannel;
     appcore.helpers.env() === 'DEV' ? channels = JSON.parse(appcore.fs.rd(channelPath)) : false
+    jcPNReset()
 
     if (appcore.fs.exist(channelPath)) channels = JSON.parse(appcore.fs.rd(channelPath))
     joinedChn = channels || joinedChn
@@ -104,7 +106,7 @@ function jpManager() {
         for (let i = 0; i < items.length; i++) getEl(items[i]).disabled = valor;
     }
     async function JCInfo() {
-        let textao = `Conexão de canais te permite 'Entrar/Sair' de canais sem precisar deslogar.\nAlém de não afeta sua lista de canais e não salva essas ações.`;
+        let textao = `"Conexão de Canais" permite 'Entrar/Sair' de canais sem precisar deslogar.\nAlém de não afetar sua lista de canais ou salvar essas ações`;
         appcore.dg.showMB({
             type: 'info',
             title: 'Conexão de Canais — SMLurker',
