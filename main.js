@@ -17,7 +17,7 @@ function CreateWindow() {
         icon: './src/assets/icon.ico',
         width: 480,
         height: 500,
-        resizable: true,
+        resizable: false,
         minHeight: 500,
         minWidth: 480,
         autoHideMenuBar: true,

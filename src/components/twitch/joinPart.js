@@ -37,13 +37,25 @@ function jpManager() {
         const disable = (cm) => JCtoast(`🐸Desativando: ${cm}⛔`)
         if (cmd.startsWith('_smdebug')) {
             if (cmd === '_smdebug.showgifts') {
-                if (localStorage.getItem('showGifts') === 'false') {
-                    localStorage.setItem('showGifts', true)
+                if(localStorage.showGifts === 'true'){
+                    JCtoast(`🐸 'ShowGifts' está ativado!`);
+                } else{
                     enable('ShowGifts')
-                } else {
+                    pingArea(`🪲Mostrar Presentes - [ATIVADO]`);
+                    localStorage.setItem('showGifts', true)
+                }
+                
+            }
+            else if(cmd === '_smdebug.hidegifts'){
+                if(localStorage.showGifts === 'false'){
+                    JCtoast(`🐸 'ShowGifts' está desativado!`);
+                } else{
                     disable('ShowGifts')
+                    pingArea(`🪲Mostrar Presentes - [DESATIVADO]`);
                     localStorage.setItem('showGifts', false)
                 }
+
+
             }
             else if (cmd === '_smdebug.devtools') {
                 appcore.egetW().webContents.openDevTools();

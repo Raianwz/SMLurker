@@ -695,7 +695,6 @@ div[type='button'].cnFile.export {
 ***************************************/
 div#mentionsbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 div#mentionsbar span[name="jc_clean"],
@@ -713,19 +712,8 @@ div#mentionsbar span[name="clearPing"] {
     width: fit-content;
     padding-inline: 10px;
     border: .5px solid #0184db;
-    position: fixed;
-    margin-inline: calc(3em);
-    left: 26.5em;
-    right: 0em;
 }
 
-.mentionsWrapper {
-    margin-left: 10px;
-}
-
-.mentionsWrapper p {
-    font-weight: bold;
-}
 
 textarea {
     resize: none;
@@ -915,11 +903,12 @@ span.sgSom:hover {
     color: #fff;
     text-align: center;
     border-radius: 8px;
-    padding: 16px;
+    padding: 10px 10px 8px 10px;
     position: fixed;
     z-index: 5;
-    left: 50%;
+    left: 190px;
     bottom: 20%;
+    right: 18px;
 }
 
 #jc_Status.show {
@@ -1009,4 +998,55 @@ p#jc_Help:hover {
 }
 .JoinLeave div#mentionsbar span{
     cursor: pointer;
+}
+
+.UserWrapper span#cntotal,
+.UserWrapper span#Mtimer{
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.UserWrapper span#cntotal{
+   
+}
+
+.UserWrapper span#Mtimer{
+    margin-top: 20px;
+}
+
+.mb-tooltip{
+    display: none;
+    position: absolute;
+    top: auto;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    height: fit-content;
+    white-space: nowrap;
+    color: var(--text);
+    background-color: var(--purple);
+    border-radius: 0.4em;
+    padding: 5px 6px;
+    user-select: none;
+    pointer-events: none;
+    margin-bottom: 0px;
+    transition: 2s ease .8s;
+}
+
+div.menu-bar section:hover>.mb-tooltip{
+    transform: translateX(40px);
+    display: block;
+    margin-top: -30px;
+    transition: translateX 1s ease 0.2s;
+    z-index: 1;
+}
+
+section#user_box:hover>.mb-tooltip{
+    margin-top: 0px;
+    width: fit-content;
+    white-space: pre-wrap;
+    max-width: 200px;
 }

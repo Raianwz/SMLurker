@@ -52,9 +52,9 @@ async function joinChannels() {
     } else {
         channels = JSON.parse(appcore.fs.rd(channelPath))
     }
-    durantion = channels.length
+    durantion = 13.5 * (Math.ceil(channels.length / 17)) // Math.min(start + batchSize, words.length)
     let tmc = await tmi.rds();
-    
+
     while (tmc != 'OPEN') await appcore.helpers.sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {
@@ -67,10 +67,9 @@ async function joinChannels() {
 
         y++
         if (x === 0) {
-            getEl('#pTable').value = `\n\n\n🟠Só é possivel se conectar em até 20 'Canais' em menos de 10 segundos, acima disso a Twitch não conecta.\n🔵Sua lista foi coloca em fila onde a cada 18 Canais um delay de 10 segundos é aplicado.`;
+            ClockTimer.start(durantion)
             changeButtonSide(getEl('#btnEntrar'), 1);
             waitLogin(true)
-            ClockTimer.start(durantion)
         }
         getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
         if (y > 17) {

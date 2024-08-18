@@ -48,6 +48,7 @@ const appcore = {
     dg: {
         showMB: (opts) => dialog.showMessageBoxSync(opts),
         showODS: (opts) => dialog.showOpenDialogSync(opts),
+        showSD: (opts) => dialog.showSaveDialog(opts),
     },
     tr: {
         changeside: (btn, dest) => {

@@ -34,13 +34,13 @@ function consoleManager() {
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
 
     appcore.sc.tmi.on('message', async (channel, tags, message) => {
-        let time = new Date();
+        // let time = new Date();
         let checkUserName = (message.toLowerCase()).includes(`${userName}`)
         if (checkUserName || message.includes(`${userDisplayName}`)) {
-            consoleChange(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
-            barText(mTotal, `🔔 Menções: ${mentions += 1}`)
+            // consoleChange(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
+            // barText(mTotal, `🔔 Menções: ${mentions += 1}`)
             checkNotifyMe(channel, tags, message)
-            panel.scrollTop = panel.scrollHeight
+            // panel.scrollTop = panel.scrollHeight
         }
     })
 
@@ -48,22 +48,25 @@ function consoleManager() {
         if (userstate.includes(userName) || userstate.includes(userDisplayName)) {
             checkNotifySub(channel, username, userstate)
         }
-        if (localStorage.getItem('showGifts') === 'true') {
-            let time = new Date();
-            consoleChange(`\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: @${username} presentou @${userstate} em ${channel}`)
-            console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${userstate} em ${channel}`);
-        }
+        // if (localStorage.getItem('showGifts') === 'true') {
+        //     let time = new Date();
+        //     consoleChange(`\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: @${username} presentou @${userstate} em ${channel}`)
+        //     console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${userstate} em ${channel}`);
+        // }
     })
 
 }
 
 function consoleChange(text) {
-    panel.value += text;
-    ping = panel.value;
-    ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
-    panel.scrollTop = panel.scrollHeight;
-    ping.length >= 6000 ? barReset() : false
-    barText(pTotal, `💬 Texto: ${ping.length}/6000`)
+    let temp = text
+    temp = "";
+    console.log('Legacy Code :/')
+    // panel.value += text;
+    // ping = panel.value;
+    // ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
+    // panel.scrollTop = panel.scrollHeight;
+    // ping.length >= 6000 ? barReset() : false
+    // barText(pTotal, `💬 Texto: ${ping.length}/6000`)
 }
 
 function jcConsoleChange(text){
