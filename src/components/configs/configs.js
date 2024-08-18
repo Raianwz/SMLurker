@@ -99,7 +99,7 @@ async function exportarLista() {
 
 function infoIniMin() {
     const { dialog } = require('@electron/remote');
-    let textao = `Por favor habilite Login Autómatico antes Iniciar Minimizado!`;
+    let textao = `Por favor habilite "Login Autómatico" antes de "Iniciar Minimizado"!`;
     dialog.showMessageBoxSync({
         type: 'info',
         title: 'Configurações — SMLurker',

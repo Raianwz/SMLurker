@@ -18,7 +18,6 @@ function BlockLogin(valor) {
 //Transição entre Tela Login e Tela Principal
 function changeButtonSide(btnEntrar, destino) {
     const el = (el) => document.querySelector(el)
-    const elDisplay = (ele, style) => el(ele).style.display = `${style}`
     const rmClass = (ele, Class) => el(`${ele}`).classList.remove(`${Class}`);
     const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
     const Notify = async () => appcore.sc.data.loadNotify();
@@ -28,6 +27,7 @@ function changeButtonSide(btnEntrar, destino) {
     if (destino == 1) {
         rmClass('#user_box','none');
         rmClass('#conection_box','none');
+        rmClass('#console_open','none');
         addClass('.JoinLeave','none');
         addClass('.loginBox','none');
         rmClass('.loginBox', 'actived');
@@ -46,6 +46,7 @@ function changeButtonSide(btnEntrar, destino) {
         rmClass('#channels_box', 'none')
         addClass('#user_box','none')
         addClass('#conection_box','none')
+        addClass('#console_open','none')
         //setTimeout(() => { addClass('.mainBox', 'show'); elDisplay('.mainBox', 'flex'); elDisplay('.UserWrapper', 'none'); }, .1 * 1000)
     }
 }

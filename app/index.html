@@ -53,13 +53,14 @@
         <div class="main">
             <div class="menu-bar">
                 <section id="refresh" class="material-icons" title="Recarregar">refresh <p class="mb-tooltip">Recarregar</p></section>
-                <section id="login_box" class="material-icons">account_circle <p class="mb-tooltip">Login</p></section>
-                <section id="user_box" class="material-icons selected">account_circle<p class="mb-tooltip">Perfil</p></section>
+                <section id="login_box" class="material-icons selected">account_circle <p class="mb-tooltip">Login</p></section>
+                <section id="user_box" class="material-icons">account_circle<p class="mb-tooltip">Perfil</p></section>
                 <section id="channels_box" class="material-icons">description<p class="mb-tooltip">Gerenciar Canais</p></section>
                 <section id="conection_box" class="material-icons">link<p class="mb-tooltip">Conexão de Canais</p></section>
+                <section id="console_open" disabled class="material-icons">speaker_notes<p class="mb-tooltip">Painel de Eventos</p></section>
             </div>
             <div class="vlinep"></div>
-            <div class="loginBox none">
+            <div class="loginBox actived">
                 <p>Twitch Username</p>
                 <input type="text" placeholder="DarkJunin123456" id="username">
                 <p>Twitch OAuth</p>
@@ -82,7 +83,7 @@
                     <div class="cnFile export" type="button" name="exportFileList">Exportar Lista<i class="material-icons">download</i></div>
                 </div>
             </div>
-            <div class="UserWrapper actived">
+            <div class="UserWrapper none">
                 <div id="UserBox"></div>
                 <span id="cntotal">&#x1F7E3 Canais: 0</span>
                 <div class="btnSair"></div>
