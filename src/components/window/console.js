@@ -2,16 +2,17 @@ const { Notification } = require('@electron/remote')
 const path = require('path')
 const { appcore } = require('../../internal/appcore')
 const getEl = (el) => document.querySelector(el)
-const barText = (el, txt) => el.innerText = txt;
 const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
 const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
 const audio = new Audio('https://github.com/Raianwz/json-sv-wz/raw/main/Chaos.mp3');
-let ping, mentions = 0, userdata;
-let panel = getEl('#pTable'), pTotal = getEl('#Ptotal'), mTotal = getEl('#Mtotal'),jcConsolePanel = getEl('#jcConsole')
-const barReset = () => { panel.value = ""; mentions = 0; barText(pTotal, `💬 Texto: 0/6000`); barText(getEl("#Mtotal"), `🔔 Menções: 0`) }
+let jcConsolePanel = getEl('#jcConsole'); 
 const jcConsoleReset = () => {jcConsolePanel.value=""}
 let dist = process.resourcesPath, distFile = 'assets';
 if (appcore.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
+// panel = getEl('#pTable'), pTotal = getEl('#Ptotal'), mTotal = getEl('#Mtotal'),
+// const barText = (el, txt) => el.innerText = txt;
+// let  userdata; ping, mentions = 0,
+// const barReset = () => { console.log('Legacy') } //panel.value = ""; mentions = 0; barText(pTotal, `💬 Texto: 0/6000`); barText(getEl("#Mtotal"), `🔔 Menções: 0`)
 
 function consoleManager() {
     if (appcore.fs.exist(profilePath)) userdata = JSON.parse(appcore.fs.rd(profilePath))
@@ -28,7 +29,6 @@ function consoleManager() {
         audio.play()
     })
 
-    getEl('span[name=clearPing]').addEventListener('click', barReset)
     getEl('span[name=jc_clean]').addEventListener('click', jcConsoleReset)
 
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
@@ -40,7 +40,6 @@ function consoleManager() {
             // consoleChange(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
             // barText(mTotal, `🔔 Menções: ${mentions += 1}`)
             checkNotifyMe(channel, tags, message)
-            // panel.scrollTop = panel.scrollHeight
         }
     })
 
@@ -111,8 +110,8 @@ function checkNotifySub(channel, username, recipient) {
     }
 }
 
-module.exports.barReset = barReset;
+// module.exports.barReset = barReset;
 module.exports.consoleMng = consoleManager;
-module.exports.panel = consoleChange;
+// module.exports.panel = ()=>{return console.log('Legacy')};
 module.exports.jcPanel =  jcConsoleChange;
 module.exports.jcPNReset = jcConsoleReset;

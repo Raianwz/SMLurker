@@ -23,7 +23,7 @@
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",
-    "copyright": "Copyright © 2023 ${author}",
+    "copyright": "Copyright © 2024 ${author}",
     "directories": {
       "buildResources": "src/assets",
       "output": "releases"

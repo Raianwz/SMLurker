@@ -11,14 +11,14 @@ const api = {
             let { consoleMng } = require('./src/components/window/console')
             consoleMng()
         },
-        panel: (txt) => {
-            let { panel } = require('./src/components/window/console')
-            panel(txt)
-        },
-        reset: () => {
-            let { barReset } = require('./src/components/window/console')
-            barReset()
-        },
+        // panel: (txt) => {
+        //     let { panel } = require('./src/components/window/console')
+        //     panel(txt)
+        // },
+        // reset: () => {
+        //     let { barReset } = require('./src/components/window/console')
+        //     barReset()
+        // },
         jcPanel: (txt) => {
             let { jcPanel } = require('./src/components/window/console')
             jcPanel(txt)

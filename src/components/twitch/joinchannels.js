@@ -7,14 +7,14 @@ const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
     const getEl = (el) => document.querySelector(el)
-    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]'] //'.sgSom', '#JoinCanalExtra'
+    // const items = ['#Mtotal'] //'#Ptotal', '[name="clearPing"]' '.sgSom', '#JoinCanalExtra'
     valor == true ? getEl('#swt_notifyMe').disabled = valor : getEl('#swt_notifyMe').disabled = valor
     valor == true ? getEl('#swt_notifyGift').disabled = valor : getEl('#swt_notifyGift').disabled = valor
     valor == true ? valor = 'hidden' : valor = 'visible';
     valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
-    for (let i = 0; i < items.length; i++) {
-        getEl(items[i]).style.visibility = valor
-    }
+    // for (let i = 0; i < items.length; i++) {
+    //     getEl(items[i]).style.visibility = valor
+    // }
 }
 
 //Entrar em canais & Gerênciar fila
@@ -22,7 +22,7 @@ async function joinChannels() {
     const getEl = (el) => document.querySelector(el)
     const getText = (el, txt) => el.textContent = `${txt}`
     let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`
-    let totalCN = getEl('#cntotal'), txtArea = getEl('#pTable'), channels = {};
+    let totalCN = getEl('#cntotal'), channels = {}; //txtArea = getEl('#pTable')
     let y = 0, durantion = 0;
     const ClockTimer = {
         start: (time) => {
@@ -82,7 +82,7 @@ async function joinChannels() {
     }
     ClockTimer.stop()
     waitLogin(false)
-    txtArea.value = "";
+    //txtArea.value = "";
     await appcore.helpers.sleep(200)
     getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
 }
