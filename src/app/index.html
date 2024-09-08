@@ -5,11 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SM Lurker</title>
-    <link
-        href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
-        rel="stylesheet">
-    <link rel="stylesheet" href="../src/css/index.css">
-    <link rel="stylesheet" href="../src/css/main.css">
+    <link rel="preload" href="../fonts/material icons.woff2" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Regular.ttf" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Light.ttf" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Bold.ttf" as="font" />
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Light.ttf');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Bold.ttf');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Regular.ttf');
+            font-style: normal;
+            font-weight: normal;
+        }
+
+        @font-face {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: 400;
+            src: url('../fonts/material\ icons.woff2') format('woff2');
+        }
+    </style>
 </head>
 
 <body>
@@ -52,12 +80,20 @@
         </header>
         <div class="main">
             <div class="menu-bar">
-                <section id="refresh" class="material-icons" title="Recarregar">refresh <p class="mb-tooltip">Recarregar</p></section>
-                <section id="login_box" class="material-icons selected">account_circle <p class="mb-tooltip">Login</p></section>
-                <section id="user_box" class="material-icons">account_circle<p class="mb-tooltip">Perfil</p></section>
-                <section id="channels_box" class="material-icons">description<p class="mb-tooltip">Gerenciar Canais</p></section>
-                <section id="conection_box" class="material-icons">link<p class="mb-tooltip">Conexão de Canais</p></section>
-                <section id="console_open" disabled class="material-icons">speaker_notes<p class="mb-tooltip">Painel de Eventos</p></section>
+                <section id="refresh" class="material-icons" title="Recarregar">refresh <p class="mb-tooltip">Recarregar
+                    </p>
+                </section>
+                <section id="login_box" class="material-icons selected">account_circle <p class="mb-tooltip">Login</p>
+                </section>
+                <section id="user_box" class="material-icons none">account_circle<p class="mb-tooltip">Perfil</p>
+                </section>
+                <section id="channels_box" class="material-icons">description<p class="mb-tooltip">Gerenciar Canais</p>
+                </section>
+                <section id="conection_box" class="material-icons none">link<p class="mb-tooltip">Conexão de Canais</p>
+                </section>
+                <section id="console_open" class="material-icons none">speaker_notes<p class="mb-tooltip">Painel de
+                        Eventos</p>
+                </section>
             </div>
             <div class="vlinep"></div>
             <div class="loginBox actived">
@@ -78,9 +114,12 @@
                 <p class="status" id="canalLog"></p>
                 <div>
                     <div name="addCanal" type="button" class="add">Adicionar<i class="material-icons">add</i></div>
-                    <div name="removerCanal" type="button" class="remove">Remover<i class="material-icons">remove</i></div>
-                    <div class="cnFile" type="button" name="loadChannelsFromFile">Carregar Arquivo<i class="material-icons">file_upload</i></div>
-                    <div class="cnFile export" type="button" name="exportFileList">Exportar Lista<i class="material-icons">download</i></div>
+                    <div name="removerCanal" type="button" class="remove">Remover<i class="material-icons">remove</i>
+                    </div>
+                    <div class="cnFile" type="button" name="loadChannelsFromFile">Carregar Arquivo<i
+                            class="material-icons">file_upload</i></div>
+                    <div class="cnFile export" type="button" name="exportFileList">Exportar Lista<i
+                            class="material-icons">download</i></div>
                 </div>
             </div>
             <div class="UserWrapper none">
@@ -112,17 +151,20 @@
             </div>
             <div class="JoinLeave none">
                 <div id="JoinCanalExtra" class="channelsManager">
-                   <p title="Informações" id="jc_Help" class="material-icons-outlined">info</p>
+                    <p title="Informações" id="jc_Help" class="material-icons-outlined">info</p>
                     <p class="title">Conexão de Canais</p>
                     <input type="text" id="txtConexaoCanal" placeholder="Nome do Canal">
                     <div style="display: inline-flex;">
-                        <div id="jc_Join" type="button" class="add" value="add">Entrar<i class="material-icons">login</i></div>
-                        <div id="jc_Part" type="button" class="remove" value="remove">Sair<i class="material-icons">output</i></div>
+                        <div id="jc_Join" type="button" class="add" value="add">Entrar<i
+                                class="material-icons">login</i></div>
+                        <div id="jc_Part" type="button" class="remove" value="remove">Sair<i
+                                class="material-icons">output</i></div>
                     </div>
                     <div style="max-width: 100px;">
                         <textarea name="jc_console" id="jcConsole" cols="49" rows="9" disabled></textarea>
                         <div id="mentionsbar">
-                            <span name="jc_clean" class="delete">Limpar<span class="material-icons">delete_sweep</span></span>
+                            <span name="jc_clean" class="delete">Limpar<span
+                                    class="material-icons">delete_sweep</span></span>
                         </div>
                     </div>
 
@@ -132,8 +174,8 @@
         <p id="jc_Status" class="status"></p>
         <p class="version"></p>
     </div>
-    <script src="../src/components/twitch/client.js"></script>
-    <script src="../src/components/twitch/channels.js"></script>
+    <script src="../components/twitch/client.js"></script>
+    <script src="../components/twitch/channels.js"></script>
 </body>
 
 </html>

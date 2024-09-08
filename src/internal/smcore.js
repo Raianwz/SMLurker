@@ -36,7 +36,7 @@ const smcore = {
         joinpart()
     },
     data: {
-        createProfile: () => {
+        createProfile: async () => {
             let { createProfile } = require('../components/smdata/coredata')
             createProfile()
         },

@@ -4,7 +4,7 @@ const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch'), childprocess = require('child_process');
 const localPath = `${app.getPath('userData')}\\Config`, configPath = `${localPath}\\configs.json`;
 const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
-const { createConfigs } = require(path.resolve(__dirname, '../src/components/helpers/setupConfigs'));
+const { createConfigs } = require(path.resolve(__dirname, '../components/helpers/setupConfigs'));
 const sleep = async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 const loading = getEl('div[name="loading"]');
 let checkIniMin = false;

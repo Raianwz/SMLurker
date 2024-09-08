@@ -15,8 +15,9 @@ function setUpTray(app, win, env) {
     const template = [{ label: 'SM Lurker', icon: ezy, enabled: false, }, { type: 'separator' },
     { label: 'Mostrar/Ocultar', click: () => { WinClosed() } },
     { label: 'Configurações', click: () => { ipcMain.emit('openConfigs'); } },
+    { label: 'Painel de Eventos', click: () => { ipcMain.emit('openConsole'); } },
     { label: 'Reiniciar', click: () => { app.relaunch(); app.quit() } },
-    { type: 'separator' }, { label: 'Fechar e Sair', click: () => app.quit(), }]
+    { type: 'separator' }, { label: 'Fechar e Sair', click: () => {ipcMain.emit('closeConsole'); app.quit()}, }]
 
     const contextMenu = Menu.buildFromTemplate(template);
     tray = new Tray(ppL)

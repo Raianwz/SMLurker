@@ -107,11 +107,15 @@ async function createProfile() {
 
 //Chamando API's
 async function getUser(user) {
-    const smapi = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`)
+    const wzapi = await fetch(`https://api.chat.raianwz.com.br/smlurker/${user}/`)
     let udata = {};
-    if (smapi.ok || mapi == 20) {
+    if (wzapi.ok) {
+        udata = await wzapi.json()
+    } else if (!wzapi.ok) {
+        const smapi = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`)
         udata = await smapi.json()
-    } else {
+    }
+    else {
         udata = {
             "id": 0, "login": udata.login, "display_name": `${user.toLowerCase()}`, "chatColor": '#9148FF', "profile_image_url": 'https://i.imgur.com/3TRjKcn.gif'
         }

@@ -1,0 +1,112 @@
+* {
+    --fundo: #282b30;
+    --disable: #747f8d;
+    --text: #ffffff;
+    --blue: #0099ff;
+    --red: #f04747;
+    --purple: #9148ff;
+}
+
+.container {
+    padding: 0;
+    background-color: #282b30;
+    height: 100vh;
+    overflow: hidden;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    background-color: #202225;
+    border-bottom: 0.01px #18191b solid;
+    height: 30px;
+}
+
+header h1 {
+    text-align: center;
+    font-size: 1.25rem;
+    width: 100%;
+    font-weight: bold;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+div.painel textarea {
+    resize: none;
+    border-radius: 0px 0px 10px 10px;
+    display: inline-block;
+    width: 100vw;
+    height: 80vh;
+    background-color: #0c0c0c;
+    color: #FFF;
+    padding: 15px 10px 15px 10px;
+}
+
+div.painel textarea::-webkit-scrollbar {
+    width: 14px;
+    border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #222222;
+    border-radius: 5px;
+}
+
+
+div.painel textarea::-webkit-scrollbar-thumb {
+    background-color: #3f3f3f;
+    border-radius: 20px;
+    border: 1px solid #000000;
+    transition: .1s ease-in-out;
+}
+
+div.painel textarea::-webkit-scrollbar-thumb:hover {
+    background-color: #575757;
+    transition: .1s ease-in-out;
+}
+
+
+.delete {
+    background-color: #d4414100;
+    color: #d44141;
+    border: 1px #d44141 solid;
+    transition: .5s ease 0s;
+}
+
+.delete:hover{
+    color: #ffffff;
+    background-color: var(--red);
+    border: 1px #d44141 solid;
+    transition: .5s ease 0s;
+}
+.span-space{
+    margin-inline: 10px;
+}
+.svg-box{
+    display: inline-flex;
+    align-items: center;
+}
+
+/**************************************
+****************Table de Pings*********
+***************************************/
+div#mentionsbar {
+    display: flex;
+    align-items: center;
+    padding-inline: 10px;
+}
+
+div#mentionsbar span[name="cn_clear"].delete > span{
+    cursor: pointer;
+    margin-inline: 3px;
+}
+
+
+div#mentionsbar span[name="cn_clear"] {
+    cursor: pointer;
+    display: flex;
+    border-radius: 5px;
+    padding: 0px 5px;
+    position: absolute;
+    right: 10px;
+}

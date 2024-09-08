@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Eventos</title>
+    <link rel="stylesheet" href="../css/console.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="preload" href="../fonts/material icons.woff2" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Regular.ttf" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Light.ttf" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Bold.ttf" as="font" />
+    <style>
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Light.ttf');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Bold.ttf');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Regular.ttf');
+            font-style: normal;
+            font-weight: normal;
+        }
+
+        @font-face {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: 400;
+            src: url('../fonts/material\ icons.woff2') format('woff2');
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <header>
+                <h1 id="sm">Painel de Eventos</h1>
+            </header>
+            <div class="painel">
+                <textarea id="txtPanel" disabled></textarea>
+            </div>
+            <div id="mentionsbar">
+                <spn class="span-space svg-box">
+                    <svg width="25" height="25" viewBox="0 0 20 20" style="background-color: #8d65c5;border-radius: 12px;padding: 2.5px;">
+                        <path fill="#FFF" d="M12.002 3.999a2 2 0 0 1 2 2v2L18 6v8l-3.998-2v2a2 2 0 0 1-2 1.999h-8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8zM12 6H4v8h8V6z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <span id="cnTotal">Canais: 0</span>
+                </spn>
+                <span class="span-space svg-box">
+                    <svg width="25" height="25" viewBox="0 0 303 303">
+                        <g fill="rgba(249, 194, 60, 1)"
+                            style="transform-origin: 96.5248px 92.412px; transform: translateX(71.5px) translateY(58.5px) scale(1.2) rotate(0deg);"
+                            filter="false" transform-origin="96.5247543156147px 92.41204994916916px">
+                            <path
+                                d="M79.9587654,0 C45.0532285,0 16.7566999,28.2965286 16.7566999,63.2020655 L16.7566999,112.499677 L2.76797609,133.567032 C-0.64713868,138.832559 -0.921382691,145.540711 2.05252115,151.067435 C5.02642499,156.594159 10.7758008,160.06103 17.0516429,160.111899 L142.865888,160.111899 C149.183665,160.090998 154.980897,156.606395 157.96357,151.036979 C160.946243,145.467562 160.633677,138.710887 157.149555,133.440628 L143.160831,112.499677 L143.160831,63.2020655 C143.160831,28.2965286 114.864302,0 79.9587654,0 Z M79.9587654,185.392725 C90.6617486,185.380496 100.19722,178.62972 103.764877,168.538841 L56.1526541,168.538841 C59.7203105,178.62972 69.2557822,185.380496 79.9587654,185.392725 Z"
+                                viewBox="0 0 160 186"></path>
+                        </g>
+                        <g fill="rgba(250, 50, 50, 1)"
+                            style="transform-origin: 85px 85px; transform: translateX(94px) translateY(0px) scale(0.7) rotate(0deg);"
+                            transform-origin="85px 85px">
+                            <circle cx="85" cy="85" r="85" viewBox="0 0 170 170"></circle>
+                        </g>
+                    </svg>
+                    <span id="mnTotal">Menções: 0</span>
+                </span>
+                <span class="span-space svg-box">
+                    <svg width="25" height="25" viewBox="0 0 303 303">
+                        <g fill="#fff" stroke="rgba(7, 7, 7, 1)" stroke-linejoin="round"
+                            style="transform-origin: 85px 79.6875px; transform: translateX(66.5px) translateY(71.5px) scale(1.5) rotate(0deg);"
+                            filter="false" transform-origin="85px 79.6875px" stroke-width="0.2">
+                            <path
+                                d="M84.6679688,0 C37.9810547,0 0,33.51125 0,74.7070312 C0,92.1094531 6.88699219,108.971992 19.4208398,122.337578 C21.9014453,132.566133 18.8905859,143.402305 11.4198828,150.873008 C8.29613281,153.99709 10.5051367,159.375 14.9414062,159.375 C29.13375,159.375 42.8154297,153.815801 52.9805664,144.010586 C63.0387891,147.599844 73.6807227,149.414062 84.6679688,149.414062 C131.354883,149.414062 170,115.902812 170,74.7070312 C170,33.51125 131.354883,0 84.6679688,0 Z M45.4882812,89.6484375 C37.2492578,89.6484375 30.546875,82.9460547 30.546875,74.7070312 C30.546875,66.4680078 37.2492578,59.765625 45.4882812,59.765625 C53.7273047,59.765625 60.4296875,66.4680078 60.4296875,74.7070312 C60.4296875,82.9460547 53.7273047,89.6484375 45.4882812,89.6484375 Z M85.3320312,89.6484375 C77.0930078,89.6484375 70.390625,82.9460547 70.390625,74.7070312 C70.390625,66.4680078 77.0930078,59.765625 85.3320312,59.765625 C93.5710547,59.765625 100.273438,66.4680078 100.273438,74.7070312 C100.273438,82.9460547 93.5710547,89.6484375 85.3320312,89.6484375 Z M125.175781,89.6484375 C116.936758,89.6484375 110.234375,82.9460547 110.234375,74.7070312 C110.234375,66.4680078 116.936758,59.765625 125.175781,59.765625 C133.414805,59.765625 140.117188,66.4680078 140.117188,74.7070312 C140.117188,82.9460547 133.414805,89.6484375 125.175781,89.6484375 Z"
+                                viewBox="0 0 170 160"></path>
+                        </g>
+                    </svg>
+                    <span id="txtTotal">Texto: 0</span>
+                </span>
+                <span name="cn_clear" class="delete span-space">Limpar<span
+                        class="material-icons">delete_sweep</span></span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

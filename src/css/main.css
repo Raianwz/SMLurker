@@ -1,6 +1,6 @@
 .container {
     padding: 0;
-    background-color: #282b30;
+    background-color: var(--fundo-alt-1) ;/*#282b30;*/
     height: 100vh;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -9,20 +9,9 @@
     overflow: hidden;
 }
 
-.hide {
-    height: 0;
-    animation: slide-out .5s forwards;
-}
-
 .none {
     transition: .2s ease-in-out 0s;
     display: none;
-}
-
-.show {
-    opacity: 100%;
-    animation: slide-in .5s forwards;
-    visibility: visible;
 }
 
 .warn {
@@ -50,32 +39,6 @@
 .hline {
     border-top: 1px var(--purple) solid;
     width: 90%;
-}
-
-/* Animações de Entrada e Saida */
-@keyframes slide-in {
-    0% {
-        -webkit-transform: translateX(100%);
-        opacity: 0%;
-    }
-
-    100% {
-        -webkit-transform: translateX(0%);
-        opacity: 100%;
-    }
-}
-
-@keyframes slide-out {
-    0% {
-        opacity: 100%;
-        transform: translateX(0%);
-    }
-
-    100% {
-        transform: translateX(100%);
-        opacity: 0%;
-        visibility: hidden;
-    }
 }
 
 /*******************************************************************************************************
@@ -194,7 +157,8 @@ div.mainBox {
 div.menu-bar {
     padding-top: 40px;
     width: 40px;
-    background-color: #202225;
+    background-color: #221439;
+    /* background-color: #202225; */
 }
 
 .UserWrapper {

@@ -1,5 +1,6 @@
 const { smcore } = require('../../internal/smcore')
-const { appcore } = require('../../internal/appcore')
+const { appcore } = require('../../internal/appcore');
+const { ipcRenderer } = require('electron');
 const tmi = smcore.tmi;
 const changeButtonSide = (btn, dest) => appcore.tr.changeside(btn, dest)
 const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
@@ -7,14 +8,10 @@ const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
     const getEl = (el) => document.querySelector(el)
-    // const items = ['#Mtotal'] //'#Ptotal', '[name="clearPing"]' '.sgSom', '#JoinCanalExtra'
     valor == true ? getEl('#swt_notifyMe').disabled = valor : getEl('#swt_notifyMe').disabled = valor
     valor == true ? getEl('#swt_notifyGift').disabled = valor : getEl('#swt_notifyGift').disabled = valor
     valor == true ? valor = 'hidden' : valor = 'visible';
     valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
-    // for (let i = 0; i < items.length; i++) {
-    //     getEl(items[i]).style.visibility = valor
-    // }
 }
 
 //Entrar em canais & Gerênciar fila
@@ -22,8 +19,8 @@ async function joinChannels() {
     const getEl = (el) => document.querySelector(el)
     const getText = (el, txt) => el.textContent = `${txt}`
     let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`
-    let totalCN = getEl('#cntotal'), channels = {}; //txtArea = getEl('#pTable')
-    let y = 0, durantion = 0;
+    let totalCN = getEl('#cntotal'), channels = {};
+    let y = 0, durantion = 0, tmpCount = [];
     const ClockTimer = {
         start: (time) => {
             var self = this;
@@ -84,7 +81,9 @@ async function joinChannels() {
     waitLogin(false)
     //txtArea.value = "";
     await appcore.helpers.sleep(200)
+    ipcRenderer.send('sendChannelstoConsole', channels.length)
     getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
+    
 }
 
 //Remover canais banidos/suspensos ou inexistente

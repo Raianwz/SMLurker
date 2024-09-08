@@ -1,22 +1,20 @@
-const { Notification } = require('@electron/remote')
+const { Notification, app } = require('@electron/remote')
+const { ipcRenderer } = require('electron');
 const path = require('path')
 const { appcore } = require('../../internal/appcore')
 const getEl = (el) => document.querySelector(el)
 const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
 const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
 const audio = new Audio('https://github.com/Raianwz/json-sv-wz/raw/main/Chaos.mp3');
-let jcConsolePanel = getEl('#jcConsole'); 
-const jcConsoleReset = () => {jcConsolePanel.value=""}
+let jcConsolePanel = getEl('#jcConsole');
+const jcConsoleReset = () => { jcConsolePanel.value = "" }
 let dist = process.resourcesPath, distFile = 'assets';
 if (appcore.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
-// panel = getEl('#pTable'), pTotal = getEl('#Ptotal'), mTotal = getEl('#Mtotal'),
-// const barText = (el, txt) => el.innerText = txt;
-// let  userdata; ping, mentions = 0,
-// const barReset = () => { console.log('Legacy') } //panel.value = ""; mentions = 0; barText(pTotal, `💬 Texto: 0/6000`); barText(getEl("#Mtotal"), `🔔 Menções: 0`)
 
-function consoleManager() {
+
+async function consoleManager() {
     if (appcore.fs.exist(profilePath)) userdata = JSON.parse(appcore.fs.rd(profilePath))
-    else appcore.sc.data.createProfile()
+    else await appcore.sc.data.createProfile()
     let userDisplayName = userdata.display_name ?? getEl('#username').value.toLowerCase()
     let userName = userdata.login ?? getEl('#username').value.toLowerCase()
 
@@ -34,11 +32,10 @@ function consoleManager() {
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
 
     appcore.sc.tmi.on('message', async (channel, tags, message) => {
-        // let time = new Date();
+        let time = new Date();
         let checkUserName = (message.toLowerCase()).includes(`${userName}`)
         if (checkUserName || message.includes(`${userDisplayName}`)) {
-            // consoleChange(`\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
-            // barText(mTotal, `🔔 Menções: ${mentions += 1}`)
+            ipcRenderer.send('sendMentionstoConsole', `\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
             checkNotifyMe(channel, tags, message)
         }
     })
@@ -47,28 +44,18 @@ function consoleManager() {
         if (userstate.includes(userName) || userstate.includes(userDisplayName)) {
             checkNotifySub(channel, username, userstate)
         }
-        // if (localStorage.getItem('showGifts') === 'true') {
-        //     let time = new Date();
-        //     consoleChange(`\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: @${username} presentou @${userstate} em ${channel}`)
-        //     console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${userstate} em ${channel}`);
-        // }
+        if (localStorage.getItem('showGifts') === 'true') {
+            let time = new Date();
+            ipcRenderer.send('sendtoConsole', `\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: 🎁 @${username} presentou  @${userstate} em ${channel}`)
+            console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${userstate} em ${channel}`);
+        }
     })
 
+
 }
 
-function consoleChange(text) {
-    let temp = text
-    temp = "";
-    console.log('Legacy Code :/')
-    // panel.value += text;
-    // ping = panel.value;
-    // ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
-    // panel.scrollTop = panel.scrollHeight;
-    // ping.length >= 6000 ? barReset() : false
-    // barText(pTotal, `💬 Texto: ${ping.length}/6000`)
-}
 
-function jcConsoleChange(text){
+function jcConsoleChange(text) {
     jcConsolePanel.value += text;
     ping = jcConsolePanel.value;
     ping = ping.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
@@ -110,8 +97,6 @@ function checkNotifySub(channel, username, recipient) {
     }
 }
 
-// module.exports.barReset = barReset;
 module.exports.consoleMng = consoleManager;
-// module.exports.panel = ()=>{return console.log('Legacy')};
-module.exports.jcPanel =  jcConsoleChange;
+module.exports.jcPanel = jcConsoleChange;
 module.exports.jcPNReset = jcConsoleReset;

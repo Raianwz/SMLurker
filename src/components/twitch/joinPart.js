@@ -37,34 +37,39 @@ function jpManager() {
         const disable = (cm) => JCtoast(`🐸Desativando: ${cm}⛔`)
         if (cmd.startsWith('_smdebug')) {
             if (cmd === '_smdebug.showgifts') {
-                if(localStorage.showGifts === 'true'){
+                if (localStorage.showGifts === 'true') {
                     JCtoast(`🐸 'ShowGifts' está ativado!`);
-                } else{
+                } else {
                     enable('ShowGifts')
                     pingArea(`🪲Mostrar Presentes - [ATIVADO]`);
                     localStorage.setItem('showGifts', true)
                 }
-                
+
             }
-            else if(cmd === '_smdebug.hidegifts'){
-                if(localStorage.showGifts === 'false'){
+            else if (cmd === '_smdebug.hidegifts') {
+                if (localStorage.showGifts === 'false') {
                     JCtoast(`🐸 'ShowGifts' está desativado!`);
-                } else{
+                } else {
                     disable('ShowGifts')
                     pingArea(`🪲Mostrar Presentes - [DESATIVADO]`);
                     localStorage.setItem('showGifts', false)
                 }
 
-
             }
             else if (cmd === '_smdebug.devtools') {
-                appcore.egetW().webContents.openDevTools();
+                appcore.wgetDev();
                 enable('Trapaças')
+                console.clear()
                 console.log('%c🐸Tenha cuidado! As coisas podem sair do controle.', 'color: red; font-size: 20pt;');
                 getEl('#txtConexaoCanal').value = ""
             }
+            else if (cmd === '_smdebug.help') {
+                jcPanel(`🪲 SMDebug List:\n.DEVTOOLS - Abre o console do desenvolvedor;\n.SHOWGIFTS - Mostra usuário(s) distribuindo presentes;\n.HIDEGIFTS - Deixa de mostrar usuário(s) distribuindo presentes;\n.HELP - Mostra lista de comandos disponiveis`)
+            }
             else {
                 JCtoast(`❌Comando desconhecido!`)
+                appcore.helpers.sleep(980).then(()=> JCtoast(`💡Utilize _smdebug.help`))
+        
             }
             return true
         }
@@ -87,6 +92,7 @@ function jpManager() {
                     JCtoast(`🟢 Entrou em #${txtChannel}`);
                     pingArea(`🟢 Entrou em #${txtChannel}!`);
                     inText(getEl('#cntotal'), `🟣 Canais: ${joinedChn.length}`)
+                    appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
                 }
                 else JCtoast(`😕 #${txtChannel} Inexistente/Suspenso`)
             }
@@ -105,9 +111,11 @@ function jpManager() {
                     .catch(err => console.log(`[DEBUG] - Erro: ${err}`))
                     .then(() => waiting())
                 joinedChn = joinedChn.filter(chn => chn !== `#${txtChannel}`)
+                appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
                 JCtoast(`⛔ Saiu de: #${txtChannel}!`);
                 pingArea(`⛔ Saiu de:  \t#${txtChannel}!`);
                 inText(getEl('#cntotal'), `🟣 Canais: ${joinedChn.length}`)
+
             } else JCtoast(`📢 Você já saiu do canal: ${txtChannel}!`);
         }
     }

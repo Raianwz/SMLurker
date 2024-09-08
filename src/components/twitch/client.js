@@ -107,4 +107,5 @@ async function sairTwitch() {
     btnEntrar.value = 'Entrar';
     btnEntrar.classList.remove('conectado');
     btnEntrar.onclick = entrarTwitch;
+    api.cr.ipc.send('sendtoCleanConsole')
 }
