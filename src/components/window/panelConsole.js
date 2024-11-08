@@ -32,7 +32,6 @@ ipcRenderer.on('updateMentionsConsole', (event, data) => {
 });
 
 ipcRenderer.on('updateChannelsConsole', (event, channels) =>{
-    console.log(channels)
     barText(cnTotal, `Canais: ${channels}`)
 })
 
