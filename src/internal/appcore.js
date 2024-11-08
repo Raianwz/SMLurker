@@ -57,9 +57,9 @@ const appcore = {
         showSD: (opts) => dialog.showSaveDialog(opts),
     },
     tr: {
-        changeside: (btn, dest) => {
+        changeside: (dest) => {
             let { changeSides } = require('../components/window/transitions')
-            changeSides(btn, dest)
+            changeSides(dest)
         },
         blockinput: (value) => {
             let { blockInputs } = require('../components/window/transitions')

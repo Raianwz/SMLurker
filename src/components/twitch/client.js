@@ -1,5 +1,5 @@
 const tmi = api.tw.tmi;
-const changeButtonSide = (btn, dest) => api.cr.tr.changeside(btn, dest);
+const changeAppSide = (btn, dest) => api.cr.tr.changeside(btn, dest);
 const BlockLogin = (value) => api.cr.tr.blockinput(value);
 const createProfile = async () => api.tw.data.createProfile();
 const loadUserData = async () => api.tw.data.loadUserData();
@@ -62,8 +62,7 @@ async function entrarTwitch() {
 
     if (!error) {
         status('Entrando nos canais...');
-        document.querySelector('#UserBox').innerHTML.length == 0 ? createProfile() : false;
-
+        document.querySelector('section#user_box').textContent.includes('account_circle') ? createProfile() : false;
         await api.tw.jcnc(err => {
             error = true;
             BlockLogin(false)
@@ -79,7 +78,7 @@ async function entrarTwitch() {
             saveUserData(username, pass)
             api.console.manager()
             api.tw.jp()
-            changeButtonSide(btnEntrar, 1)
+            changeAppSide(1)
             status('Entrou nos canais!');
             btnEntrar.value = 'Sair';
             btnEntrar.classList.remove('loading');
@@ -94,7 +93,7 @@ async function sairTwitch() {
     const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
 
-    changeButtonSide(btnEntrar, 0)
+    changeAppSide(0)
     BlockLogin(false)
     setTimeout(() => {
         getInner('jc_Status', '')

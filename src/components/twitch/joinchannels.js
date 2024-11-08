@@ -2,17 +2,29 @@ const { smcore } = require('../../internal/smcore')
 const { appcore } = require('../../internal/appcore');
 const { ipcRenderer } = require('electron');
 const tmi = smcore.tmi;
-const changeButtonSide = (btn, dest) => appcore.tr.changeside(btn, dest)
+const changeAppSide = (btn, dest) => appcore.tr.changeside(btn, dest)
 const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 /*==============================================(ENTRANDO EM CANAIS)===========================================*/
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
-    const getEl = (el) => document.querySelector(el)
-    valor == true ? getEl('#swt_notifyMe').disabled = valor : getEl('#swt_notifyMe').disabled = valor
-    valor == true ? getEl('#swt_notifyGift').disabled = valor : getEl('#swt_notifyGift').disabled = valor
-    valor == true ? valor = 'hidden' : valor = 'visible';
-    valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
+    const getEl = (el) => document.querySelector(el);
+    const isDisabled = valor === true;
+
+    getEl('#swt_notifyMe').disabled = isDisabled;
+    getEl('#swt_notifyGift').disabled = isDisabled;
+
+    const visibility = isDisabled ? 'hidden' : 'visible';
+    const connectionBox = getEl('#conection_box');
+
+    if (isDisabled) {
+        connectionBox.setAttribute('disabled', true);
+    } else {
+        connectionBox.removeAttribute('disabled');
+    }
+
+    getEl('#Mtimer').style.display = visibility === 'visible' ? 'none' : 'flex';
 }
+
 
 //Entrar em canais & Gerênciar fila
 async function joinChannels() {
@@ -65,7 +77,7 @@ async function joinChannels() {
         y++
         if (x === 0) {
             ClockTimer.start(durantion)
-            changeButtonSide(getEl('#btnEntrar'), 1);
+            changeAppSide(1);
             waitLogin(true)
         }
         getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
@@ -83,7 +95,7 @@ async function joinChannels() {
     await appcore.helpers.sleep(200)
     ipcRenderer.send('sendChannelstoConsole', channels.length)
     getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
-    
+
 }
 
 //Remover canais banidos/suspensos ou inexistente

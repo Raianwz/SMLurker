@@ -16,16 +16,15 @@ function BlockLogin(valor) {
 }
 
 //Transição entre Tela Login e Tela Principal
-function changeButtonSide(btnEntrar, destino) {
+function changeButtonSide(destino) {
     const el = (el) => document.querySelector(el)
     const rmClass = (ele, Class) => el(`${ele}`).classList.remove(`${Class}`);
     const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
     const Notify = async () => appcore.sc.data.loadNotify();
-    let UserWrapper = el('.btnSair'), loginBox = el('.loginBox');
-    destino == 1 ? UserWrapper.appendChild(btnEntrar) : loginBox.appendChild(btnEntrar)
     Notify()
     if (destino == 1) {
         rmClass('#user_box','none');
+        rmClass('#app_exit','none');
         rmClass('#conection_box','none');
         rmClass('#console_open','none');
         addClass('.JoinLeave','none');
@@ -35,8 +34,8 @@ function changeButtonSide(btnEntrar, destino) {
         rmClass('.UserWrapper', 'none');
         addClass('#login_box', 'none');
         addClass('#channels_box', 'none');
-        //setTimeout(() => { addClass('.UserWrapper', 'show'); elDisplay('.mainBox', 'none'); elDisplay('.UserWrapper', 'flex'); }, .1 * 1000)
     } else {
+        addClass('#app_exit','none')
         addClass('.loginBox','actived')
         rmClass('.loginBox', 'none');
         addClass('.UserWrapper','none')
@@ -47,7 +46,7 @@ function changeButtonSide(btnEntrar, destino) {
         addClass('#user_box','none')
         addClass('#conection_box','none')
         addClass('#console_open','none')
-        //setTimeout(() => { addClass('.mainBox', 'show'); elDisplay('.mainBox', 'flex'); elDisplay('.UserWrapper', 'none'); }, .1 * 1000)
+
     }
 }
 

@@ -60,12 +60,10 @@ function giftVol(chk) {
 
 //Criando Profile data
 async function createProfile() {
-    const userbox = (e) => document.getElementById('UserBox').innerHTML = `${e}`;
     const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
     let profileData, exp, checkExp, oldExp, legacyColor;
     let username = document.querySelector('#username').value.toString();
-    userbox(`<p>Just Chatting</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
     btnuser(`<p class="mb-tooltip">Perfil</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
 
     if (appcore.fs.exist(profilePath)) {
@@ -91,9 +89,7 @@ async function createProfile() {
     let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
-    userbox("");
     btnuser("");
-    userbox(`<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
     btnuser(`<p class="mb-tooltip">Perfil de ${displayName}</p><img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
 
     if (checkExp) {
