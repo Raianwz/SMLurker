@@ -17,6 +17,11 @@ async function consoleManager() {
     else await appcore.sc.data.createProfile()
     let userDisplayName = userdata.display_name ?? getEl('#username').value.toLowerCase()
     let userName = userdata.login ?? getEl('#username').value.toLowerCase()
+    let volBar = getEl('#volBar');
+
+    volBar.addEventListener('input', changeBar);
+    volBar.addEventListener('click', changeBar);
+    volBar.click()
 
     getEl('span.sgSom').addEventListener('click', () => {
         if (localStorage.getItem('volume') !== null) {
@@ -28,6 +33,12 @@ async function consoleManager() {
     })
 
     getEl('span[name=jc_clean]').addEventListener('click', jcConsoleReset)
+
+    function changeBar() {
+        const value = this.value;
+        const percentage = (value - this.min) / (this.max - this.min) * 100;
+        this.style.background = `linear-gradient(to right, #683AAE ${percentage}%, white ${percentage}%)`;
+    }
 
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
 

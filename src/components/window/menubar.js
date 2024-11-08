@@ -10,15 +10,17 @@ function windowMenuBar(app) {
           let mSec = (idsec) => ele(\`section#\${idsec}\`)
   
           function sectionHandle(id,sec){
-            document.querySelector('.selected').classList.remove('selected')
-            document.querySelector(\`#\${id}\`).classList.add('selected')
+
+            if( document.querySelector(\`#\${id}\`).hasAttribute('disabled') == false){
+              document.querySelector('.selected').classList.remove('selected')
+              document.querySelector(\`#\${id}\`).classList.add('selected')
+
+              document.querySelector('.actived').classList.add('none')
+              document.querySelector('.actived').classList.remove('actived')
   
-            document.querySelector('.actived').classList.add('none')
-            document.querySelector('.actived').classList.remove('actived')
-  
-            document.querySelector(\`\${sec}\`).classList.remove('none')
-            document.querySelector(\`\${sec}\`).classList.add('actived')
-            
+              document.querySelector(\`\${sec}\`).classList.remove('none')
+              document.querySelector(\`\${sec}\`).classList.add('actived')
+            }
           }
   
           mSec('login_box').addEventListener('click', (e) => sectionHandle(e.target.id,'.loginBox'));

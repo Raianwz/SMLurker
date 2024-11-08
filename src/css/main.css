@@ -1,6 +1,8 @@
 .container {
     padding: 0;
-    background-color: var(--fundo-alt-1) ;/*#282b30;*/
+    background: -webkit-linear-gradient(225deg, #231931, #022f4e);
+    /* background-color: var(--fundo-alt-1); */
+    /*#282b30;*/
     height: 100vh;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -30,7 +32,7 @@
 }
 
 .vlinep {
-    border-left: 1px var(--purple) solid;
+    border-left: 1px #0099ff  solid;
     height: 92vh;
     margin-top: 6px;
 }
@@ -100,10 +102,6 @@ svg[name="menuConfig"] {
     margin-left: 15px;
 }
 
-.gearConfig {
-    margin-left: 10px;
-}
-
 svg[name="menuConfig"]:hover path,
 .gearConfig:hover path {
     transition: .3s ease 0s;
@@ -157,8 +155,7 @@ div.mainBox {
 div.menu-bar {
     padding-top: 40px;
     width: 40px;
-    background-color: #221439;
-    /* background-color: #202225; */
+    background: linear-gradient(75deg, #2B32B2, #1488CC);
 }
 
 .UserWrapper {
@@ -180,47 +177,58 @@ div.menu-bar {
 /************************************************
 *******************[MENU BAR]*************
 ************************************************/
-div.menu-bar .gearConfig {
-    margin-inline: 5px;
-    margin-bottom: 20px;
-    margin-top: -25px;
-    margin-inline: 10px;
-    fill-rule: var(--text);
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-}
-
-div.menu-bar>svg,
-div.menu-bar .gearConfig path {
-    fill: var(--text);
-    cursor: pointer;
+div.menu-bar>section#app_exit {
+    color: var(--red);
 }
 
 div.menu-bar>section {
     font-size: 30px;
     color: #fff;
     padding-inline: 5px;
-    margin-top: 15px;
+    margin-top: 10px;
     cursor: pointer;
+    padding-bottom: 3px;
+    padding-top: 3px;
 }
+
 
 section[disabled]:hover .mb-tooltip,
 div.menu-bar>section[disabled]:hover {
+    background: var(--disable);
     background-color: var(--disable);
     cursor: not-allowed;
 }
 
-div.menu-bar #refresh {
-    margin-top: -20px;
-    position: relative;
-    bottom: 20px;
-    border-bottom: 1px solid #18191b;
+div.menu-bar #gearConfig {
+    position: absolute;
+    left: 0px;
+    top: 30px;
+    margin: 0px;
 }
 
+div.menu-bar #refresh {
+    position: absolute;
+    left: 0px;
+    bottom: 20px;
+}
+
+#refresh .mb-tooltip,
+#gearConfig .mb-tooltip {
+    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+}
+
+div.menu-bar>section#gearConfig:hover,
 div.menu-bar>section#refresh:hover {
-    color: var(--purple);
-    background-color: #0000;
+    color: var(--text);
+    -webkit-text-fill-color: var(--text);
+    transition: text ease-in-out 0.5s;
+    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+}
+
+div.menu-bar>section#app_exit:hover {
+    color: var(--text);
+    background-color: var(--red);
+    background: var(--red);
 }
 
 div.menu-bar .avatar {
@@ -229,12 +237,16 @@ div.menu-bar .avatar {
 
 div.menu-bar>section:hover {
     color: #FFF;
-    background-color: var(--purple);
+    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
     cursor: pointer;
+    border-radius: 5px;
 }
 
 div.menu-bar>section.selected {
-    color: var(--purple);
+    color: var(--text);
+    background-color: #2B32B2;
+    border-radius: 5px;
+    box-shadow: inset 0px -1px 0px 1px #1488cc;
 }
 
 div.menu-bar>section.selected:hover {
@@ -416,13 +428,16 @@ a span:hover::after {
     transition: .5s ease 0s;
 }
 
-/* .UserWrapper input[type="button"] {
+.UserWrapper input[type="button"] {
     width: 50%;
-} */
+}
 
 .UserWrapper .btnSair {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 50%;
 }
 
 .UserWrapper input[type="button"]:hover,
@@ -732,7 +747,15 @@ textarea::-webkit-scrollbar-thumb:hover {
 .NotifyWrapper {
     margin-top: 25px;
     text-align: center;
-    padding-inline: 130px;
+}
+
+.NotifyWrapper div.ln {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
 }
 
 .NotifyWrapper p.title {
@@ -741,16 +764,16 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 .NotifyWrapper switch_container {
-    display: flex;
-    flex-direction: column;
     margin-top: 8px;
+    height: 60px;
+    width: fit-content;
+    justify-content: space-around;
 }
 
 switch_container div {
     flex-direction: row;
     display: flex;
     justify-content: flex-start;
-    padding-left: 15px;
 }
 
 switch_container div p {
@@ -771,11 +794,12 @@ p.beta {
 
 span.sgSom {
     cursor: pointer;
-    position: relative;
-    width: 0px;
+    width: 25px;
+    height: 25px;
     color: #a5a5a5;
-    font-size: 22px;
+    font-size: 25px;
     top: 0px;
+    padding-top: 0.5px;
 }
 
 span.sgSom:hover {
@@ -888,6 +912,21 @@ span.sgSom:hover {
     animation: fadein 0.5s, fadeout 0.5s 2.75s;
 }
 
+div[name="version"] img{
+        width: 60px;
+        position: fixed;
+        bottom: -1px;
+        right: 100px;
+        opacity: 0.1;
+        transition: opacity ease-in-out 0.2s;
+}
+
+div[name="version"]:hover img{
+    opacity: 1;
+    transition: opacity ease-in-out 0.2s;
+    cursor: help;
+}
+
 @-webkit-keyframes fadein {
     from {
         bottom: 0;
@@ -981,8 +1020,6 @@ p#jc_Help:hover {
     margin-bottom: 10px;
 }
 
-.UserWrapper span#cntotal {}
-
 .UserWrapper span#Mtimer {
     margin-top: 20px;
 }
@@ -1006,6 +1043,10 @@ p#jc_Help:hover {
     transition: 2s ease .8s;
 }
 
+#app_exit .mb-tooltip {
+    background-color: var(--red);
+}
+
 div.menu-bar section:hover>.mb-tooltip {
     transform: translateX(40px);
     display: block;
@@ -1019,4 +1060,46 @@ section#user_box:hover>.mb-tooltip {
     width: fit-content;
     white-space: pre-wrap;
     max-width: 200px;
+}
+
+/********[BARRA DE VOLUME SUB GIFT]*******/
+div#volBox {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 10px;
+    height: 10px;
+    bottom: 0px;
+}
+
+p#volTxt {
+    margin-inline: 2px;
+    min-width: 25px;
+    max-width: 25px;
+}
+
+#volBar {
+    -webkit-appearance: none;
+    width: 115px;
+    height: 10px;
+    background: linear-gradient(to left, white 1%, #683AAE 100%);
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.3s ease-in-out;
+    opacity: 0.7;
+    transition: ease-in-out 0.2s;
+}
+
+#volBar:hover {
+    opacity: 1;
+}
+
+#volBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #9148FF;
+    cursor: pointer;
+    border-radius: 50%;
 }

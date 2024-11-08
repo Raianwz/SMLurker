@@ -24,9 +24,9 @@ function windowButtonsControls(app) {
         
             el('#console_open').addEventListener('click', () => api.cr.ipc.emit('openConsole') )
             wButton('closeWindow').addEventListener('click', () => api.cr.wb.close());
-            wButton('gearConfig').addEventListener('click', () => api.cr.ipc.emit('openConfigs') )
             wButton('hideWindow').addEventListener('click', () => {api.cr.wb.hide(); api.tray.export()});
             wButton('minWindow').addEventListener('click', () => api.cr.wb.minimize());
+            el('#gearConfig').addEventListener('click', () => api.cr.ipc.emit('openConfigs') )
             el('#refresh').addEventListener('click', () => api.cr.clipmenu.show(ShortMenu));`;
         }
 
