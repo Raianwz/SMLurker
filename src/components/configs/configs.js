@@ -11,7 +11,6 @@ let checkIniMin = false;
 Controls()
 LoadConfigs()
 
-
 //Carregar, Alterar configurações de arquivos JSON 
 function LoadConfigs() {
     const changePath = (e, path) => e.children[0].setAttribute("d", `${path}`)
@@ -43,14 +42,17 @@ function changeConfigs() {
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
         if (swtIniMin && swtAutoLogin == false) {
-            if (!checkIniMin) { infoIniMin(); checkIniMin = true }
             getEl('#swt_inimin').checked = false;
+            if (!checkIniMin) { infoIniMin(); checkIniMin = true }
+            configs.autologin = false
+            configs.inimin = false
+            fs.writeFileSync(configPath, JSON.stringify(configs));
             return
         }
         configs.ini = swtIniciar
         configs.autologin = swtAutoLogin
         configs.inimin = swtIniMin
-        
+
         fs.writeFileSync(configPath, JSON.stringify(configs));
     }
 }
@@ -76,7 +78,7 @@ async function exportarLista() {
         let channels = JSON.parse(fs.readFileSync(channelsFilePath, { encoding: 'utf8' }))
         channels.sort()
         channels = JSON.stringify(channels).replace(/[\"\[\]]/g, '');
-        let dt = new Date().toLocaleDateString().replaceAll("/",'.')
+        let dt = new Date().toLocaleDateString().replaceAll("/", '.')
 
         const listaDialog = dialog.showSaveDialog({
             properties: ['dontAddToRecent'],
