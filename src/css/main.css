@@ -1,6 +1,8 @@
 .container {
     padding: 0;
-    background-color: #282b30;
+    background: -webkit-linear-gradient(225deg, #231931, #022f4e);
+    /* background-color: var(--fundo-alt-1); */
+    /*#282b30;*/
     height: 100vh;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -9,15 +11,9 @@
     overflow: hidden;
 }
 
-.hide {
-    height: 0;
-    animation: slide-out .5s forwards;
-}
-
-.show {
-    opacity: 100%;
-    animation: slide-in .5s forwards;
-    visibility: visible;
+.none {
+    transition: .2s ease-in-out 0s;
+    display: none;
 }
 
 .warn {
@@ -35,36 +31,16 @@
     height: 90vh;
 }
 
+.vlinep {
+    border-left: 1px #0099ff  solid;
+    height: 92vh;
+    margin-top: 6px;
+}
+
 /*Linha Horizontal*/
 .hline {
     border-top: 1px var(--purple) solid;
     width: 90%;
-}
-
-/* Animações de Entrada e Saida */
-@keyframes slide-in {
-    0% {
-        -webkit-transform: translateX(100%);
-        opacity: 0%;
-    }
-
-    100% {
-        -webkit-transform: translateX(0%);
-        opacity: 100%;
-    }
-}
-
-@keyframes slide-out {
-    0% {
-        opacity: 100%;
-        transform: translateX(0%);
-    }
-
-    100% {
-        transform: translateX(100%);
-        opacity: 0%;
-        visibility: hidden;
-    }
 }
 
 /*******************************************************************************************************
@@ -126,10 +102,6 @@ svg[name="menuConfig"] {
     margin-left: 15px;
 }
 
-.gearConfig {
-    margin-left: 10px;
-}
-
 svg[name="menuConfig"]:hover path,
 .gearConfig:hover path {
     transition: .3s ease 0s;
@@ -172,18 +144,22 @@ svg[name="menuConfig"]:hover path,
 /************************************************
 *******************[Wrappers & Boxes]*************
 ************************************************/
-
+div.main,
 div.conectBox,
 div.mainBox {
     display: flex;
     width: 100vw;
+    height: 100%;
+}
+
+div.menu-bar {
+    padding-top: 40px;
+    width: 40px;
+    background: linear-gradient(75deg, #2B32B2, #1488CC);
 }
 
 .UserWrapper {
-    width: 22vw;
-    max-width: 210px;
-    height: 100vh;
-    background-color: #18191c;
+    width: 100%;
 }
 
 .UserWrapper .hline {
@@ -198,19 +174,102 @@ div.mainBox {
     margin-top: 1.8em;
 }
 
+/************************************************
+*******************[MENU BAR]*************
+************************************************/
+div.menu-bar>section#app_exit {
+    color: var(--red);
+}
+
+div.menu-bar>section {
+    font-size: 30px;
+    color: #fff;
+    padding-inline: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+    padding-bottom: 3px;
+    padding-top: 3px;
+}
+
+
+section[disabled]:hover .mb-tooltip,
+div.menu-bar>section[disabled]:hover {
+    background: var(--disable);
+    background-color: var(--disable);
+    cursor: not-allowed;
+}
+
+div.menu-bar #gearConfig {
+    position: absolute;
+    left: 0px;
+    top: 30px;
+    margin: 0px;
+}
+
+div.menu-bar #refresh {
+    position: absolute;
+    left: 0px;
+    bottom: 20px;
+}
+
+#refresh .mb-tooltip,
+#gearConfig .mb-tooltip {
+    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+}
+
+div.menu-bar>section#gearConfig:hover,
+div.menu-bar>section#refresh:hover {
+    color: var(--text);
+    -webkit-text-fill-color: var(--text);
+    transition: text ease-in-out 0.5s;
+    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+}
+
+div.menu-bar>section#app_exit:hover {
+    color: var(--text);
+    background-color: var(--red);
+    background: var(--red);
+}
+
+div.menu-bar .avatar {
+    width: 30px;
+}
+
+div.menu-bar>section:hover {
+    color: #FFF;
+    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+div.menu-bar>section.selected {
+    color: var(--text);
+    background-color: #2B32B2;
+    border-radius: 5px;
+    box-shadow: inset 0px -1px 0px 1px #1488cc;
+}
+
+div.menu-bar>section.selected:hover {
+    color: var(--text);
+}
+
+div.loginBox.actived,
+div.channelsManager.actived {
+    visibility: visible;
+    transition: .2s ease-in-out 0s;
+}
+
 /********************************
 ***********[Login Box]************
 ********************************/
 div.loginBox {
-    width: 50%;
-    max-width: 500px;
+    width: 86%;
 }
 
 div.loginBox,
 div.channelsManager {
     text-align: center;
     height: fit-content;
-    margin-inline: 20px;
     margin-top: 4em;
 }
 
@@ -246,7 +305,7 @@ div.channelsManager {
 .channelsManager input[type='text']:focus,
 .channelsManager input[type='text']:hover {
     transition: .2s ease-in-out 0s;
-    width: 75%;
+    width: 95%;
     background-color: #FFF;
     box-shadow: 0px 0px 0px 2px var(--purple);
 }
@@ -375,7 +434,10 @@ a span:hover::after {
 
 .UserWrapper .btnSair {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 50%;
 }
 
 .UserWrapper input[type="button"]:hover,
@@ -411,11 +473,17 @@ a span:hover::after {
 ******** Gerenciar Canais *************************
 **************************************************/
 .channelsManager {
-    width: 40%;
-    max-width: 400px;
-    height: 185px;
+    width: 80%;
     border-radius: 5%;
+    margin-left: auto;
+    margin-right: auto;
     transition: 2s ease 0s;
+}
+
+.channelsManager div[type='button'] {
+    margin-top: 10px;
+    display: inline-block;
+    margin-inline: 30px;
 }
 
 .channelsManager input::placeholder {
@@ -496,9 +564,9 @@ a span:hover::after {
 .channelsManager input[type='text'] {
     margin-top: 4px;
     border-radius: 20px;
-    width: 70%;
+    width: 90%;
     height: 25px;
-    padding: 2px 10px 2px 10px;
+    padding: 15px 10px 15px 10px;
     font-size: 16px;
     background-color: #d0d0d0;
     transition: .3s ease 0s;
@@ -514,6 +582,14 @@ a span:hover::after {
     color: #282b30;
     transition: .5s ease 0s;
     border: 1px solid #282b30;
+}
+
+.channelsManager div[type='button'] {
+    border-radius: 20px;
+    cursor: pointer;
+    width: 120px;
+    padding-bottom: 5px;
+    padding-top: 0px;
 }
 
 .channelsManager input[type='button'] {
@@ -536,24 +612,40 @@ a span:hover::after {
 }
 
 /* Botão Carregar Arquivos */
-.cnFile {
+div[type='button'].cnFile {
     font-size: 15px;
     height: 35px;
     width: 180px;
     background: #0099ff54;
-    margin-top: 15px;
+    margin-top: 30px;
     margin-left: auto;
     margin-right: auto;
     border-radius: 20px;
     cursor: pointer;
     transition: .5s ease 0s;
+    margin-inline: 10px;
 }
 
-.cnFile:hover {
+div[type='button'].cnFile.export {
+    color: #ffffff;
+    border: 1px #ffffff solid;
+    background: #00000000;
+    transition: .5s ease 0s;
+}
+
+.channelsManager div[type='button'].cnFile:hover.export {
+    color: var(--blue);
+    transition: 1s ease 0s;
+    background-color: #ffffff;
+}
+
+.channelsManager div[type='button'].cnFile:hover {
     transition: 1s ease 0s;
     background-color: #0099ff;
+    border: 1px var(--blue) solid;
 }
 
+.channelsManager div[type='button'] i,
 .cnFile i {
     position: relative;
     cursor: pointer;
@@ -576,7 +668,7 @@ a span:hover::after {
     position: fixed;
     z-index: 1;
     bottom: 6px;
-    left: 13px;
+    right: 13px;
     font-size: 14px;
     color: #ff5555;
     font-weight: bold;
@@ -588,10 +680,10 @@ a span:hover::after {
 ***************************************/
 div#mentionsbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
+div#mentionsbar span[name="jc_clean"],
 div#mentionsbar span[name="clearPing"] {
     cursor: pointer;
     display: flex;
@@ -606,19 +698,8 @@ div#mentionsbar span[name="clearPing"] {
     width: fit-content;
     padding-inline: 10px;
     border: .5px solid #0184db;
-    position: fixed;
-    margin-inline: calc(3em);
-    left: 26.5em;
-    right: 0em;
 }
 
-.mentionsWrapper {
-    margin-left: 10px;
-}
-
-.mentionsWrapper p {
-    font-weight: bold;
-}
 
 textarea {
     resize: none;
@@ -664,26 +745,35 @@ textarea::-webkit-scrollbar-thumb:hover {
 *********NOTIFICAÇÕES************
 *********************************/
 .NotifyWrapper {
-    margin-top: 10px;
+    margin-top: 25px;
     text-align: center;
 }
 
-.NotifyWrapper p .title {
+.NotifyWrapper div.ln {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.NotifyWrapper p.title {
     font-weight: 700;
-    font-size: 12px;
+    font-size: 16px;
 }
 
 .NotifyWrapper switch_container {
-    display: flex;
-    flex-direction: column;
     margin-top: 8px;
+    height: 60px;
+    width: fit-content;
+    justify-content: space-around;
 }
 
 switch_container div {
     flex-direction: row;
     display: flex;
     justify-content: flex-start;
-    padding-left: 15px;
 }
 
 switch_container div p {
@@ -704,11 +794,12 @@ p.beta {
 
 span.sgSom {
     cursor: pointer;
-    position: relative;
-    width: 0px;
+    width: 25px;
+    height: 25px;
     color: #a5a5a5;
-    font-size: 22px;
+    font-size: 25px;
     top: 0px;
+    padding-top: 0.5px;
 }
 
 span.sgSom:hover {
@@ -807,17 +898,33 @@ span.sgSom:hover {
     color: #fff;
     text-align: center;
     border-radius: 8px;
-    padding: 16px;
+    padding: 10px 10px 8px 10px;
     position: fixed;
     z-index: 5;
-    left: 50%;
+    left: 190px;
     bottom: 20%;
+    right: 18px;
 }
 
 #jc_Status.show {
     visibility: visible;
     -webkit-animation: fadein 0.5s, fadeout 0.5s 2.75s;
     animation: fadein 0.5s, fadeout 0.5s 2.75s;
+}
+
+div[name="version"] img{
+        width: 60px;
+        position: fixed;
+        bottom: -1px;
+        right: 100px;
+        opacity: 0.1;
+        transition: opacity ease-in-out 0.2s;
+}
+
+div[name="version"]:hover img{
+    opacity: 1;
+    transition: opacity ease-in-out 0.2s;
+    cursor: help;
 }
 
 @-webkit-keyframes fadein {
@@ -874,9 +981,125 @@ p#jc_Help {
     position: fixed;
     font-size: 24px;
     z-index: 85;
-    left: 175px;
+    right: 114px;
+    bottom: 0px;
+    top: 90px;
+    height: 25px;
 }
 
 p#jc_Help:hover {
     color: #ffd502;
+}
+
+.JoinLeave textarea {
+    width: 380px;
+    height: 180px;
+    margin-top: 30px;
+    resize: none;
+    border-radius: 10px 10px 10px 10px;
+    padding: 5px 10px 5px 10px;
+}
+
+.JoinLeave div#mentionsbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: -7px;
+}
+
+.JoinLeave div#mentionsbar span {
+    cursor: pointer;
+}
+
+.UserWrapper span#cntotal,
+.UserWrapper span#Mtimer {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.UserWrapper span#Mtimer {
+    margin-top: 20px;
+}
+
+.mb-tooltip {
+    display: none;
+    position: absolute;
+    top: auto;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+    height: fit-content;
+    white-space: nowrap;
+    color: var(--text);
+    background-color: var(--purple);
+    border-radius: 0.4em;
+    padding: 5px 6px;
+    user-select: none;
+    pointer-events: none;
+    margin-bottom: 0px;
+    transition: 2s ease .8s;
+}
+
+#app_exit .mb-tooltip {
+    background-color: var(--red);
+}
+
+div.menu-bar section:hover>.mb-tooltip {
+    transform: translateX(40px);
+    display: block;
+    margin-top: -30px;
+    transition: translateX 1s ease 0.2s;
+    z-index: 1;
+}
+
+section#user_box:hover>.mb-tooltip {
+    margin-top: 0px;
+    width: fit-content;
+    white-space: pre-wrap;
+    max-width: 200px;
+}
+
+/********[BARRA DE VOLUME SUB GIFT]*******/
+div#volBox {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 10px;
+    height: 10px;
+    bottom: 0px;
+}
+
+p#volTxt {
+    margin-inline: 2px;
+    min-width: 25px;
+    max-width: 25px;
+}
+
+#volBar {
+    -webkit-appearance: none;
+    width: 115px;
+    height: 10px;
+    background: linear-gradient(to left, white 1%, #683AAE 100%);
+    border-radius: 5px;
+    outline: none;
+    transition: background 0.3s ease-in-out;
+    opacity: 0.7;
+    transition: ease-in-out 0.2s;
+}
+
+#volBar:hover {
+    opacity: 1;
+}
+
+#volBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #9148FF;
+    cursor: pointer;
+    border-radius: 50%;
 }

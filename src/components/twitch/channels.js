@@ -6,6 +6,7 @@ const clearInputs = () => { newChannelInput.focus(); Clog(''); }
 let dialogOpen = false
 btnsListener()
 
+
 function btnsListener() {
     const Notify = async () => api.tw.data.loadNotify();
     const mentions = getEl('#swt_notifyMe'), subgift = getEl('#swt_notifyGift');
@@ -20,9 +21,10 @@ function btnsListener() {
     localStorage.getItem('volume') === null ? localStorage.setItem('volume', 30) : getEl('input#volBar').value = localStorage.getItem('volume');
     localStorage.getItem('volume') !== null ? getEl('#volTxt').innerText = localStorage.getItem('volume') : false
     getEl('input#volBar').addEventListener('input', () => { localStorage.setItem('volume', getEl('input#volBar').value); getEl('#volTxt').innerText = getEl('input#volBar').value })
-    getEl('input[name="addCanal"]').addEventListener('click', () => getEl('input[name="addCanal"]').className.includes('block') ? true : addChannel())
-    getEl('input[name="removerCanal"]').addEventListener('click', () => getEl('input[name="removerCanal"]').className.includes('block') ? true : removeChannel())
+    getEl('div[name="addCanal"]').addEventListener('click', () => getEl('div[name="addCanal"]').className.includes('block') ? true : addChannel())
+    getEl('div[name="removerCanal"]').addEventListener('click', () => getEl('div[name="removerCanal"]').className.includes('block') ? true : removeChannel())
     getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => getEl('div[name="loadChannelsFromFile"]').className.includes('block') ? true : loadChannelsFromFile())
+    getEl('div[name="exportFileList"]').addEventListener('click', () => getEl('div[name="exportFileList"]').className.includes('block') ? true : exportListChannels())
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
     getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })
     getEl('#txtConexaoCanal').addEventListener('input', e => e.target.value = e.target.value.toLowerCase())
@@ -50,6 +52,33 @@ async function loadChannelsFromFile() {
         api.cr.fs.write(channelFilePath, JSON.stringify(channels))
         Clog('🟢Arquivo adicionado!');
         dialogOpen = false;
+    }
+}
+
+async function exportListChannels() {
+    let channelsFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
+    if (api.cr.fs.exist(channelsFilePath)) {
+        let channels = JSON.parse(api.cr.fs.rd(channelsFilePath))
+        channels.sort()
+        channels = JSON.stringify(channels).replace(/[\"\[\]]/g, '');
+        let dt = new Date().toLocaleDateString().replaceAll("/",'.')
+
+        const listaDialog = api.cr.dg.showSD({
+            properties: ['dontAddToRecent'],
+            filters: [{ name: 'txt', extensions: ['txt'] }],
+            defaultPath: `*/minha_lista.${dt}`,
+            title: 'Exportar Lista',
+        })
+        const listaTxt = await listaDialog
+
+        if (!listaTxt.canceled) api.cr.fs.write(listaTxt.filePath, channels);
+
+    } else {
+        api.cr.dg.showMB({
+            type: 'warning',
+            title: 'Configurações — SM Lurker ',
+            message: 'Você não tem nenhum canal adicionado para exportar como lista.',
+        })
     }
 }
 

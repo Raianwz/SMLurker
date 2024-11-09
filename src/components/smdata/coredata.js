@@ -60,11 +60,11 @@ function giftVol(chk) {
 
 //Criando Profile data
 async function createProfile() {
-    const userbox = (e) => document.getElementById('UserBox').innerHTML = `${e}`;
+    const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
     let profileData, exp, checkExp, oldExp, legacyColor;
     let username = document.querySelector('#username').value.toString();
-    userbox(`<p>Just Chatting</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
+    btnuser(`<p class="mb-tooltip">Perfil</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
 
     if (appcore.fs.exist(profilePath)) {
         profileData = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }))
@@ -89,8 +89,8 @@ async function createProfile() {
     let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
-    userbox("");
-    userbox(`<p>${displayName}</p><img class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
+    btnuser("");
+    btnuser(`<p class="mb-tooltip">Perfil de ${displayName}</p><img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
 
     if (checkExp) {
         legacyColor = profileData.chatColor
@@ -103,11 +103,15 @@ async function createProfile() {
 
 //Chamando API's
 async function getUser(user) {
-    const smapi = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`)
+    const wzapi = await fetch(`https://api.chat.raianwz.com.br/smlurker/${user}/`)
     let udata = {};
-    if (smapi.ok || mapi == 20) {
+    if (wzapi.ok) {
+        udata = await wzapi.json()
+    } else if (!wzapi.ok) {
+        const smapi = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`)
         udata = await smapi.json()
-    } else {
+    }
+    else {
         udata = {
             "id": 0, "login": udata.login, "display_name": `${user.toLowerCase()}`, "chatColor": '#9148FF', "profile_image_url": 'https://i.imgur.com/3TRjKcn.gif'
         }

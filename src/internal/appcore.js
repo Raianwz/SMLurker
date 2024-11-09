@@ -1,20 +1,26 @@
 const { Menu, app, getCurrentWindow, ipcMain, dialog, shell } = require("@electron/remote");
+const { ipcRenderer } = require("electron");
 const { existsSync, readFileSync, writeFileSync } = require('fs')
 const { join, resolve } = require('path')
 const { WControls } = require('./controls')
-const { smcore } = require('./smcore')
+const { WMenubar } = require('../components/window/menubar')
+const { smcore } = require('./smcore');
+
 
 WControls(getCurrentWindow)
+WMenubar(getCurrentWindow)
 const appcore = {
     clipmenu: {
         show: (obj, win) => Menu.buildFromTemplate(obj).popup(win)
     },
     ipc: {
-        emit: (obj) => ipcMain.emit(obj)
+        emit: (obj) => ipcMain.emit(obj),
+        send: (event, data) => { ipcRenderer.send(event, data) },
     },
     appr: app,
     eshell: shell,
-    egetW: getCurrentWindow,
+    wgetTitle: () => getCurrentWindow().getTitle(),
+    wgetDev: () => { getCurrentWindow().webContents.openDevTools() },
     wb: {
         close: () => getCurrentWindow().close(),
         focus: () => getCurrentWindow().focus(),
@@ -48,11 +54,12 @@ const appcore = {
     dg: {
         showMB: (opts) => dialog.showMessageBoxSync(opts),
         showODS: (opts) => dialog.showOpenDialogSync(opts),
+        showSD: (opts) => dialog.showSaveDialog(opts),
     },
     tr: {
-        changeside: (btn, dest) => {
+        changeside: (dest) => {
             let { changeSides } = require('../components/window/transitions')
-            changeSides(btn, dest)
+            changeSides(dest)
         },
         blockinput: (value) => {
             let { blockInputs } = require('../components/window/transitions')

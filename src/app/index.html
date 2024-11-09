@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SM Lurker</title>
+    <link rel="preload" href="../fonts/material icons.woff2" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Regular.ttf" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Light.ttf" as="font" />
+    <link rel="preload" href="../fonts/OpenSans-Bold.ttf" as="font" />
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Light.ttf');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Bold.ttf');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../fonts/OpenSans-Regular.ttf');
+            font-style: normal;
+            font-weight: normal;
+        }
+
+        @font-face {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: 400;
+            src: url('../fonts/material\ icons.woff2') format('woff2');
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1 id="sm">SM Twitch Lurker</h1>
+            <w-buttons>
+                <svg name="hideWindow" class="hideWindow" viewBox="0 0 24 24" width="24">
+                    <title>Esconder</title>
+                    <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 
+                            3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 
+                            7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 
+                            3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 
+                            0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 
+                            0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                </svg>
+                <svg name="minWindow" class="minimizeWindow" viewBox="0 0 492 492" width="20" height="20">
+                    <title>Minimizar</title>
+                    <path d="M465.064,207.562H26.908C12.076,207.562,0,219.698,0,234.53v22.804c0,14.832,12.072,27.104,26.908,27.104h438.156
+                    c14.84,0,26.936-12.272,26.936-27.104V234.53C492,219.698,479.904,207.562,465.064,207.562z" />
+                </svg>
+                <svg name="closeWindow" class="closeWindow" viewBox="0 0 492 492" width="20" height="20">
+                    <title>Fechar</title>
+                    <path d="M300.188,246L484.14,62.04c5.06-5.064,7.852-11.82,7.86-19.024c0-7.208-2.792-13.972-7.86-19.028L468.02,7.872
+                    c-5.068-5.076-11.824-7.856-19.036-7.856c-7.2,0-13.956,2.78-19.024,7.856L246.008,191.82L62.048,7.872
+                    c-5.06-5.076-11.82-7.856-19.028-7.856c-7.2,0-13.96,2.78-19.02,7.856L7.872,23.988c-10.496,10.496-10.496,27.568,0,38.052
+                    L191.828,246L7.872,429.952c-5.064,5.072-7.852,11.828-7.852,19.032c0,7.204,2.788,13.96,7.852,19.028l16.124,16.116
+                    c5.06,5.072,11.824,7.856,19.02,7.856c7.208,0,13.968-2.784,19.028-7.856l183.96-183.952l183.952,183.952
+                    c5.068,5.072,11.824,7.856,19.024,7.856h0.008c7.204,0,13.96-2.784,19.028-7.856l16.12-16.116
+                    c5.06-5.064,7.852-11.824,7.852-19.028c0-7.204-2.792-13.96-7.852-19.028L300.188,246z" />
+                </svg>
+            </w-buttons>
+        </header>
+        <div class="main">
+            <div class="menu-bar">
+                <section id="gearConfig" class="material-icons" title="Configurações">settings <p class="mb-tooltip">Configurações</p></section>
+                <section id="login_box" class="material-icons selected">account_circle <p class="mb-tooltip">Login</p>
+                </section>
+                <section id="user_box" class="material-icons none">account_circle<p class="mb-tooltip">Perfil</p>
+                </section>
+                <section id="channels_box" class="material-icons">description<p class="mb-tooltip">Gerenciar Canais</p>
+                </section>
+                <section id="conection_box" class="material-icons none" disabled>link<p class="mb-tooltip">Conexão de Canais
+                </p>
+            </section>
+            <section id="console_open" class="material-icons none">speaker_notes<p class="mb-tooltip">Painel
+                de Eventos</p>
+            </section>
+            <section id="app_exit" class="material-icons none" onclick="sairTwitch()">exit_to_app<p
+                class="mb-tooltip">Sair</p>
+            </section>
+            <section id="refresh" class="material-icons" title="Recarregar">refresh <p class="mb-tooltip">Recarregar</p></section>
+        </div>
+            <div class="vlinep"></div>
+            <div class="loginBox actived">
+                <p>Twitch Username</p>
+                <input type="text" placeholder="DarkJunin123456" id="username">
+                <p>Twitch OAuth</p>
+                <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
+                <div class="help"><a href="https://twitchapps.com/tmi/">
+                        <p>Gerar Twitch OAuth</p>
+                    </a></div>
+                <p id="msgStatus"></p>
+                <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
+                <p id="cnCount"></p>
+            </div>
+            <div class="channelsManager none" id="cMng">
+                <p class="title">Gerenciar Canais</p>
+                <input type="text" placeholder="Nome do Canal" id="txtCanal" />
+                <p class="status" id="canalLog"></p>
+                <div>
+                    <div name="addCanal" type="button" class="add">Adicionar<i class="material-icons">add</i></div>
+                    <div name="removerCanal" type="button" class="remove">Remover<i class="material-icons">remove</i>
+                    </div>
+                    <div class="cnFile" type="button" name="loadChannelsFromFile">Carregar Arquivo<i
+                            class="material-icons">file_upload</i></div>
+                    <div class="cnFile export" type="button" name="exportFileList">Exportar Lista<i
+                            class="material-icons">download</i></div>
+                </div>
+            </div>
+            <div class="UserWrapper none">
+                <div class="NotifyWrapper">
+                    <p class="title">Notificações</p>
+                    <div class="ln">
+                        <switch_container>
+                            <div>
+                                <input type="checkbox" class="switch switch--shadow" id="swt_notifyMe">
+                                <label for="swt_notifyMe"></label>
+                                <p>Menções</p>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <input type="checkbox" class="switch switch--shadow" id="swt_notifyGift">
+                                <label for="swt_notifyGift"></label>
+                                <p>SubGifts</p>
+                            </div>
+                        </switch_container>
+                        <div style="width: 165px;">
+                            <span id="cntotal">&#x1F7E3 Canais: 0</span>
+                            <div style="min-height: 10px; height: 10px;">
+                                <div id="volBox">
+                                    <span class="sgSom material-icons"title="Testar Som de SubGift">volume_up</span>
+                                    <input id="volBar" type="range" min="1" max="100" value="30">
+                                    <p id="volTxt">100</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="hline"></div>
+                <span id="Mtimer">🕘--:--</span>
+               <div name="version">
+                <img src="https://cdn.7tv.app/emote/01HDJNCSHR000BCR3BMAP4HFH8/4x.webp" alt="pepeSit">
+               </div>
+            </div>
+            <div class="JoinLeave none">
+                <div id="JoinCanalExtra" class="channelsManager">
+                    <p title="Informações" id="jc_Help" class="material-icons-outlined">info</p>
+                    <p class="title">Conexão de Canais</p>
+                    <input type="text" id="txtConexaoCanal" placeholder="Nome do Canal">
+                    <div style="display: inline-flex;">
+                        <div id="jc_Join" type="button" class="add" value="add">Entrar<i
+                                class="material-icons">login</i></div>
+                        <div id="jc_Part" type="button" class="remove" value="remove">Sair<i
+                                class="material-icons">output</i></div>
+                    </div>
+                    <div style="max-width: 100px;">
+                        <textarea name="jc_console" id="jcConsole" cols="49" rows="9" disabled></textarea>
+                        <div id="mentionsbar">
+                            <span name="jc_clean" class="delete">Limpar<span
+                                    class="material-icons">delete_sweep</span></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <p id="jc_Status" class="status"></p>
+        <p class="version"></p>
+    </div>
+    <script src="../components/twitch/client.js"></script>
+    <script src="../components/twitch/channels.js"></script>
+    <script type="text/javascript">
+    </script>
+</body>
+
+</html>

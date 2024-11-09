@@ -2,7 +2,7 @@
 const { appcore } = require('../../internal/appcore')
 //Desativar inputs e botões durante a mudança de telas
 function BlockLogin(valor) {
-    const items = ['#username', '#pass', '#txtCanal', 'input[type="button"].add', 'input[type="button"].remove'];
+    const items = ['#username', '#pass', '#txtCanal', 'div[type="button"].add', 'div[type="button"].remove'];
     let btnFiles = document.querySelector('.cnFile');
     for (let i = 0; i < items.length; i++) {
         document.querySelector(items[i]).disabled = valor
@@ -16,21 +16,37 @@ function BlockLogin(valor) {
 }
 
 //Transição entre Tela Login e Tela Principal
-function changeButtonSide(btnEntrar, destino) {
+function changeButtonSide(destino) {
     const el = (el) => document.querySelector(el)
-    const elDisplay = (ele, style) => el(ele).style.display = `${style}`
     const rmClass = (ele, Class) => el(`${ele}`).classList.remove(`${Class}`);
     const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
     const Notify = async () => appcore.sc.data.loadNotify();
-    let conectBox = el('.btnSair'), loginBox = el('.loginBox');
-    destino == 1 ? conectBox.appendChild(btnEntrar) : loginBox.appendChild(btnEntrar)
     Notify()
     if (destino == 1) {
-        addClass('.mainBox', 'hide');
-        setTimeout(() => { addClass('.conectBox', 'show'); elDisplay('.mainBox', 'none'); elDisplay('.conectBox', 'flex'); }, .1 * 1000)
+        rmClass('#user_box','none');
+        rmClass('#app_exit','none');
+        rmClass('#conection_box','none');
+        rmClass('#console_open','none');
+        addClass('.JoinLeave','none');
+        addClass('.loginBox','none');
+        rmClass('.loginBox', 'actived');
+        addClass('.UserWrapper','actived')
+        rmClass('.UserWrapper', 'none');
+        addClass('#login_box', 'none');
+        addClass('#channels_box', 'none');
     } else {
-        rmClass('.conectBox', 'show'); rmClass('.mainBox', 'hide'); addClass('.conectBox', 'hide');
-        setTimeout(() => { addClass('.mainBox', 'show'); elDisplay('.mainBox', 'flex'); elDisplay('.conectBox', 'none'); }, .1 * 1000)
+        addClass('#app_exit','none')
+        addClass('.loginBox','actived')
+        rmClass('.loginBox', 'none');
+        addClass('.UserWrapper','none')
+        addClass('.JoinLeave','none')
+        rmClass('.UserWrapper', 'actived');
+        rmClass('#login_box', 'none')
+        rmClass('#channels_box', 'none')
+        addClass('#user_box','none')
+        addClass('#conection_box','none')
+        addClass('#console_open','none')
+
     }
 }
 

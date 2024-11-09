@@ -1,29 +1,38 @@
 const { smcore } = require('../../internal/smcore')
-const { appcore } = require('../../internal/appcore')
+const { appcore } = require('../../internal/appcore');
+const { ipcRenderer } = require('electron');
 const tmi = smcore.tmi;
-const changeButtonSide = (btn, dest) => appcore.tr.changeside(btn, dest)
+const changeAppSide = (btn, dest) => appcore.tr.changeside(btn, dest)
 const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 /*==============================================(ENTRANDO EM CANAIS)===========================================*/
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
-    const getEl = (el) => document.querySelector(el)
-    const items = ['#Mtotal', '#Ptotal', '[name="clearPing"]', '.sgSom', '#JoinCanalExtra']
-    valor == true ? getEl('#swt_notifyMe').disabled = valor : getEl('#swt_notifyMe').disabled = valor
-    valor == true ? getEl('#swt_notifyGift').disabled = valor : getEl('#swt_notifyGift').disabled = valor
-    valor == true ? valor = 'hidden' : valor = 'visible';
-    valor !== 'visible' ? getEl('#Mtimer').style.display = 'flex' : getEl('#Mtimer').style.display = 'none'
-    for (let i = 0; i < items.length; i++) {
-        getEl(items[i]).style.visibility = valor
+    const getEl = (el) => document.querySelector(el);
+    const isDisabled = valor === true;
+
+    getEl('#swt_notifyMe').disabled = isDisabled;
+    getEl('#swt_notifyGift').disabled = isDisabled;
+
+    const visibility = isDisabled ? 'hidden' : 'visible';
+    const connectionBox = getEl('#conection_box');
+
+    if (isDisabled) {
+        connectionBox.setAttribute('disabled', true);
+    } else {
+        connectionBox.removeAttribute('disabled');
     }
+
+    getEl('#Mtimer').style.display = visibility === 'visible' ? 'none' : 'flex';
 }
+
 
 //Entrar em canais & Gerênciar fila
 async function joinChannels() {
     const getEl = (el) => document.querySelector(el)
     const getText = (el, txt) => el.textContent = `${txt}`
     let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`
-    let totalCN = getEl('#cntotal'), txtArea = getEl('#pTable'), channels = {};
-    let y = 0, durantion = 0;
+    let totalCN = getEl('#cntotal'), channels = {};
+    let y = 0, durantion = 0, tmpCount = [];
     const ClockTimer = {
         start: (time) => {
             var self = this;
@@ -52,9 +61,9 @@ async function joinChannels() {
     } else {
         channels = JSON.parse(appcore.fs.rd(channelPath))
     }
-    durantion = channels.length
+    durantion = 13.5 * (Math.ceil(channels.length / 17)) // Math.min(start + batchSize, words.length)
     let tmc = await tmi.rds();
-    
+
     while (tmc != 'OPEN') await appcore.helpers.sleep(1000);
 
     for (let x = 0; x < channels.length; x++) {
@@ -67,10 +76,9 @@ async function joinChannels() {
 
         y++
         if (x === 0) {
-            getEl('#pTable').value = `\n\n\n🟠Só é possivel se conectar em até 20 'Canais' em menos de 10 segundos, acima disso a Twitch não conecta.\n🔵Sua lista foi coloca em fila onde a cada 18 Canais um delay de 10 segundos é aplicado.`;
-            changeButtonSide(getEl('#btnEntrar'), 1);
-            waitLogin(true)
             ClockTimer.start(durantion)
+            changeAppSide(1);
+            waitLogin(true)
         }
         getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
         if (y > 17) {
@@ -83,9 +91,11 @@ async function joinChannels() {
     }
     ClockTimer.stop()
     waitLogin(false)
-    txtArea.value = "";
+    //txtArea.value = "";
     await appcore.helpers.sleep(200)
+    ipcRenderer.send('sendChannelstoConsole', channels.length)
     getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
+
 }
 
 //Remover canais banidos/suspensos ou inexistente

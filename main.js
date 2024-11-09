@@ -1,5 +1,5 @@
 const { initialize, enable } = require('@electron/remote/main'); initialize();
-const { app, BrowserWindow, shell, Notification } = require('electron');
+const { app, BrowserWindow, shell, Notification, ipcMain } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
@@ -7,7 +7,10 @@ const { SetUpTray } = require('./src/components/helpers/tray');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
 const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
+const { createConsoleW } = require('./src/components/clog')
+
 require('./src/components/ipc');
+require('./src/components/clog')
 let mainWindow, auxcheck;
 checkFiles();
 
@@ -15,13 +18,13 @@ function CreateWindow() {
     mainWindow = new BrowserWindow({
         title: 'SM Lurker',
         icon: './src/assets/icon.ico',
-        width: 920,
+        width: 480,
         height: 500,
-        resizable: true,
-        minWidth: 920,
-        maxWidth: 1280,
+        resizable: false,
+        maxHeight: 500,
+        maxWidth: 480,
         minHeight: 500,
-        maxHeight: 720,
+        minWidth: 480,
         autoHideMenuBar: true,
         frame: false,
         transparent: true,
@@ -32,11 +35,11 @@ function CreateWindow() {
             nodeIntegration: true,
             enableRemoteModule: true,
             webSecurity: true,
-            preload: path.join(__dirname, "./preload.js"),
+            preload: path.join(__dirname, "./src/preload.js"),
         }
     })
     enable(mainWindow.webContents);
-    mainWindow.loadFile('./app/index.html');
+    mainWindow.loadFile('./src/app/index.html');
 
     //Open Links in Browser
     mainWindow.webContents.on('will-navigate', (event, url) => {
@@ -46,8 +49,16 @@ function CreateWindow() {
 
     if (env(app) == 'DEV') mainWindow.webContents.openDevTools();
     mainWindow.focus();
-    mainWindow.once('ready-to-show', () => mainWindow.show())
-    iniMin(mainWindow)
+
+    mainWindow.once('ready-to-show', () => {
+        iniMin(mainWindow)
+        createConsoleW()
+    })
+
+
+    mainWindow.on('close', () => {
+        ipcMain.emit('closeConsole')
+    })
 }
 
 isWin ? app.setAppUserModelId('com.smlurker') : false
@@ -75,6 +86,7 @@ app.on('ready', () => {
 // Quit when all windows are closed. 
 app.on('window-all-closed', () => {
     autoUpdater.quitAndInstall(true, true)
+    ipcMain.emit('closeConsole')
     if (process.platform !== 'darwin') app.quit()
 })
 
@@ -86,7 +98,7 @@ app.on('activate', () => {
 
 function updateNotify() {
     let ntf = new Notification({
-        title: 'Atualização Baixada!',
+        title: 'Atualização pronta!',
         body: `Para instalar a versão ${auxcheck.releaseName} basta fechar o SMLurker.\nClique aqui para conferir o que mudou nessa versão.`
     })
     ntf.show()
@@ -105,15 +117,15 @@ function iniMin(mainWindow) {
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
-        configs.inimin ? mainWindow.hide() : false;
-    }
+        configs.inimin ? mainWindow.hide() : mainWindow.show();;
+    } 
+   
 }
 
 setInterval(() => {
-    console.log("\nProcurandinhu por atualizacoes... \n")
-    if (env(app) == "DEV") console.log("Nada acontece feijoada :)")
-    else {
+    if (env(app) !== "DEV") {
         autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
         autoUpdater.addListener('update-downloaded', () => updateNotify())
-    };
+    }
 }, 1000 * 60 * 60);
+

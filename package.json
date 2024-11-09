@@ -1,6 +1,6 @@
 {
   "name": "SMlurker",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Twich Lurker app",
   "main": "main.js",
   "scripts": {
@@ -17,13 +17,13 @@
   "author": "Raianwz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Raianwz/SMLurker/issues"
+    "url": "https://smlurker.raianwz.com.br/issues"
   },
-  "homepage": "https://github.com/Raianwz/SMLurker#readme",
+  "homepage": "https://smlurker.raianwz.com.br/#readme",
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",
-    "copyright": "Copyright © 2023 ${author}",
+    "copyright": "Copyright © 2024 ${author}",
     "directories": {
       "buildResources": "src/assets",
       "output": "releases"
@@ -62,7 +62,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^31.3.1",
+    "electron": "^32.0.1",
     "electron-builder": "^24.13.3"
   },
   "dependencies": {

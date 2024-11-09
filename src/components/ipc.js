@@ -23,7 +23,7 @@ ipcMain.on('openConfigs', () => {
       },
     });
     enable(configWindow.webContents);
-    configWindow.loadFile('./app/configs.html');
+    configWindow.loadFile('./src/app/configs.html');
 
     configWindow.webContents.on('will-navigate', (event, url) => {
       event.preventDefault()
