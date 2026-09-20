@@ -1103,3 +1103,17 @@ p#volTxt {
     cursor: pointer;
     border-radius: 50%;
 }
+
+div[type='button'].cnFile.clear {
+    display: block;
+    margin: 12px auto 0;
+    color: #ff5252;
+    border: 1px #ff5252 solid;
+    background: transparent;
+}
+
+.channelsManager div[type='button'].cnFile.clear:hover {
+    color: #ffffff;
+    border-color: #d44141;
+    background-color: #d44141;
+}

@@ -25,6 +25,7 @@ function btnsListener() {
     getEl('div[name="removerCanal"]').addEventListener('click', () => getEl('div[name="removerCanal"]').className.includes('block') ? true : removeChannel())
     getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => getEl('div[name="loadChannelsFromFile"]').className.includes('block') ? true : loadChannelsFromFile())
     getEl('div[name="exportFileList"]').addEventListener('click', () => getEl('div[name="exportFileList"]').className.includes('block') ? true : exportListChannels())
+    getEl('div[name="clearChannelList"]').addEventListener('click', () => getEl('div[name="clearChannelList"]').className.includes('block') ? true : clearChannelList())
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
     getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })
     getEl('#txtConexaoCanal').addEventListener('input', e => e.target.value = e.target.value.toLowerCase())
@@ -40,15 +41,41 @@ async function loadChannelsFromFile() {
         dialogOpen = true;
         let file = api.cr.dg.showODS({
             properties: ['openFile'],
-            filters: [{ name: 'txt', extensions: ['txt'] }],
+            filters: [{ name: 'Listas de canais', extensions: ['txt', 'json'] }],
         })
         if (!file) {
             dialogOpen = false;
             return
         }
         let data = api.cr.fs.rd(file[0])
-        let channels = data.replace(/ /g, '').split(',')
-        channels = fixChannels(channels);
+        let channels
+        if (file[0].toLowerCase().endsWith('.json')) {
+            let parsed
+            try {
+                parsed = JSON.parse(data)
+            } catch {
+                dialogOpen = false
+                api.cr.dg.showMB({
+                    type: 'error',
+                    title: 'Importar Lista — SMLurker',
+                    message: 'O arquivo JSON não pôde ser lido.',
+                })
+                return
+            }
+            channels = Array.isArray(parsed) ? parsed : parsed.channels
+            if (!Array.isArray(channels)) {
+                dialogOpen = false
+                api.cr.dg.showMB({
+                    type: 'error',
+                    title: 'Importar Lista — SMLurker',
+                    message: 'O JSON não contém uma lista de canais válida.',
+                })
+                return
+            }
+        } else {
+            channels = data.split(/[\s,;]+/)
+        }
+        channels = [...new Set(fixChannels(channels.filter(channel => typeof channel === 'string')))];
         api.cr.fs.write(channelFilePath, JSON.stringify(channels))
         Clog('🟢Arquivo adicionado!');
         dialogOpen = false;
@@ -60,18 +87,24 @@ async function exportListChannels() {
     if (api.cr.fs.exist(channelsFilePath)) {
         let channels = JSON.parse(api.cr.fs.rd(channelsFilePath))
         channels.sort()
-        channels = JSON.stringify(channels).replace(/[\"\[\]]/g, '');
         let dt = new Date().toLocaleDateString().replaceAll("/",'.')
 
         const listaDialog = api.cr.dg.showSD({
             properties: ['dontAddToRecent'],
-            filters: [{ name: 'txt', extensions: ['txt'] }],
+            filters: [
+                { name: 'Lista em texto', extensions: ['txt'] },
+                { name: 'Lista em JSON', extensions: ['json'] },
+            ],
             defaultPath: `*/minha_lista.${dt}`,
             title: 'Exportar Lista',
         })
-        const listaTxt = await listaDialog
+        const lista = await listaDialog
 
-        if (!listaTxt.canceled) api.cr.fs.write(listaTxt.filePath, channels);
+        if (!lista.canceled) {
+            const asJson = lista.filePath.toLowerCase().endsWith('.json')
+            const contents = asJson ? JSON.stringify(channels, null, 2) : channels.join(',')
+            api.cr.fs.write(lista.filePath, contents);
+        }
 
     } else {
         api.cr.dg.showMB({
@@ -80,6 +113,38 @@ async function exportListChannels() {
             message: 'Você não tem nenhum canal adicionado para exportar como lista.',
         })
     }
+}
+
+function clearChannelList() {
+    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
+    if (!api.cr.fs.exist(channelFilePath) || JSON.parse(api.cr.fs.rd(channelFilePath)).length === 0) {
+        Clog('Não há nenhum canal para limpar!')
+        return
+    }
+
+    const firstConfirmation = api.cr.dg.showMB({
+        type: 'warning',
+        buttons: ['Cancelar', 'Continuar'],
+        defaultId: 0,
+        cancelId: 0,
+        title: 'Limpar Lista — SMLurker',
+        message: 'Deseja remover todos os canais da lista?',
+        detail: 'Esta ação não poderá ser desfeita.',
+    })
+    if (firstConfirmation !== 1) return
+
+    const secondConfirmation = api.cr.dg.showMB({
+        type: 'warning',
+        buttons: ['Cancelar', 'Limpar lista'],
+        defaultId: 0,
+        cancelId: 0,
+        title: 'Confirmar Limpeza — SMLurker',
+        message: 'Confirma a remoção de todos os canais?',
+    })
+    if (secondConfirmation !== 1) return
+
+    api.cr.fs.write(channelFilePath, JSON.stringify([]))
+    Clog('Lista de canais limpa!')
 }
 
 function addChannel() {
@@ -152,11 +217,10 @@ function removeChannel() {
 }
 
 function fixChannels(channels) {
-    for (let x in channels) {
-        if (channels[x] == '') channels.splice(x, 1);
-    }
-    for (let x in channels) {
-        if (!channels[x].startsWith('#')) channels[x] = `#${channels[x]}`;
-    }
-    return channels;
+    return [...new Set(channels
+        .filter(channel => typeof channel === 'string')
+        .map(channel => channel.trim().toLowerCase())
+        .filter(Boolean)
+        .map(channel => channel.startsWith('#') ? channel : `#${channel}`)
+    )]
 }
