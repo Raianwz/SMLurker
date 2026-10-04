@@ -1,5 +1,5 @@
 const { initialize, enable } = require('@electron/remote/main'); initialize();
-const { app, BrowserWindow, shell, Notification, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, Notification, ipcMain, safeStorage } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
@@ -9,16 +9,30 @@ const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
 const { createConsoleW } = require('./src/components/clog')
 const { PROTOCOL, callbackFromArgs, createWebLogin } = require('./src/components/twitch/webLogin');
+const { createWebSession } = require('./src/components/twitch/webSession');
 
 require('./src/components/ipc');
 require('./src/components/clog')
 let mainWindow, auxcheck;
 let queuedWebLoginResult = null;
+let forceShowLogin = false;
 const initialWebLoginUrl = callbackFromArgs(process.argv);
+const webSession = createWebSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage });
 const webLogin = createWebLogin({
     isPackaged: app.isPackaged,
     openExternal: (url) => shell.openExternal(url),
     onResult: (result) => {
+        if (result.type === 'success') {
+            forceShowLogin = false;
+            let remembered = false;
+            try {
+                remembered = webSession.save(result);
+                if (!remembered) webSession.clear();
+            } catch {
+                try { webSession.clear(); } catch { /* A sessão atual ainda pode ser usada em memória. */ }
+            }
+            result = { ...result, remembered };
+        }
         queuedWebLoginResult = result;
         flushWebLoginResult();
     },
@@ -29,6 +43,31 @@ function flushWebLoginResult() {
     if (!queuedWebLoginResult || !mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isLoadingMainFrame()) return;
     mainWindow.webContents.send('web-login:result', queuedWebLoginResult);
     queuedWebLoginResult = null;
+}
+
+function requestWebLoginAgain() {
+    forceShowLogin = true;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+    }
+    if (Notification.isSupported()) {
+        try {
+            const notification = new Notification({
+                title: 'Login da Twitch necessário',
+                body: 'A sessão expirou ou foi recusada. Abra o SMLurker para entrar novamente.',
+            });
+            notification.on('click', () => {
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    if (mainWindow.isMinimized()) mainWindow.restore();
+                    mainWindow.show();
+                    mainWindow.focus();
+                }
+            });
+            notification.show();
+        } catch { /* A janela e a mensagem de login continuam disponíveis. */ }
+    }
 }
 
 if (process.defaultApp && process.argv.length >= 2) {
@@ -44,6 +83,18 @@ ipcMain.handle('web-login:start', async () => {
     } catch (error) {
         return { ok: false, message: error instanceof Error ? error.message : 'Não foi possível iniciar o login pelo navegador.' };
     }
+});
+
+ipcMain.handle('web-login:restore', async () => {
+    const result = await webSession.restore();
+    if (result.requiresLogin) requestWebLoginAgain();
+    return result;
+});
+
+ipcMain.handle('web-login:invalid', () => {
+    try { webSession.clear(); } catch { /* A interface ainda solicitará um novo login. */ }
+    requestWebLoginAgain();
+    return { ok: true };
 });
 
 function CreateWindow() {
@@ -84,7 +135,10 @@ function CreateWindow() {
     mainWindow.focus();
 
     mainWindow.once('ready-to-show', () => {
-        iniMin(mainWindow)
+        if (forceShowLogin) {
+            mainWindow.show();
+            mainWindow.focus();
+        } else iniMin(mainWindow)
         createConsoleW()
     })
 

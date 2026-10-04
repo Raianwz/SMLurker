@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/client.js'), 'utf8');
 
-function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false) {
+function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError) {
     const calls = [];
     let onWebLoginResult;
     const elements = new Map();
@@ -35,7 +35,10 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
         tw: {
             tmi: {
                 ini: () => ({}),
-                cn: async () => { calls.push('connect'); },
+                cn: async () => {
+                    calls.push('connect');
+                    if (connectError) throw connectError;
+                },
                 dc: async () => { calls.push('disconnect'); },
             },
             data: {
@@ -59,7 +62,11 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             },
         },
         console: { manager: () => { calls.push('console'); } },
-        auth: { onWebLoginResult: (callback) => { onWebLoginResult = callback; } },
+        auth: {
+            onWebLoginResult: (callback) => { onWebLoginResult = callback; },
+            restoreWebLogin: async () => savedSession,
+            invalidateWebLogin: async () => { calls.push('invalidate-web-login'); },
+        },
     };
     const context = vm.createContext({ api, document: {
         getElementById: (id) => element(`#${id}`),
@@ -120,4 +127,45 @@ test('saved legacy credentials still connect automatically when configured', asy
     const { calls } = createLoginFlow(undefined, true, true);
     await new Promise(setImmediate);
     assert.equal(calls.includes('connect'), true);
+});
+
+test('restored Web login connects automatically when configured, without using legacy credentials', async () => {
+    const saved = { type: 'success', username: 'raianwz', accessToken: 'saved-web-token' };
+    const { context, element, calls } = createLoginFlow(undefined, true, true, saved);
+    await new Promise(setImmediate);
+    assert.equal(element('#webReadyPanel').classList.contains('none'), false);
+    assert.equal(calls.includes('connect'), true);
+    assert.equal(element('#pass').value, '');
+    assert.equal(calls.filter((call) => call === 'connect').length, 1);
+    assert.equal(calls.includes('save'), false);
+});
+
+test('fresh Web login connects automatically when the existing setting is enabled', async () => {
+    const { calls, webLoginResult } = createLoginFlow(undefined, false, true);
+    await new Promise(setImmediate);
+    assert.equal(calls.includes('connect'), false);
+    await webLoginResult({ type: 'success', username: 'raianwz', accessToken: 'web-token' });
+    await new Promise(setImmediate);
+    assert.equal(calls.includes('connect'), true);
+    assert.equal(calls.includes('save'), false);
+});
+
+test('invalid restored Web session does not auto-connect the legacy account', async () => {
+    const invalid = { type: 'error', requiresLogin: true, message: 'Entre novamente.' };
+    const { element, calls } = createLoginFlow(undefined, true, true, invalid);
+    await new Promise(setImmediate);
+    assert.equal(calls.includes('connect'), false);
+    assert.equal(element('#msgStatus').textContent, 'Entre novamente.');
+});
+
+test('IRC authentication failure clears the Web session and returns to login', async () => {
+    const { element, calls, webLoginResult } = createLoginFlow(
+        undefined, false, true, { type: 'none' }, new Error('Login authentication failed')
+    );
+    await new Promise(setImmediate);
+    await webLoginResult({ type: 'success', username: 'raianwz', accessToken: 'bad-token' });
+    await new Promise(setImmediate);
+    assert.equal(calls.includes('invalidate-web-login'), true);
+    assert.equal(element('#newLoginPanel').classList.contains('none'), false);
+    assert.match(element('#msgStatus').textContent, /Entre com a Twitch novamente/);
 });

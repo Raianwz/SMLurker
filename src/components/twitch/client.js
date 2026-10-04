@@ -7,6 +7,12 @@ const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass);
 let client = null;
 let legacyAvailable = false;
 let webCredentials = null;
+let autoConnectEnabled = false;
+
+function isWebAuthError(error) {
+    const message = typeof error?.message === 'string' ? error.message : String(error);
+    return /login unsuccessful|login authentication failed|error logging in|improperly formatted auth|invalid oauth token|invalid access token/i.test(message);
+}
 
 async function showWebProfile(username) {
     try {
@@ -37,18 +43,30 @@ function renderLoginMode() {
     if (webCredentials) document.getElementById('webAccount').textContent = `Twitch: @${webCredentials.username}`;
 }
 
-loadUserData().then(({ hasCredentials, autoConnect }) => {
-    legacyAvailable = hasCredentials;
-    renderLoginMode();
-    if (legacyAvailable && autoConnect) entrarTwitch();
-}).catch(() => {
-    renderLoginMode();
-    showLoginStatus('Não foi possível carregar as credenciais salvas. Entre com a Twitch.');
+showLoginStatus('Verificando sessão salva...');
+Promise.allSettled([loadUserData(), api.auth.restoreWebLogin()]).then(([legacy, saved]) => {
+    legacyAvailable = legacy.status === 'fulfilled' && legacy.value.hasCredentials;
+    autoConnectEnabled = legacy.status === 'fulfilled' && legacy.value.autoConnect === true;
+    if (webCredentials) {
+        if (autoConnectEnabled) void conectarCanaisWeb();
+        return;
+    }
+    const restored = saved.status === 'fulfilled' ? saved.value : { type: 'error', message: 'Não foi possível verificar a sessão salva.' };
+    if (restored.type === 'success' && !webCredentials) {
+        applyWebLogin(restored, true);
+        if (autoConnectEnabled) void conectarCanaisWeb();
+    } else {
+        renderLoginMode();
+        if (legacyAvailable && autoConnectEnabled && !restored.requiresLogin) entrarTwitch();
+        if (restored.type === 'error') showLoginStatus(restored.message);
+        else if (legacy.status === 'rejected') showLoginStatus('Não foi possível carregar as credenciais salvas. Entre com a Twitch.');
+        else if (!legacyAvailable || !autoConnectEnabled) showLoginStatus('');
+    }
 });
 
-const showLoginStatus = (message) => {
+function showLoginStatus(message) {
     document.getElementById('msgStatus').textContent = String(message);
-};
+}
 
 function readLoginCredentials() {
     const username = document.getElementById('username').value.toLowerCase();
@@ -111,6 +129,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         btnEntrar.classList.add('conectado');
         btnEntrar.onclick = sairTwitch;
     } catch (error) {
+        const invalidWebToken = fromWeb && isWebAuthError(error);
         BlockLogin(false);
         if (fromWeb) document.getElementById('pass').value = '';
         showLoginStatus(typeof error?.message === 'string' ? error.message : String(error));
@@ -122,6 +141,13 @@ async function conectarCanais({ username, pass, fromWeb }) {
         if (client) {
             try { await tmi.dc(); } catch { /* A conexão pode não ter sido aberta. */ }
             client = null;
+        }
+        if (invalidWebToken) {
+            webCredentials = null;
+            document.getElementById('login_box').innerHTML = 'account_circle <p class="mb-tooltip">Login</p>';
+            renderLoginMode();
+            showLoginStatus('A sessão da Twitch não é mais válida. Entre com a Twitch novamente.');
+            try { await api.auth.invalidateWebLogin(); } catch { /* A mensagem de login já está visível. */ }
         }
     }
 }
@@ -157,18 +183,8 @@ async function iniciarLoginWeb() {
     }
 }
 
-api.auth.onWebLoginResult(async (result) => {
+function applyWebLogin(result, restored = false) {
     const status = document.getElementById('msgStatus');
-    if (result.type === 'error') {
-        status.textContent = result.message;
-        return;
-    }
-    if (result.type !== 'success') return;
-    if (client) {
-        status.textContent = 'Saia da conta atual antes de entrar pelo navegador novamente.';
-        return;
-    }
-
     if (typeof result.username !== 'string' || typeof result.accessToken !== 'string' || !result.username || !result.accessToken) {
         status.textContent = 'O login retornou dados incompletos. Tente novamente.';
         return;
@@ -177,8 +193,27 @@ api.auth.onWebLoginResult(async (result) => {
     document.getElementById('username').value = result.username;
     document.getElementById('pass').value = '';
     renderLoginMode();
-    status.textContent = 'Login concluído. Clique em Entrar nos canais quando quiser iniciar.';
+    status.textContent = restored
+        ? 'Sessão restaurada. Clique em Entrar nos canais quando quiser iniciar.'
+        : result.remembered === false
+            ? 'Login concluído, mas não foi possível salvar a sessão. Um novo login será necessário após reiniciar.'
+            : 'Login concluído. Clique em Entrar nos canais quando quiser iniciar.';
     void showWebProfile(result.username);
+}
+
+api.auth.onWebLoginResult(async (result) => {
+    const status = document.getElementById('msgStatus');
+    if (result.type === 'error') {
+        status.textContent = result.message;
+        return;
+    }
+    if (result.type !== 'success') return;
+    if (client) {
+        status.textContent = 'Desconecte-se dos canais antes de entrar pelo navegador novamente.';
+        return;
+    }
+    applyWebLogin(result);
+    if (autoConnectEnabled) void conectarCanaisWeb();
 });
 
 async function sairTwitch() {

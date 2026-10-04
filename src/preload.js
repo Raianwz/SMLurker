@@ -6,6 +6,8 @@ const { appcore } = require('./internal/appcore')
 const api = {
     auth: {
         startWebLogin: () => ipcRenderer.invoke('web-login:start'),
+        restoreWebLogin: () => ipcRenderer.invoke('web-login:restore'),
+        invalidateWebLogin: () => ipcRenderer.invoke('web-login:invalid'),
         onWebLoginResult: (callback) => {
             const listener = (_event, result) => callback(result);
             ipcRenderer.on('web-login:result', listener);

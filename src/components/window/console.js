@@ -13,8 +13,14 @@ if (appcore.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src
 
 
 async function consoleManager() {
-    if (appcore.fs.exist(profilePath)) userdata = JSON.parse(appcore.fs.rd(profilePath))
-    else await appcore.sc.data.createProfile()
+    let userdata = {};
+    try {
+        if (appcore.fs.exist(profilePath)) userdata = JSON.parse(appcore.fs.rd(profilePath));
+        else {
+            const profile = await appcore.sc.data.createProfile();
+            userdata.display_name = profile?.displayName;
+        }
+    } catch { /* A conexão aos canais não depende da foto do perfil. */ }
     let userDisplayName = userdata.display_name ?? getEl('#username').value.toLowerCase()
     let userName = userdata.login ?? getEl('#username').value.toLowerCase()
     let volBar = getEl('#volBar');

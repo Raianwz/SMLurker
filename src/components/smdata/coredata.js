@@ -15,22 +15,23 @@ async function loadUserData() {
     const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
     const dataPath = `${appcore.appr.getPath('userData')}\\Config\\credentials.json`
     let data = {};
+    let autoConnect = false;
+
+    if (appcore.fs.exist(configPath)) {
+        const config = JSON.parse(appcore.fs.read(configPath, { encoding: 'utf8' }));
+        getEl('#swt_notifyMe').checked = config.NotifyMe;
+        getEl('#swt_notifyGift').checked = config.NotifyGift;
+        autoConnect = config.autologin === true;
+    }
 
     if (appcore.fs.exist(dataPath)) {
         data = JSON.parse(appcore.fs.read(dataPath, { encoding: 'utf8' }))
-        if (typeof data.username !== 'string' || typeof data.pass !== 'string' || !data.username.trim() || !data.pass.trim()) return { hasCredentials: false, autoConnect: false };
+        if (typeof data.username !== 'string' || typeof data.pass !== 'string' || !data.username.trim() || !data.pass.trim()) return { hasCredentials: false, autoConnect };
         getEl('#username').value = data.username
         getEl('#pass').value = data.pass
-        let autoConnect = false;
-        if (appcore.fs.exist(configPath)) {
-            let config = JSON.parse(appcore.fs.read(configPath, { encoding: 'utf8' }))
-            getEl('#swt_notifyMe').checked = config.NotifyMe
-            getEl('#swt_notifyGift').checked = config.NotifyGift
-            autoConnect = config.autologin === true;
-        }
         return { hasCredentials: true, autoConnect };
     }
-    return { hasCredentials: false, autoConnect: false };
+    return { hasCredentials: false, autoConnect };
 }
 
 //Gerenciando dados de Configurações de Notificações
