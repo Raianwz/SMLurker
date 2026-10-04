@@ -18,16 +18,19 @@ async function loadUserData() {
 
     if (appcore.fs.exist(dataPath)) {
         data = JSON.parse(appcore.fs.read(dataPath, { encoding: 'utf8' }))
+        if (typeof data.username !== 'string' || typeof data.pass !== 'string' || !data.username.trim() || !data.pass.trim()) return { hasCredentials: false, autoConnect: false };
         getEl('#username').value = data.username
         getEl('#pass').value = data.pass
+        let autoConnect = false;
         if (appcore.fs.exist(configPath)) {
             let config = JSON.parse(appcore.fs.read(configPath, { encoding: 'utf8' }))
             getEl('#swt_notifyMe').checked = config.NotifyMe
             getEl('#swt_notifyGift').checked = config.NotifyGift
-            config.autologin === true ? getEl('#btnEntrar').click() : false
+            autoConnect = config.autologin === true;
         }
+        return { hasCredentials: true, autoConnect };
     }
-
+    return { hasCredentials: false, autoConnect: false };
 }
 
 //Gerenciando dados de Configurações de Notificações
@@ -64,7 +67,7 @@ async function createProfile() {
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
     let profileData, exp, checkExp, oldExp, legacyColor;
     let username = document.querySelector('#username').value.toString();
-    btnuser(`<p class="mb-tooltip">Perfil</p><img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting">`)
+    btnuser(`<img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting"><p class="mb-tooltip">Perfil</p>`)
 
     if (appcore.fs.exist(profilePath)) {
         profileData = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }))
@@ -90,7 +93,7 @@ async function createProfile() {
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
     btnuser("");
-    btnuser(`<p class="mb-tooltip">Perfil de ${displayName}</p><img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}">`)
+    btnuser(`<img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}"><p class="mb-tooltip">Perfil de ${displayName}</p>`)
 
     if (checkExp) {
         legacyColor = profileData.chatColor
@@ -99,6 +102,7 @@ async function createProfile() {
         profileData.expire = new Date().toISOString()
         appcore.fs.write(profilePath, JSON.stringify(profileData))
     }
+    return { displayName, logo, userColor };
 }
 
 //Chamando API's

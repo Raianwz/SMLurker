@@ -38,11 +38,11 @@ const smcore = {
     data: {
         createProfile: async () => {
             let { createProfile } = require('../components/smdata/coredata')
-            createProfile()
+            return createProfile()
         },
         loadUserData: async () => {
             let { loadUserData } = require('../components/smdata/coredata')
-            loadUserData()
+            return loadUserData()
         },
         loadNotify: () => {
             let { loadNotify } = require('../components/smdata/coredata')

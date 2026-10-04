@@ -368,6 +368,28 @@ div.channelsManager {
     text-decoration: none;
 }
 
+.loginBox .help button {
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13.5px;
+    padding: 8px 0 10px;
+}
+
+.loginBox .help button:hover {
+    color: var(--purple);
+    text-decoration: underline;
+}
+
+.loginBox #btnWebLogin,
+.loginBox #btnConnectChannels {
+    width: 75%;
+    min-height: 38px;
+    height: auto;
+}
+
 .loginBox .help a:hover>p {
     color: var(--purple);
     text-decoration: underline;
@@ -449,13 +471,69 @@ a span:hover::after {
     transition: .5s ease 0s;
 }
 
+/* Login Web: convite e ação centralizados no espaço disponível. */
+.loginBox:has(#newLoginPanel:not(.none)),
+.loginBox:has(#webReadyPanel:not(.none)) {
+    align-self: center;
+    margin-top: 0;
+}
+
+.loginBox #newLoginPanel:not(.none),
+.loginBox #webReadyPanel:not(.none) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.loginBox #newLoginPanel p,
+.loginBox #webReadyPanel #webAccount {
+    max-width: 360px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.loginBox #webReadyPanel .help {
+    margin-top: -12px;
+}
+
+.loginBox #btnWebLogin {
+    width: min(75%, 320px);
+    min-height: 48px;
+    padding: 9px 20px;
+    border: 1px solid #a970ff;
+    border-radius: 12px;
+    background: #9146ff;
+    font-size: 17px;
+    font-weight: bold;
+    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.loginBox #btnWebLogin:hover {
+    background: #772ce8;
+    border-color: #bf94ff;
+    box-shadow: 0 4px 18px #9146ff55;
+}
+
+.loginBox #btnWebLogin:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}
+
 /* Msg Status & Barra de Count de Canais */
 #msgStatus {
-    padding: 0;
-    margin: 0;
-    margin-bottom: 8px;
+    max-width: 420px;
+    margin: 22px auto 8px;
+    padding: 0 8px;
     font-weight: normal;
     font-size: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#msgStatus:empty {
+    display: none;
 }
 
 #cnCount {
@@ -1056,7 +1134,6 @@ div.menu-bar section:hover>.mb-tooltip {
 }
 
 section#user_box:hover>.mb-tooltip {
-    margin-top: 0px;
     width: fit-content;
     white-space: pre-wrap;
     max-width: 200px;

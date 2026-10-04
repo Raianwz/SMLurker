@@ -4,10 +4,10 @@ const APP_ID = 'com.smlurker';
 const PROTOCOL = 'smlurker';
 const CALLBACK_URL = `${PROTOCOL}://auth/callback`;
 const LOGIN_TIMEOUT_MS = 5 * 60 * 1000;
+const DEFAULT_WEB_ORIGIN = 'https://web.smlurker.rwz.app';
 
 function webOrigin(isPackaged, configuredUrl = process.env.SMLURKER_WEB_URL) {
-    const rawUrl = configuredUrl || (!isPackaged ? 'http://localhost:3000' : '');
-    if (!rawUrl) throw new Error('Configure SMLURKER_WEB_URL para entrar pelo navegador.');
+    const rawUrl = configuredUrl || (isPackaged ? DEFAULT_WEB_ORIGIN : 'http://localhost:3000');
 
     let url;
     try {

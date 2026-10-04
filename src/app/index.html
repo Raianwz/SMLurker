@@ -87,21 +87,30 @@
                 de Eventos</p>
             </section>
             <section id="app_exit" class="material-icons none" onclick="sairTwitch()">exit_to_app<p
-                class="mb-tooltip">Sair</p>
+                class="mb-tooltip">Desconectar</p>
             </section>
             <section id="refresh" class="material-icons" title="Recarregar">refresh <p class="mb-tooltip">Recarregar</p></section>
         </div>
             <div class="vlinep"></div>
             <div class="loginBox actived">
-                <p>Twitch Username</p>
-                <input type="text" placeholder="DarkJunin123456" id="username">
-                <p>Twitch OAuth</p>
-                <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
-                <div class="help"><a href="https://twitchapps.com/tmi/">
-                        <p>Gerar Twitch OAuth</p>
-                    </a></div>
+                <div id="legacyLoginPanel" class="none">
+                    <p>Twitch Username</p>
+                    <input type="text" placeholder="DarkJunin123456" id="username">
+                    <p>Twitch OAuth</p>
+                    <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
+                    <div class="help"><button type="button" onclick="iniciarLoginWeb()">Entrar com a Twitch</button></div>
+                    <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
+                </div>
+                <div id="newLoginPanel" class="none">
+                    <p>Faça o Login pelo navegador.</p>
+                    <input id="btnWebLogin" onclick="iniciarLoginWeb()" type="button" value="Entrar com a Twitch">
+                </div>
+                <div id="webReadyPanel" class="none">
+                    <p id="webAccount"></p>
+                    <input id="btnConnectChannels" onclick="conectarCanaisWeb()" type="button" value="Entrar nos canais">
+                    <div class="help"><button type="button" onclick="iniciarLoginWeb()">Trocar conta</button></div>
+                </div>
                 <p id="msgStatus"></p>
-                <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
                 <p id="cnCount"></p>
             </div>
             <div class="channelsManager none" id="cMng">

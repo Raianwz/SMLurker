@@ -12,6 +12,7 @@ test('accepts only the SMLurker callback and never credentials in a link', () =>
 
 test('requires HTTPS outside local development', () => {
     assert.equal(webOrigin(false, 'http://localhost:3000'), 'http://localhost:3000');
+    assert.equal(webOrigin(true, ''), 'https://web.smlurker.rwz.app');
     assert.equal(webOrigin(true, 'https://web.example.com'), 'https://web.example.com');
     assert.throws(() => webOrigin(true, 'http://web.example.com'), /HTTPS/);
     assert.throws(() => webOrigin(false, 'https://web.example.com/path'), /origem/);
