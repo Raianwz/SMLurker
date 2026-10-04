@@ -27,6 +27,14 @@ Os arquivos do usuário (lista de canais, preferências, perfil e credenciais) f
 
 > **Atenção:** a versão atual salva o usuário e o token OAuth localmente em `credentials.json`, sem criptografia. Não compartilhe esse arquivo nem envie a pasta de configurações para repositórios. Caso o token seja exposto, revogue-o e gere outro.
 
+## Integração com o SMLurker Web (em preparação)
+
+O Electron já reconhece retornos `smlurker://auth/callback` e prepara uma tentativa de login no navegador. A URL da Web é configurada por `SMLURKER_WEB_URL`: no desenvolvimento, o padrão é `http://localhost:3000`; no aplicativo empacotado, configure uma origem HTTPS. Ainda não há botão na interface para iniciar esse fluxo.
+
+O contrato previsto é: o Electron abre `/connect/apps/com.smlurker` com `state`, desafio SHA-256 e URI de retorno; a Web devolve **somente um código temporário** no link; o Electron o troca por uma requisição `POST /api/apps/com.smlurker/exchange` com `code`, `codeVerifier` e `redirectUri`. A resposta esperada contém `user.login` e `accessToken`. Tokens não devem aparecer no link de retorno. O token recebido pelo novo fluxo é usado para entrar no chat, mas **não** é salvo no `credentials.json` legado.
+
+Essa integração ainda **não conclui o login**: a rota de troca na Web responde `501` enquanto a vinculação não for implementada lá. Persistência segura e renovação do token no Electron também ficam para a etapa seguinte. O login manual continua disponível.
+
 ## Executando o projeto
 
 Você precisa ter [Node.js](https://nodejs.org/) e npm instalados.
@@ -45,6 +53,7 @@ No modo de desenvolvimento, o Electron abre as ferramentas de desenvolvedor auto
 | Comando | Descrição |
 | --- | --- |
 | `npm run dev` | Inicia o aplicativo com Electron. |
+| `npm test` | Testa o contrato e a validação do retorno de login Web. |
 | `npm run nodemon` | Reinicia o aplicativo quando os arquivos mudam (requer `nodemon`). |
 | `npm run pack` | Gera o diretório do aplicativo para Windows 32 bits. |
 | `npm run build` | Gera os pacotes portátil e NSIS para Windows 32 bits. |

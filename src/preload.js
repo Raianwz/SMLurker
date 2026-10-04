@@ -1,9 +1,17 @@
 // Preload (Isolated World)
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 const { smcore } = require('./internal/smcore')
 const { appcore } = require('./internal/appcore')
 
 const api = {
+    auth: {
+        startWebLogin: () => ipcRenderer.invoke('web-login:start'),
+        onWebLoginResult: (callback) => {
+            const listener = (_event, result) => callback(result);
+            ipcRenderer.on('web-login:result', listener);
+            return () => ipcRenderer.removeListener('web-login:result', listener);
+        },
+    },
     tw: smcore,
     cr: appcore,
     console: {

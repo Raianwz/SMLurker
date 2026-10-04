@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
+    "test": "node --test tests/web-login.test.js",
     "pack": "electron-builder --dir --ia32",
     "build": "electron-builder --ia32",
     "release": "electron-builder --ia32 --publish always",

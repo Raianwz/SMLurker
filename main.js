@@ -8,11 +8,43 @@ const { initConfigs } = require('./src/components/helpers/setupConfigs');
 const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
 const { createConsoleW } = require('./src/components/clog')
+const { PROTOCOL, callbackFromArgs, createWebLogin } = require('./src/components/twitch/webLogin');
 
 require('./src/components/ipc');
 require('./src/components/clog')
 let mainWindow, auxcheck;
+let queuedWebLoginResult = null;
+const initialWebLoginUrl = callbackFromArgs(process.argv);
+const webLogin = createWebLogin({
+    isPackaged: app.isPackaged,
+    openExternal: (url) => shell.openExternal(url),
+    onResult: (result) => {
+        queuedWebLoginResult = result;
+        flushWebLoginResult();
+    },
+});
 checkFiles();
+
+function flushWebLoginResult() {
+    if (!queuedWebLoginResult || !mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isLoadingMainFrame()) return;
+    mainWindow.webContents.send('web-login:result', queuedWebLoginResult);
+    queuedWebLoginResult = null;
+}
+
+if (process.defaultApp && process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
+} else {
+    app.setAsDefaultProtocolClient(PROTOCOL);
+}
+
+ipcMain.handle('web-login:start', async () => {
+    try {
+        await webLogin.start();
+        return { ok: true };
+    } catch (error) {
+        return { ok: false, message: error instanceof Error ? error.message : 'Não foi possível iniciar o login pelo navegador.' };
+    }
+});
 
 function CreateWindow() {
     mainWindow = new BrowserWindow({
@@ -40,6 +72,7 @@ function CreateWindow() {
     })
     enable(mainWindow.webContents);
     mainWindow.loadFile('./src/app/index.html');
+    mainWindow.webContents.on('did-finish-load', flushWebLoginResult);
 
     //Open Links in Browser
     mainWindow.webContents.on('will-navigate', (event, url) => {
@@ -71,12 +104,20 @@ else {
             mainWindow.show()
             mainWindow.focus()
         }
+        const callbackUrl = callbackFromArgs(commandLine);
+        if (callbackUrl) void webLogin.handleCallback(callbackUrl);
     })
 }
+
+app.on('open-url', (event, url) => {
+    event.preventDefault();
+    if (callbackFromArgs([url])) void webLogin.handleCallback(url);
+});
 
 app.on('ready', () => {
     initConfigs();
     CreateWindow();
+    if (initialWebLoginUrl) void webLogin.handleCallback(initialWebLoginUrl);
     SetUpTray(app, mainWindow, env);
     autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
     autoUpdater.addListener('update-downloaded', () => updateNotify())

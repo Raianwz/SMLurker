@@ -8,7 +8,8 @@ let client = null;
 let gCount = () => api.tw.lv.get(), aCount = () => api.tw.lv.add();
 loadUserData();
 
-async function entrarTwitch() {
+async function entrarTwitch(options = {}) {
+    const fromWeb = options.fromWeb === true;
     const status = (arg) => document.getElementById('msgStatus').innerHTML = `${arg}`;
     let username = document.getElementById('username').value.toLowerCase()
     let pass = document.getElementById('pass').value;
@@ -54,6 +55,7 @@ async function entrarTwitch() {
     await tmi.cn().catch(err => {
         error = true;
         BlockLogin(false)
+        if (fromWeb) document.getElementById('pass').value = '';
         status(`${err}`);
         btnEntrar.value = 'Entrar';
         btnEntrar.classList.remove('loading');
@@ -66,6 +68,7 @@ async function entrarTwitch() {
         await api.tw.jcnc(err => {
             error = true;
             BlockLogin(false)
+            if (fromWeb) document.getElementById('pass').value = '';
             status(`${err}`);
             btnEntrar.value = 'Entrar';
             btnEntrar.classList.remove('loading');
@@ -75,7 +78,8 @@ async function entrarTwitch() {
         });
 
         if (!error) {
-            saveUserData(username, pass)
+            if (!fromWeb) saveUserData(username, pass)
+            else document.getElementById('pass').value = '';
             api.console.manager()
             api.tw.jp()
             changeAppSide(1)
@@ -87,6 +91,30 @@ async function entrarTwitch() {
         }
     }
 }
+
+async function iniciarLoginWeb() {
+    const result = await api.auth.startWebLogin();
+    document.getElementById('msgStatus').textContent = result.ok
+        ? 'Conclua o login no navegador para voltar ao SMLurker.'
+        : result.message;
+}
+
+api.auth.onWebLoginResult(async (result) => {
+    const status = document.getElementById('msgStatus');
+    if (result.type === 'error') {
+        status.textContent = result.message;
+        return;
+    }
+    if (result.type !== 'success') return;
+    if (client) {
+        status.textContent = 'Saia da conta atual antes de entrar pelo navegador novamente.';
+        return;
+    }
+
+    document.getElementById('username').value = result.username;
+    document.getElementById('pass').value = `oauth:${result.accessToken}`;
+    await entrarTwitch({ fromWeb: true });
+});
 
 async function sairTwitch() {
     await tmi.dc()

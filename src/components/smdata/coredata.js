@@ -69,7 +69,7 @@ async function createProfile() {
     if (appcore.fs.exist(profilePath)) {
         profileData = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }))
 
-        if (Object.keys(profileData).length < 5) {
+        if (Object.keys(profileData).length < 5 || profileData.login?.toLowerCase() !== username.toLowerCase()) {
             profileData = await getUser(username)
             profileData.expire = new Date().toLocaleDateString();
             appcore.fs.write(profilePath, JSON.stringify(profileData));
