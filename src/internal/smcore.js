@@ -27,9 +27,9 @@ const smcore = {
         let { jc } = require('../components/twitch/joinchannels')
         jc();
     },
-    jcnc: async (obj) => {
+    jcnc: async () => {
         let { jc } = require('../components/twitch/joinchannels')
-        jc().catch(obj)
+        return jc()
     },
     jp: async () => {
         let { joinpart } = require('../components/twitch/joinPart')

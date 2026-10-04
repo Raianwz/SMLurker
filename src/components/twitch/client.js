@@ -3,39 +3,42 @@ const changeAppSide = (btn, dest) => api.cr.tr.changeside(btn, dest);
 const BlockLogin = (value) => api.cr.tr.blockinput(value);
 const createProfile = async () => api.tw.data.createProfile();
 const loadUserData = async () => api.tw.data.loadUserData();
-const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass)
+const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass);
 let client = null;
-let gCount = () => api.tw.lv.get(), aCount = () => api.tw.lv.add();
 loadUserData();
 
-async function entrarTwitch(options = {}) {
-    const fromWeb = options.fromWeb === true;
-    const status = (arg) => document.getElementById('msgStatus').innerHTML = `${arg}`;
-    let username = document.getElementById('username').value.toLowerCase()
-    let pass = document.getElementById('pass').value;
-    let error = false;
+const showLoginStatus = (message) => {
+    document.getElementById('msgStatus').textContent = String(message);
+};
 
-    let btnEntrar = document.getElementById('btnEntrar');
-    btnEntrar.blur();
-    status("");
-
-    if (!username.replace(/ /g, '') || !pass.replace(/ /g, '')) {
-        status('Por favor preencha os campos Username e OAuth');
-        return;
-    } else if (username.startsWith(' ') || pass.startsWith(' ') || pass.includes(' ')) {
-        if (username.startsWith(' ')) {
-            status('Por favor insirá um Username válido');
-            return;
-        }
+function readLoginCredentials() {
+    const username = document.getElementById('username').value.toLowerCase();
+    const pass = document.getElementById('pass').value;
+    if (!username.trim() || !pass.trim()) {
+        throw new Error('Por favor preencha os campos Username e OAuth');
     }
+    if (username.startsWith(' ') || pass.startsWith(' ') || pass.includes(' ')) {
+        throw new Error('Por favor insira um Username e OAuth válidos');
+    }
+    return { username, pass };
+}
 
-    BlockLogin(true)
+function resetLoginButton() {
+    const btnEntrar = document.getElementById('btnEntrar');
+    btnEntrar.value = 'Entrar';
+    btnEntrar.classList.remove('loading', 'conectado');
+    btnEntrar.onclick = entrarTwitch;
+}
+
+async function conectarCanais({ username, pass, fromWeb }) {
+    const btnEntrar = document.getElementById('btnEntrar');
+    BlockLogin(true);
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
     btnEntrar.onclick = null;
-    status('Iniciando Client');
+    showLoginStatus('Iniciando Client');
 
-    client = {
+    const options = {
         options: { debug: false, skipUpdatingEmotesets: true },
         connection: {
             reconnect: true,
@@ -48,48 +51,50 @@ async function entrarTwitch(options = {}) {
         channels: [],
     };
 
-    client = tmi.ini(client);
+    try {
+        client = tmi.ini(options);
+        showLoginStatus('Tentando conectar');
+        await tmi.cn();
+        showLoginStatus('Entrando nos canais...');
+        if (document.querySelector('section#user_box').textContent.includes('account_circle')) {
+            await createProfile();
+        }
+        await api.tw.jcnc();
 
-    status('Tentando conectar');
-
-    await tmi.cn().catch(err => {
-        error = true;
-        BlockLogin(false)
+        if (!fromWeb) await saveUserData(username, pass);
         if (fromWeb) document.getElementById('pass').value = '';
-        status(`${err}`);
-        btnEntrar.value = 'Entrar';
+        api.console.manager();
+        api.tw.jp();
+        changeAppSide(1);
+        showLoginStatus('Entrou nos canais!');
+        btnEntrar.value = 'Sair';
         btnEntrar.classList.remove('loading');
-        btnEntrar.onclick = entrarTwitch;
-    })
-
-    if (!error) {
-        status('Entrando nos canais...');
-        document.querySelector('section#user_box').textContent.includes('account_circle') ? createProfile() : false;
-        await api.tw.jcnc(err => {
-            error = true;
-            BlockLogin(false)
-            if (fromWeb) document.getElementById('pass').value = '';
-            status(`${err}`);
-            btnEntrar.value = 'Entrar';
-            btnEntrar.classList.remove('loading');
-            btnEntrar.onclick = entrarTwitch;
-            tmi.dc();
+        btnEntrar.classList.add('conectado');
+        btnEntrar.onclick = sairTwitch;
+    } catch (error) {
+        BlockLogin(false);
+        if (fromWeb) document.getElementById('pass').value = '';
+        showLoginStatus(typeof error?.message === 'string' ? error.message : String(error));
+        resetLoginButton();
+        if (client) {
+            try { await tmi.dc(); } catch { /* A conexão pode não ter sido aberta. */ }
             client = null;
-        });
-
-        if (!error) {
-            if (!fromWeb) saveUserData(username, pass)
-            else document.getElementById('pass').value = '';
-            api.console.manager()
-            api.tw.jp()
-            changeAppSide(1)
-            status('Entrou nos canais!');
-            btnEntrar.value = 'Sair';
-            btnEntrar.classList.remove('loading');
-            btnEntrar.classList.add('conectado');
-            btnEntrar.onclick = sairTwitch;
         }
     }
+}
+
+async function entrarTwitch(options = {}) {
+    if (client) return;
+    document.getElementById('btnEntrar').blur();
+    showLoginStatus('');
+    let credentials;
+    try {
+        credentials = readLoginCredentials();
+    } catch (error) {
+        showLoginStatus(error.message);
+        return;
+    }
+    await conectarCanais({ ...credentials, fromWeb: options.fromWeb === true });
 }
 
 async function iniciarLoginWeb() {
@@ -131,8 +136,6 @@ async function sairTwitch() {
 
     client = null;
     btnEntrar.blur();
-    btnEntrar.value = 'Entrar';
-    btnEntrar.classList.remove('conectado');
-    btnEntrar.onclick = entrarTwitch;
+    resetLoginButton();
     api.cr.ipc.send('sendtoCleanConsole')
 }
