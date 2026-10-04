@@ -8,6 +8,7 @@ let client = null;
 let legacyAvailable = false;
 let webCredentials = null;
 let autoConnectEnabled = false;
+let useLegacyLogin = false;
 
 function isWebAuthError(error) {
     const message = typeof error?.message === 'string' ? error.message : String(error);
@@ -17,7 +18,7 @@ function isWebAuthError(error) {
 async function showWebProfile(username) {
     try {
         const profile = await createProfile();
-        if (webCredentials?.username !== username || !profile) return;
+        if (webCredentials?.username !== username || useLegacyLogin || !profile) return;
         const avatar = document.createElement('img');
         avatar.className = 'avatar';
         avatar.src = profile.logo;
@@ -34,12 +35,17 @@ async function showWebProfile(username) {
 }
 
 function renderLoginMode() {
-    const activePanel = webCredentials ? 'webReadyPanel' : legacyAvailable ? 'legacyLoginPanel' : 'newLoginPanel';
+    const activePanel = useLegacyLogin && legacyAvailable
+        ? 'legacyLoginPanel'
+        : webCredentials ? 'webReadyPanel' : legacyAvailable ? 'legacyLoginPanel' : 'newLoginPanel';
     for (const panelId of ['legacyLoginPanel', 'newLoginPanel', 'webReadyPanel']) {
         const panel = document.getElementById(panelId);
         if (panelId === activePanel) panel.classList.remove('none');
         else panel.classList.add('none');
     }
+    const legacyButton = document.getElementById('btnUseLegacyLogin');
+    if (legacyAvailable) legacyButton.classList.remove('none');
+    else legacyButton.classList.add('none');
     if (webCredentials) document.getElementById('webAccount').textContent = `Twitch: @${webCredentials.username}`;
 }
 
@@ -113,8 +119,8 @@ async function conectarCanais({ username, pass, fromWeb }) {
         showLoginStatus('Tentando conectar');
         await tmi.cn();
         showLoginStatus('Entrando nos canais...');
-        if (!fromWeb && document.querySelector('section#user_box').textContent.includes('account_circle')) {
-            await createProfile();
+        if (!fromWeb) {
+            try { await createProfile(); } catch { /* A foto não deve impedir a conexão. */ }
         }
         await api.tw.jcnc();
 
@@ -173,6 +179,15 @@ async function conectarCanaisWeb() {
 }
 
 async function iniciarLoginWeb() {
+    if (useLegacyLogin && webCredentials) {
+        useLegacyLogin = false;
+        document.getElementById('username').value = webCredentials.username;
+        document.getElementById('pass').value = '';
+        renderLoginMode();
+        showLoginStatus('Login Web pronto. Clique em Entrar nos canais quando quiser iniciar.');
+        void showWebProfile(webCredentials.username);
+        return;
+    }
     try {
         const result = await api.auth.startWebLogin();
         showLoginStatus(result.ok
@@ -183,6 +198,25 @@ async function iniciarLoginWeb() {
     }
 }
 
+async function voltarLoginLegado() {
+    if (client || !legacyAvailable) return;
+    try {
+        const saved = await loadUserData();
+        if (!saved.hasCredentials) {
+            legacyAvailable = false;
+            renderLoginMode();
+            showLoginStatus('As credenciais antigas não estão mais disponíveis. Entre com a Twitch.');
+            return;
+        }
+        useLegacyLogin = true;
+        document.getElementById('login_box').innerHTML = 'account_circle <p class="mb-tooltip">Login</p>';
+        renderLoginMode();
+        showLoginStatus('');
+    } catch {
+        showLoginStatus('Não foi possível abrir o login com OAuth salvo.');
+    }
+}
+
 function applyWebLogin(result, restored = false) {
     const status = document.getElementById('msgStatus');
     if (typeof result.username !== 'string' || typeof result.accessToken !== 'string' || !result.username || !result.accessToken) {
@@ -190,6 +224,7 @@ function applyWebLogin(result, restored = false) {
         return;
     }
     webCredentials = { username: result.username, pass: `oauth:${result.accessToken}` };
+    useLegacyLogin = false;
     document.getElementById('username').value = result.username;
     document.getElementById('pass').value = '';
     renderLoginMode();

@@ -108,7 +108,10 @@
                 <div id="webReadyPanel" class="none">
                     <p id="webAccount"></p>
                     <input id="btnConnectChannels" onclick="conectarCanaisWeb()" type="button" value="Entrar nos canais">
-                    <div class="help"><button type="button" onclick="iniciarLoginWeb()">Trocar conta</button></div>
+                    <div class="help web-ready-actions">
+                        <button id="btnUseLegacyLogin" class="none" type="button" onclick="voltarLoginLegado()">Usar login com OAuth</button>
+                        <button type="button" onclick="iniciarLoginWeb()">Trocar conta</button>
+                    </div>
                 </div>
                 <p id="msgStatus"></p>
                 <p id="cnCount"></p>

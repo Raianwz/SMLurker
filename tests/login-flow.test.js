@@ -42,7 +42,13 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
                 dc: async () => { calls.push('disconnect'); },
             },
             data: {
-                loadUserData: async () => ({ hasCredentials: hasLegacyCredentials, autoConnect }),
+                loadUserData: async () => {
+                    if (hasLegacyCredentials) {
+                        element('#username').value = 'raianwz';
+                        element('#pass').value = 'oauth:legacy-token';
+                    }
+                    return { hasCredentials: hasLegacyCredentials, autoConnect };
+                },
                 createProfile: async () => {
                     calls.push('profile');
                     return { displayName: 'RaianWZ', logo: 'https://example.com/avatar.png', userColor: '#9148ff' };
@@ -80,7 +86,8 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
 test('legacy Entrar connects, joins and only then saves credentials', async () => {
     const { context, element, calls } = createLoginFlow();
     await context.entrarTwitch();
-    assert.deepEqual(calls.slice(0, 3), ['block:true', 'connect', 'join']);
+    assert.deepEqual(calls.slice(0, 2), ['block:true', 'connect']);
+    assert.ok(calls.indexOf('profile') < calls.indexOf('join'));
     assert.ok(calls.indexOf('save') > calls.indexOf('join'));
     assert.equal(element('#btnEntrar').value, 'Desconectar');
     assert.equal(element('#msgStatus').textContent, 'Entrou nos canais!');
@@ -104,6 +111,7 @@ test('new users see browser login and Web return waits for an explicit channel c
     await webLoginResult({ type: 'success', username: 'raianwz', accessToken: 'web-token' });
     await new Promise(setImmediate);
     assert.equal(element('#webReadyPanel').classList.contains('none'), false);
+    assert.equal(element('#btnUseLegacyLogin').classList.contains('none'), true);
     assert.equal(calls.includes('profile'), true);
     assert.equal(element('#login_box').children[0].src, 'https://example.com/avatar.png');
     assert.equal(element('#pass').value, '');
@@ -121,6 +129,25 @@ test('legacy users retain the manual login panel', async () => {
     await new Promise(setImmediate);
     assert.equal(element('#legacyLoginPanel').classList.contains('none'), false);
     assert.equal(element('#newLoginPanel').classList.contains('none'), true);
+});
+
+test('saved legacy users can switch from Web login back to OAuth without changing either session', async () => {
+    const saved = { type: 'success', username: 'webuser', accessToken: 'saved-web-token' };
+    const { context, element, calls } = createLoginFlow(undefined, true, false, saved);
+    await new Promise(setImmediate);
+    assert.equal(element('#btnUseLegacyLogin').classList.contains('none'), false);
+    assert.equal(element('#pass').value, '');
+
+    await context.voltarLoginLegado();
+    assert.equal(element('#legacyLoginPanel').classList.contains('none'), false);
+    assert.equal(element('#username').value, 'raianwz');
+    assert.equal(element('#pass').value, 'oauth:legacy-token');
+    assert.equal(calls.includes('save'), false);
+
+    await context.iniciarLoginWeb();
+    assert.equal(element('#webReadyPanel').classList.contains('none'), false);
+    assert.equal(element('#pass').value, '');
+    assert.equal(calls.includes('connect'), false);
 });
 
 test('saved legacy credentials still connect automatically when configured', async () => {

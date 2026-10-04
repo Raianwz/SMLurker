@@ -498,6 +498,28 @@ a span:hover::after {
     margin-top: -12px;
 }
 
+.loginBox #webReadyPanel .web-ready-actions {
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.loginBox #webReadyPanel .web-ready-actions button {
+    white-space: nowrap;
+}
+
+.loginBox #webReadyPanel .web-ready-actions button:last-child {
+    margin-left: auto;
+}
+
+.loginBox .help button.none {
+    display: none;
+}
+
+.loginBox .help button:focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 2px;
+}
+
 .loginBox #btnWebLogin {
     width: min(75%, 320px);
     min-height: 48px;

@@ -12,28 +12,29 @@ Aplicativo desktop para acompanhar vários chats da Twitch em segundo plano. O S
 - painel de eventos e menções recebidas;
 - notificações do sistema para menções e SubGifts;
 - execução em segundo plano pela bandeja;
-- inicialização com o Windows, login automático e início minimizado;
+- inicialização com o Windows, conexão automática opcional e início minimizado;
 - atualização automática das versões instaladas.
 
 ## Como usar
 
 1. Baixe a versão mais recente na página de [Releases](https://github.com/Raianwz/SMLurker/releases/latest) — há builds instalável e portátil.
-2. Abra o SMLurker e informe seu nome de usuário da Twitch.
-3. Gere um token OAuth para o chat pelo link exibido no aplicativo e cole-o no campo `Twitch OAuth`. O valor deve começar com `oauth:`.
-4. Abra **Gerenciar Canais**, adicione os canais desejados e clique em **Entrar**.
+2. Abra o SMLurker e escolha **Entrar com a Twitch** para fazer login pelo navegador. Quem já possui credenciais legadas salvas ainda pode usar o formulário antigo.
+3. Abra **Gerenciar Canais**, adicione os canais desejados e clique em **Entrar nos canais**. Se **Conectar automaticamente** estiver ativo, essa etapa ocorre sozinha após o login ou a restauração da sessão.
 5. No perfil, ative as notificações que quiser receber.
 
 Os arquivos do usuário (lista de canais, preferências, perfil e credenciais) ficam no diretório de dados da aplicação, dentro da pasta `Config`. O botão **Local dos Arquivos**, nas configurações, abre esse diretório.
 
-> **Atenção:** a versão atual salva o usuário e o token OAuth localmente em `credentials.json`, sem criptografia. Não compartilhe esse arquivo nem envie a pasta de configurações para repositórios. Caso o token seja exposto, revogue-o e gere outro.
+> **Atenção:** o login legado ainda usa `credentials.json` sem criptografia. O login Web guarda o token separadamente em `web-session.bin`, protegido pelo armazenamento do sistema. Não compartilhe os arquivos de configuração; se um token legado for exposto, revogue-o.
 
-## Integração com o SMLurker Web (em preparação)
+## Integração com o SMLurker Web
 
-O Electron já reconhece retornos `smlurker://auth/callback` e prepara uma tentativa de login no navegador. A URL da Web é configurada por `SMLURKER_WEB_URL`: no desenvolvimento, o padrão é `http://localhost:3000`; no aplicativo empacotado, configure uma origem HTTPS. Ainda não há botão na interface para iniciar esse fluxo.
+O botão **Entrar com a Twitch** abre o SMLurker Web no navegador. A URL pode ser configurada por `SMLURKER_WEB_URL`: o padrão é `http://localhost:3000` no desenvolvimento e `https://web.smlurker.rwz.app` no aplicativo empacotado.
 
-O contrato previsto é: o Electron abre `/connect/apps/com.smlurker` com `state`, desafio SHA-256 e URI de retorno; a Web devolve **somente um código temporário** no link; o Electron o troca por uma requisição `POST /api/apps/com.smlurker/exchange` com `code`, `codeVerifier` e `redirectUri`. A resposta esperada contém `user.login` e `accessToken`. Tokens não devem aparecer no link de retorno. O token recebido pelo novo fluxo é usado para entrar no chat, mas **não** é salvo no `credentials.json` legado.
+O Electron abre `/connect/apps/com.smlurker` com `state`, desafio SHA-256 e URI de retorno. A Web devolve **somente um código temporário** no link; o Electron o troca por uma requisição `POST /api/apps/com.smlurker/exchange` com `code`, `codeVerifier` e `redirectUri`. O token não aparece na URL nem é salvo no `credentials.json` legado.
 
-Essa integração ainda **não conclui o login**: a rota de troca na Web responde `501` enquanto a vinculação não for implementada lá. Persistência segura e renovação do token no Electron também ficam para a etapa seguinte. O login manual continua disponível.
+A sessão Web é restaurada após reiniciar ou recarregar o aplicativo enquanto o token for válido. O Electron verifica o token com a Twitch; se ele expirar ou for revogado, solicita novo login. A renovação automática ainda não foi implementada.
+
+O que já foi entregue e os próximos passos estão no [roadmap do Electron](ROADMAP.md).
 
 ## Executando o projeto
 
@@ -53,7 +54,7 @@ No modo de desenvolvimento, o Electron abre as ferramentas de desenvolvedor auto
 | Comando | Descrição |
 | --- | --- |
 | `npm run dev` | Inicia o aplicativo com Electron. |
-| `npm test` | Testa o contrato e a validação do retorno de login Web. |
+| `npm test` | Testa login, sessão Web e conexão aos canais. |
 | `npm run nodemon` | Reinicia o aplicativo quando os arquivos mudam (requer `nodemon`). |
 | `npm run pack` | Gera o diretório do aplicativo para Windows 32 bits. |
 | `npm run build` | Gera os pacotes portátil e NSIS para Windows 32 bits. |
