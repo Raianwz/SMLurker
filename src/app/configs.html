@@ -3,70 +3,85 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>SMLurker</title>
+    <title>Configurações — SMLurker</title>
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/configs.css">
 </head>
 
 <body>
     <div class="container">
-        <header>
-            <h1>Configurações</h5>
-                <div class="window-buttons">
-                    <svg name="minWindow" class="minimizeWindow" viewBox="0 0 492 492" width="20" height="20">
-                        <title>Minimizar</title>
-                        <path d="M465.064,207.562H26.908C12.076,207.562,0,219.698,0,234.53v22.804c0,14.832,12.072,27.104,26.908,27.104h438.156
-                        c14.84,0,26.936-12.272,26.936-27.104V234.53C492,219.698,479.904,207.562,465.064,207.562z" />
-                    </svg>
-                    <svg name="closeWindow" class="closeWindow" viewBox="0 0 492 492" width="20" height="20">
-                        <title>Fechar</title>
-                        <path d="M300.188,246L484.14,62.04c5.06-5.064,7.852-11.82,7.86-19.024c0-7.208-2.792-13.972-7.86-19.028L468.02,7.872
-                        c-5.068-5.076-11.824-7.856-19.036-7.856c-7.2,0-13.956,2.78-19.024,7.856L246.008,191.82L62.048,7.872
-                        c-5.06-5.076-11.82-7.856-19.028-7.856c-7.2,0-13.96,2.78-19.02,7.856L7.872,23.988c-10.496,10.496-10.496,27.568,0,38.052
-                        L191.828,246L7.872,429.952c-5.064,5.072-7.852,11.828-7.852,19.032c0,7.204,2.788,13.96,7.852,19.028l16.124,16.116
-                        c5.06,5.072,11.824,7.856,19.02,7.856c7.208,0,13.968-2.784,19.028-7.856l183.96-183.952l183.952,183.952
-                        c5.068,5.072,11.824,7.856,19.024,7.856h0.008c7.204,0,13.96-2.784,19.028-7.856l16.12-16.116
-                        c5.06-5.064,7.852-11.824,7.852-19.028c0-7.204-2.792-13.96-7.852-19.028L300.188,246z" />
-                    </svg>
-                </div>
+        <header class="titlebar">
+            <h1>Configurações</h1>
+            <div class="window-controls" aria-label="Controles da janela">
+                <button name="minWindow" class="window-control" type="button" aria-label="Minimizar" title="Minimizar">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg>
+                </button>
+                <button name="closeWindow" class="window-control window-control-close" type="button" aria-label="Fechar" title="Fechar">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" /></svg>
+                </button>
+            </div>
         </header>
-        <div name="loading"></div>
-        <div class="configBox">
-            <div class="switch__container">
-                <div>
-                    <input type="checkbox" class="switch switch--shadow" id="swt_ini">
-                    <label for="swt_ini"></label>
-                    <p>Iniciar com Windows</p>
+
+        <div name="loading" aria-live="polite"></div>
+
+        <main class="config-content">
+            <div class="config-heading">
+                <span class="config-eyebrow">PREFERÊNCIAS</span>
+                <h2>Inicialização</h2>
+                <p>Escolha como o SMLurker deve abrir e conectar.</p>
+            </div>
+
+            <section class="settings-card" aria-label="Opções de inicialização">
+                <label class="setting-row">
+                    <span class="setting-copy">
+                        <strong>Iniciar com Windows</strong>
+                        <small>Abra o aplicativo ao ligar o computador.</small>
+                    </span>
+                    <input type="checkbox" class="switch" id="swt_ini">
+                    <span class="switch-track" aria-hidden="true"></span>
+                </label>
+                <label class="setting-row">
+                    <span class="setting-copy">
+                        <strong>Conectar automaticamente</strong>
+                        <small>Entre nos canais ao abrir o aplicativo.</small>
+                    </span>
+                    <input type="checkbox" class="switch" id="swt_autologin">
+                    <span class="switch-track" aria-hidden="true"></span>
+                </label>
+                <label class="setting-row">
+                    <span class="setting-copy">
+                        <strong>Iniciar minimizado</strong>
+                        <small>Requer a conexão automática ativada.</small>
+                    </span>
+                    <input type="checkbox" class="switch" id="swt_inimin">
+                    <span class="switch-track" aria-hidden="true"></span>
+                </label>
+            </section>
+
+            <section class="file-actions" aria-label="Arquivos e dados">
+                <div class="section-heading">
+                    <span class="config-eyebrow">ARQUIVOS E DADOS</span>
                 </div>
-                <div>
-                    <input type="checkbox" class="switch switch--shadow" id="swt_autologin">
-                    <label for="swt_autologin"></label>
-                    <p>Conectar automaticamente</p>
-                </div>
-                <div>
-                    <input type="checkbox" class="switch switch--shadow" id="swt_inimin">
-                    <label for="swt_inimin"></label>
-                    <p>Iniciar Minimizado</p>
-                </div>
-            </div>
-            <div class="configButtons">
-                <svg viewBox="0 0 24 24" class="folder" name="abrirLocal">
-                    <path d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
-                </svg>
-                <p>Local dos Arquivos</p>
-            </div>
-            <div class="configButtons">
-                <svg viewBox="0 0 24 24" name="exportarLista"]>
-                    <path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
-                </svg>
-                <p>Exportar Lista em txt</p>
-            </div>
-            <div class="configButtons" title="Registro de Alterações">
-                <svg viewBox="0 0 24 24" name="githubChange">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                </svg>
-            </div>
-        </div>
+                <button class="file-action" name="abrirLocal" type="button">
+                    <span class="action-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+                    </span>
+                    <span class="action-copy"><strong>Local dos arquivos</strong><small>Abra a pasta de configurações.</small></span>
+                    <span class="action-arrow" aria-hidden="true">↗</span>
+                </button>
+                <button class="file-action" name="exportarLista" type="button">
+                    <span class="action-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM14 3v5h4M9 13h6M9 17h6" /></svg>
+                    </span>
+                    <span class="action-copy"><strong>Exportar lista em TXT</strong><small>Salve uma cópia dos seus canais.</small></span>
+                    <span class="action-arrow" aria-hidden="true">↗</span>
+                </button>
+            </section>
+
+            <button class="release-link" name="githubChange" type="button" title="Registro de alterações">
+                Ver novidades e versões <span aria-hidden="true">↗</span>
+            </button>
+        </main>
     </div>
     <script src="../components/configs/configs.js"></script>
 </body>

@@ -5,8 +5,8 @@ let configWindow;
 ipcMain.on('openConfigs', () => {
   if (!configWindow) {
     configWindow = new BrowserWindow({
-      width: 400,
-      height: 250,
+      width: 480,
+      height: 530,
       title: 'Configurações',
       icon: './src/assets/icon.ico',
       frame: false,

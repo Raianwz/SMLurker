@@ -1,112 +1,292 @@
 * {
-    --fundo: #282b30;
-    --disable: #747f8d;
-    --text: #ffffff;
-    --blue: #0099ff;
-    --red: #f04747;
-    --purple: #9148ff;
+    --text: #f3f7ff;
+    --muted: #9bb2c9;
+    --purple: #a970ff;
+}
+
+html,
+body {
+    height: 100%;
 }
 
 .container {
-    padding: 0;
-    background-color: #282b30;
     height: 100vh;
     overflow: hidden;
+    color: var(--text);
+    background: linear-gradient(145deg, #101a2d, #102b46);
+}
+
+.panel-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 header {
     display: flex;
-    flex-direction: row;
-    background-color: #202225;
-    border-bottom: 0.01px #18191b solid;
-    height: 30px;
-}
-
-header h1 {
-    text-align: center;
-    font-size: 1.25rem;
-    width: 100%;
-    font-weight: bold;
-    -webkit-user-select: none;
+    align-items: center;
+    flex: 0 0 42px;
+    padding-left: 18px;
+    background: #111a2a;
+    border-bottom: 1px solid #ffffff1a;
     -webkit-app-region: drag;
 }
 
-div.painel textarea {
+header h1 {
+    font-size: 17px;
+    font-weight: bold;
+    -webkit-user-select: none;
+}
+
+.window-controls {
+    display: flex;
+    align-self: stretch;
+    margin-left: auto;
+    -webkit-app-region: no-drag;
+}
+
+.window-control {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 100%;
+    color: #b8cbe0;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.window-control svg,
+.window-control svg path,
+.window-control svg rect {
+    cursor: pointer;
+}
+
+.window-control svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.window-control:hover {
+    color: #fff;
+    background: #263a55;
+}
+
+.window-control-close:hover {
+    background: #bd4450;
+}
+
+.window-control:focus-visible {
+    outline: 2px solid #a970ff;
+    outline-offset: -3px;
+}
+
+.restore-icon,
+.is-maximized .maximize-icon {
+    display: none;
+}
+
+.is-maximized .restore-icon {
+    display: block;
+}
+
+.panel-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    gap: 12px;
+    padding: 16px 18px 14px;
+}
+
+.panel-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.panel-eyebrow {
+    color: #82bdea;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: .12em;
+}
+
+.panel-heading h2 {
+    margin-top: 2px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.panel-hint {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.painel {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+#txtPanel {
+    width: 100%;
+    height: 100%;
+    padding: 14px 16px;
     resize: none;
-    border-radius: 0px 0px 10px 10px;
-    display: inline-block;
-    width: 100vw;
-    height: 80vh;
-    background-color: #0c0c0c;
-    color: #FFF;
-    padding: 15px 10px 15px 10px;
+    color: #e8f2ff;
+    background: #081726;
+    border: 1px solid #36516b;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    cursor: text;
+    user-select: text;
 }
 
-div.painel textarea::-webkit-scrollbar {
-    width: 14px;
-    border-radius: 5px;
+#txtPanel:focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 2px;
 }
 
-*::-webkit-scrollbar-track {
-    background: #222222;
-    border-radius: 5px;
-}
-
-
-div.painel textarea::-webkit-scrollbar-thumb {
-    background-color: #3f3f3f;
-    border-radius: 20px;
-    border: 1px solid #000000;
-    transition: .1s ease-in-out;
-}
-
-div.painel textarea::-webkit-scrollbar-thumb:hover {
-    background-color: #575757;
-    transition: .1s ease-in-out;
-}
-
-
-.delete {
-    background-color: #d4414100;
-    color: #d44141;
-    border: 1px #d44141 solid;
-    transition: .5s ease 0s;
-}
-
-.delete:hover{
-    color: #ffffff;
-    background-color: var(--red);
-    border: 1px #d44141 solid;
-    transition: .5s ease 0s;
-}
-.span-space{
-    margin-inline: 10px;
-}
-.svg-box{
-    display: inline-flex;
+.panel-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    color: var(--muted);
+    text-align: center;
+    pointer-events: none;
 }
 
-/**************************************
-****************Table de Pings*********
-***************************************/
+.panel-empty[hidden] {
+    display: none;
+}
+
+.panel-empty .material-icons {
+    color: #80bff2;
+    font-size: 28px;
+}
+
+.panel-empty strong {
+    color: #dceaff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.panel-empty > span:last-child {
+    font-size: 12px;
+}
+
+#txtPanel::-webkit-scrollbar {
+    width: 10px;
+}
+
+#txtPanel::-webkit-scrollbar-track {
+    background: #102338;
+    border-radius: 8px;
+}
+
+#txtPanel::-webkit-scrollbar-thumb {
+    background: #49647e;
+    border: 2px solid #102338;
+    border-radius: 8px;
+}
+
+#txtPanel::-webkit-scrollbar-thumb:hover {
+    background: #6684a0;
+}
+
 div#mentionsbar {
     display: flex;
     align-items: center;
-    padding-inline: 10px;
+    flex: 0 0 auto;
+    gap: 8px;
+    min-height: 64px;
+    padding: 10px 18px;
+    background: #101b2d;
+    border-top: 1px solid #ffffff1a;
 }
 
-div#mentionsbar span[name="cn_clear"].delete > span{
-    cursor: pointer;
-    margin-inline: 3px;
+.span-space {
+    margin: 0;
 }
 
+.svg-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    background: #192a42;
+    border: 1px solid #ffffff1c;
+    border-radius: 9px;
+    font-size: 12px;
+    white-space: nowrap;
+}
 
-div#mentionsbar span[name="cn_clear"] {
+.svg-box svg {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 19px;
+}
+
+.svg-box:first-child svg {
+    padding: 2px;
+    background: #8d65c5;
+    border-radius: 6px;
+}
+
+div#mentionsbar button.delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 34px;
+    margin-left: auto;
+    padding: 5px 10px;
+    color: #ff858a;
+    background: transparent;
+    border: 1px solid #a9434a;
+    border-radius: 8px;
+    font-size: 12px;
     cursor: pointer;
-    display: flex;
-    border-radius: 5px;
-    padding: 0px 5px;
-    position: absolute;
-    right: 10px;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+div#mentionsbar button.delete .material-icons {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+div#mentionsbar button.delete:hover {
+    color: #fff;
+    background: #bc424b;
+    border-color: #e45e66;
+}
+
+div#mentionsbar button.delete:focus-visible {
+    outline: 2px solid #d8e9ff;
+    outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+    .panel-hint {
+        display: none;
+    }
+
+    .svg-box {
+        padding: 6px;
+        font-size: 11px;
+    }
 }

@@ -12,7 +12,7 @@ function createConsoleWindow() {
       minWidth: 600,
       title: 'Painel de Eventos',
       icon: './src/assets/icon.ico',
-      frame: true,
+      frame: false,
       transparent: false,
       resizable: true,
       maximizable: true,
@@ -24,11 +24,6 @@ function createConsoleWindow() {
         webSecurity: true,
         enableRemoteModule: true,
         preload: path.join(__dirname, "../preload.js"),
-      },
-      titleBarStyle: 'hidden',
-      titleBarOverlay: {
-        color: '#202225',
-        symbolColor: '#9148ff'
       },
     });
     enable(consoleWindow.webContents);

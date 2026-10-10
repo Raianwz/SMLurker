@@ -1,261 +1,328 @@
-* {
-    --fundo: #282b30;
-    --disable: #747f8d;
-    --text: #ffffff;
-    --blue: #0099ff;
-    --red: #f04747;
-    --purple: #9148ff;
+html,
+body {
+    width: 100%;
+    height: 100%;
 }
 
 .container {
-    background-color: #222325;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    height: 100vh;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    transition: .6s ease-in-out;
-}
-
-.configBox {
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    color: #f3f7ff;
+    background: linear-gradient(145deg, #101a2d, #102b46);
+    border: 1px solid #40526a;
+    border-radius: 12px;
 }
 
-.loading {
-    position: fixed;
-    background-color: #222325d0;
-    background-image: url('./extra/load.gif');
-    background-repeat: no-repeat;
-    cursor: wait;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    background-position-x: center;
-    background-position-y: 40px;
-    user-select: none;
-}
-
-.loading::after {
+.titlebar {
     display: flex;
-    cursor: wait;
-    content: 'Aplicando Alterações';
-    position: relative;
-    font-weight: bolder;
-    top: 40px;
-    justify-content: center;
-    font-size: 21px;
     align-items: center;
-}
-
-/********************************
-*********** Header **************
-********************************/
-header {
-    display: flex;
-    width: 100%;
-    background-color: #0a598f;
-    flex-direction: row;
-    border-bottom: 1px solid black;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-}
-
-header h1 {
-    color: var(--text);
-    text-align: center;
-    font-size: 1.25rem;
-    width: 88%;
-    font-weight: bold;
-    -webkit-user-select: none;
+    flex: 0 0 42px;
+    padding-left: 18px;
+    background: #111a2a;
+    border-bottom: 1px solid #ffffff1a;
     -webkit-app-region: drag;
 }
 
-/********************************
-*********** Botões **************
-********************************/
-header div.window-buttons {
-    display: inline-flex;
-    fill: var(--text);
-    margin-top: 6px;
+.titlebar h1 {
+    font-size: 17px;
+    font-weight: bold;
 }
 
-div.window-buttons svg,
-div.window-buttons svg path {
+.window-controls {
+    display: flex;
+    align-self: stretch;
+    margin-left: auto;
+    -webkit-app-region: no-drag;
+}
+
+.window-control {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 100%;
+    color: #b8cbe0;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.window-control:last-child {
+    border-top-right-radius: 11px;
+}
+
+.window-control svg,
+.window-control svg path {
     cursor: pointer;
 }
 
-.minimizeWindow,
-.closeWindow {
-    margin: 0 6px 0;
-    cursor: pointer;
-    box-shadow: 0px 0px 0px 0px #ffffff00;
+.window-control svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
 }
 
-.minimizeWindow {
-    width: 25px;
-    padding-bottom: 4px;
-    ;
+.window-control:hover {
+    color: #fff;
+    background: #263a55;
 }
 
-.closeWindow {
-    width: 30px;
-    padding-bottom: 4px;
-    border-top-right-radius: 1px;
+.window-control-close:hover {
+    background: #bd4450;
 }
 
-.minimizeWindow:hover {
-    transition: .05s;
-    background-color: var(--blue);
-    box-shadow: 2px -3px 0px 3px var(--blue), -3px -3px 0px 3px var(--blue);
+.window-control:focus-visible,
+.file-action:focus-visible,
+.release-link:focus-visible {
+    outline: 2px solid #a970ff;
+    outline-offset: -3px;
 }
 
-.closeWindow:hover {
-    transition: .05s;
-    background-color: var(--red);
-    box-shadow: 2px -3px 0px 4px var(--red), -3px -3px 0px 4px var(--red);
+.config-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 0;
+    padding: 17px 18px 14px;
+    overflow-y: auto;
 }
 
-.ppL {
-    pointer-events: none;
+.config-content::-webkit-scrollbar {
+    width: 7px;
 }
 
-/*********************************************************
-*********************Botões em Switch*********************
-*********************************************************/
-.switch__container div {
+.config-content::-webkit-scrollbar-thumb {
+    background: #49647e;
+    border-radius: 7px;
+}
+
+.config-heading,
+.settings-card,
+.file-actions,
+.release-link {
+    flex-shrink: 0;
+}
+
+.config-eyebrow {
+    color: #82bdea;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: .12em;
+}
+
+.config-heading h2 {
+    margin-top: 3px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.config-heading p {
+    margin-top: 2px;
+    color: #9bb2c9;
+    font-size: 11px;
+}
+
+.settings-card {
+    overflow: hidden;
+    background: #0b1c2d;
+    border: 1px solid #36516b;
+    border-radius: 12px;
+}
+
+.setting-row {
+    position: relative;
     display: flex;
     align-items: center;
-    align-content: flex-start;
-    flex-direction: row;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 62px;
+    padding: 10px 14px;
+    cursor: pointer;
 }
 
-div.configButtons p,
-.switch__container div p {
-    padding-left: 15px;
+.setting-row + .setting-row {
+    border-top: 1px solid #ffffff16;
 }
 
-.switch__container {
-    margin-top: 10px;
-    flex-direction: column;
+.setting-row:hover {
+    background: #142a41;
+}
+
+.setting-copy,
+.action-copy {
     display: flex;
-    padding-inline: 50px;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.setting-copy strong,
+.action-copy strong {
+    color: #f3f7ff;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.setting-copy small,
+.action-copy small {
+    color: #9bb2c9;
+    font-size: 10px;
 }
 
 .switch {
     position: absolute;
-    margin-left: -9999px;
-    visibility: hidden;
-    cursor: pointer;
-    user-select: none;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
 }
 
-.switch+label {
-    display: block;
+.switch-track {
     position: relative;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 23px;
+    background: #4b6279;
+    border: 1px solid #718aa2;
+    border-radius: 20px;
     cursor: pointer;
-    outline: none;
-    user-select: none;
+    transition: background-color .2s ease, border-color .2s ease;
 }
 
-.switch--shadow+label {
-    padding: 2px;
-    width: 40px;
-    height: 20px;
-    border-radius: 60px;
-}
-
-.switch--shadow:disabled+label,
-.switch--shadow:disabled+label::before,
-.switch--shadow:disabled+label::after {
-    cursor: not-allowed;
-    background-color: var(--disable);
-}
-
-.switch--shadow+label:before,
-.switch--shadow+label:after {
-    display: block;
+.switch-track::after {
     position: absolute;
-    cursor: pointer;
-    top: 1px;
-    left: 1px;
-    bottom: 1px;
+    top: 2px;
+    left: 2px;
+    width: 17px;
+    height: 17px;
+    background: #edf5ff;
+    border-radius: 50%;
     content: '';
+    transition: transform .2s ease;
 }
 
-.switch--shadow+label:before {
-    right: 1px;
-    background-color: #f1f1f1;
-    border-radius: 60px;
-    transition: all 0.4s;
+.switch:checked + .switch-track {
+    background: #9148ff;
+    border-color: #a970ff;
 }
 
-.switch--shadow+label:after {
-    width: 18px;
-    background-color: #9148ff;
-    border-radius: 100%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s;
+.switch:checked + .switch-track::after {
+    transform: translateX(19px);
 }
 
-.switch--shadow:checked+label:before {
-    background-color: var(--purple);
+.switch:focus-visible + .switch-track {
+    outline: 2px solid #d8e9ff;
+    outline-offset: 3px;
 }
 
-.switch--shadow:checked+label:after {
-    background-color: #ffffff;
-    transform: translateX(20px);
-}
-
-/**********************************************
-*******************Botões Config***************
-**********************************************/
-.configButtons {
+.file-actions {
     display: flex;
-    text-align: center;
-    padding-inline-start: 45px;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.section-heading {
+    padding: 0 2px 2px;
+}
+
+.file-action {
+    display: flex;
     align-items: center;
+    gap: 12px;
+    min-height: 55px;
+    padding: 8px 12px;
+    text-align: left;
+    background: #192a42;
+    border: 1px solid #ffffff1c;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
 }
 
-.configBox .configButtons svg,
-.configBox .configButtons svg path {
+.file-action:hover {
+    background: #213954;
+    border-color: #6986a6;
+}
+
+.file-action *,
+.release-link * {
     cursor: pointer;
 }
 
-.configBox .configButtons svg {
-    fill: #c2c2c2;
-    width: 40px;
-    height: 40px;
+.action-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    color: #8fcaff;
+    background: #173b5d;
+    border-radius: 8px;
+}
+
+.action-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.action-arrow {
+    margin-left: auto;
+    color: #89aac8;
+    font-size: 17px;
+}
+
+.release-link {
+    align-self: flex-end;
+    margin-top: auto;
+    padding: 4px 2px;
+    color: #83c9ff;
+    background: transparent;
+    font-size: 11px;
     cursor: pointer;
-    margin-left: 5px;
-    margin-right: 0px;
-    transition: .5s ease 0s;
 }
 
-div.configBox .configButtons svg.folder {
-    fill: #f5c000;
-    transition: .5s ease 0s;
+.release-link:hover {
+    color: #d2eaff;
+    text-decoration: underline;
 }
 
-div.configBox .configButtons svg.folder:hover {
-    fill: #ffcd28;
-    transition: .5s ease 0s;
-}
-
-div.configBox .configButtons svg:hover {
-    color: #ffffff;
-    transition: .5s ease 0s;
-}
-div.configBox svg[name="githubChange"]{
+.loading {
     position: fixed;
-    width: 30px;
-    bottom: 5px;
-    right: 10px;
-    fill: #0a598f;
+    z-index: 2;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #f3f7ff;
+    background: #081726e8;
+    cursor: wait;
 }
-div.configBox svg[name="githubChange"]:hover path{
-    fill: var(--blue);
-    transition: .5s ease 0s;
+
+.loading::before {
+    width: 28px;
+    height: 28px;
+    border: 3px solid #45617e;
+    border-top-color: #a970ff;
+    border-radius: 50%;
+    content: '';
+    animation: loading-spin .7s linear infinite;
+}
+
+.loading::after {
+    content: 'Aplicando alterações…';
+    font-size: 12px;
+}
+
+@keyframes loading-spin {
+    to { transform: rotate(360deg); }
 }

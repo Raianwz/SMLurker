@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Painel de Eventos</title>
-    <link rel="stylesheet" href="../css/console.css">
     <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/console.css">
     <link rel="preload" href="../fonts/material icons.woff2" as="font" />
     <link rel="preload" href="../fonts/OpenSans-Regular.ttf" as="font" />
     <link rel="preload" href="../fonts/OpenSans-Light.ttf" as="font" />
@@ -41,21 +41,47 @@
 
 <body>
     <div class="container">
-        <div>
+        <div class="panel-shell">
             <header>
                 <h1 id="sm">Painel de Eventos</h1>
+                <div class="window-controls" aria-label="Controles da janela">
+                    <button id="panelMinimize" class="window-control" type="button" aria-label="Minimizar" title="Minimizar">
+                        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg>
+                    </button>
+                    <button id="panelMaximize" class="window-control" type="button" aria-label="Maximizar" title="Maximizar">
+                        <svg class="maximize-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="4.5" width="11" height="11" rx="1" /></svg>
+                        <svg class="restore-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 5h8v8M5 7h8v8H5z" /></svg>
+                    </button>
+                    <button id="panelClose" class="window-control window-control-close" type="button" aria-label="Fechar" title="Fechar">
+                        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" /></svg>
+                    </button>
+                </div>
             </header>
-            <div class="painel">
-                <textarea id="txtPanel" disabled></textarea>
-            </div>
+            <main class="panel-content">
+                <div class="panel-heading">
+                    <div>
+                        <span class="panel-eyebrow">ATIVIDADE</span>
+                        <h2>Histórico da sessão</h2>
+                    </div>
+                    <span class="panel-hint">Eventos recentes aparecem abaixo</span>
+                </div>
+                <div class="painel">
+                    <textarea id="txtPanel" readonly aria-label="Histórico de eventos da sessão"></textarea>
+                    <div id="panelEmpty" class="panel-empty">
+                        <span class="material-icons" aria-hidden="true">notifications_none</span>
+                        <strong>Nenhum evento por enquanto</strong>
+                        <span>Menções, conexões e outros eventos aparecerão aqui.</span>
+                    </div>
+                </div>
+            </main>
             <div id="mentionsbar">
-                <spn class="span-space svg-box">
-                    <svg width="25" height="25" viewBox="0 0 20 20" style="background-color: #8d65c5;border-radius: 12px;padding: 2.5px;">
+                <span class="span-space svg-box">
+                    <svg width="25" height="25" viewBox="0 0 20 20">
                         <path fill="#FFF" d="M12.002 3.999a2 2 0 0 1 2 2v2L18 6v8l-3.998-2v2a2 2 0 0 1-2 1.999h-8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8zM12 6H4v8h8V6z"
                             clip-rule="evenodd"></path>
                     </svg>
                     <span id="cnTotal">Canais: 0</span>
-                </spn>
+                </span>
                 <span class="span-space svg-box">
                     <svg width="25" height="25" viewBox="0 0 303 303">
                         <g fill="rgba(249, 194, 60, 1)"
@@ -85,8 +111,8 @@
                     </svg>
                     <span id="txtTotal">Texto: 0</span>
                 </span>
-                <span name="cn_clear" class="delete span-space">Limpar<span
-                        class="material-icons">delete_sweep</span></span>
+                <button name="cn_clear" class="delete span-space" type="button">Limpar<span
+                        class="material-icons" aria-hidden="true">delete_sweep</span></button>
             </div>
         </div>
     </div>

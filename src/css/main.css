@@ -536,6 +536,7 @@ a span:hover::after {
 
 .loginBox #btnWebLogin,
 .loginBox #btnConnectChannels {
+    cursor: pointer;
     width: 100%;
     min-height: 44px;
 }
