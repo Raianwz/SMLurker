@@ -98,7 +98,7 @@ test('failed channel join does not save credentials or show a connected state', 
     await context.entrarTwitch();
     assert.equal(calls.includes('save'), false);
     assert.equal(calls.includes('disconnect'), true);
-    assert.equal(element('#btnEntrar').value, 'Entrar');
+    assert.equal(element('#btnEntrar').value, 'Entrar nos canais');
     assert.equal(element('#msgStatus').textContent, 'Nenhum canal adicionado');
 });
 

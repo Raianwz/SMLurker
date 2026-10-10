@@ -4,7 +4,7 @@ let { jcPanel, jcPNReset } = require('../window/console')
 
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
-    const channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`;
+    const channelPath = appcore.channels.path();
     const pingArea = (txt) => { let time = new Date(); jcPanel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
     const inText = (el, txt) => el.innerText = txt
     const waiting = () => appcore.helpers.sleep(800).then(() => waitBlock())
@@ -13,11 +13,9 @@ function jpManager() {
         appcore.helpers.sleep('3000').then(() => { x.classList.remove('show'); x.textContent = ""; })
     }
     let btnJoin = getEl('#jc_Join'), btnPart = getEl('#jc_Part'), btnSair = getEl('#btnEntrar'), txtChannel;
-    appcore.helpers.env() === 'DEV' ? channels = JSON.parse(appcore.fs.rd(channelPath)) : false
     jcPNReset()
 
-    if (appcore.fs.exist(channelPath)) channels = JSON.parse(appcore.fs.rd(channelPath))
-    joinedChn = channels || joinedChn
+    joinedChn = appcore.fs.exist(channelPath) ? appcore.channels.read() : []
     btnJoin.addEventListener('click', jpJoinChn)
     btnPart.addEventListener('click', jpPartChn)
     btnSair.addEventListener('click', () => getEl('#txtConexaoCanal').value = "")

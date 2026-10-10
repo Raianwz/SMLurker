@@ -1,6 +1,6 @@
 .container {
     padding: 0;
-    background: -webkit-linear-gradient(225deg, #231931, #022f4e);
+    background: linear-gradient(145deg, #11192e 5%, #102b46 100%);
     /* background-color: var(--fundo-alt-1); */
     /*#282b30;*/
     height: 100vh;
@@ -32,9 +32,7 @@
 }
 
 .vlinep {
-    border-left: 1px #0099ff  solid;
-    height: 92vh;
-    margin-top: 6px;
+    display: none;
 }
 
 /*Linha Horizontal*/
@@ -50,7 +48,7 @@
 header {
     display: flex;
     flex-direction: row;
-    background-color: #202225;
+    background-color: #111a2a;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom: 0.01px #18191b solid;
@@ -154,8 +152,10 @@ div.mainBox {
 
 div.menu-bar {
     padding-top: 40px;
-    width: 40px;
-    background: linear-gradient(75deg, #2B32B2, #1488CC);
+    width: 48px;
+    flex: 0 0 48px;
+    background: linear-gradient(180deg, #142a47, #102039);
+    border-right: 1px solid #ffffff18;
 }
 
 .UserWrapper {
@@ -183,9 +183,9 @@ div.menu-bar>section#app_exit {
 
 div.menu-bar>section {
     font-size: 30px;
-    color: #fff;
+    color: #a8c5df;
     padding-inline: 5px;
-    margin-top: 10px;
+    margin: 10px 4px 0;
     cursor: pointer;
     padding-bottom: 3px;
     padding-top: 3px;
@@ -201,15 +201,16 @@ div.menu-bar>section[disabled]:hover {
 
 div.menu-bar #gearConfig {
     position: absolute;
-    left: 0px;
+    left: 4px;
     top: 30px;
     margin: 0px;
 }
 
 div.menu-bar #refresh {
     position: absolute;
-    left: 0px;
+    left: 4px;
     bottom: 20px;
+    margin: 0;
 }
 
 #refresh .mb-tooltip,
@@ -222,7 +223,7 @@ div.menu-bar>section#refresh:hover {
     color: var(--text);
     -webkit-text-fill-color: var(--text);
     transition: text ease-in-out 0.5s;
-    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+    background: #9146ff2e;
 }
 
 div.menu-bar>section#app_exit:hover {
@@ -237,16 +238,16 @@ div.menu-bar .avatar {
 
 div.menu-bar>section:hover {
     color: #FFF;
-    background: -webkit-linear-gradient(45deg, #5F05E6, #9148FF);
+    background: #9146ff2e;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 9px;
 }
 
 div.menu-bar>section.selected {
     color: var(--text);
-    background-color: #2B32B2;
-    border-radius: 5px;
-    box-shadow: inset 0px -1px 0px 1px #1488cc;
+    background: #9146ff30;
+    border-radius: 9px;
+    box-shadow: inset 3px 0 #a970ff;
 }
 
 div.menu-bar>section.selected:hover {
@@ -263,10 +264,20 @@ div.channelsManager.actived {
 ***********[Login Box]************
 ********************************/
 div.loginBox {
-    width: 86%;
+    width: calc(100% - 48px);
+    height: calc(100vh - 35px);
+    padding: 12px 18px 30px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 0;
 }
 
-div.loginBox,
+div.loginBox:not(.none) {
+    display: flex;
+}
+
 div.channelsManager {
     text-align: center;
     height: fit-content;
@@ -297,11 +308,6 @@ div.channelsManager {
     color: #f8f8f2 !important;
 }
 
-.loginBox p {
-    margin-top: 15px;
-    font-weight: bold;
-}
-
 .channelsManager input[type='text']:focus,
 .channelsManager input[type='text']:hover {
     transition: .2s ease-in-out 0s;
@@ -310,21 +316,8 @@ div.channelsManager {
     box-shadow: 0px 0px 0px 2px var(--purple);
 }
 
-.loginBox input[type='password']:hover,
-.loginBox input[type='text']:hover,
-.loginBox input[type='password']:focus,
-.loginBox input[type='text']:focus {
-    transition: .2s ease-in-out 0s;
-    width: 78%;
-    background-color: #FFF;
-    box-shadow: 0px 0px 0px 2px var(--blue);
-}
-
 .channelsManager input[type='text']:disabled:hover,
-.loginBox input[type='password']:disabled:hover,
-.loginBox input[type='text']:disabled:hover,
-.loginBox input[type='password']:disabled,
-.loginBox input[type='text']:disabled {
+.channelsManager input[type='text']:disabled {
     transition: .5s ease 0s;
     background-color: var(--disable);
     color: white;
@@ -334,9 +327,7 @@ div.channelsManager {
     box-shadow: none;
 }
 
-.channelsManager input[type='text'],
-.loginBox input[type='password'],
-.loginBox input[type='text'] {
+.channelsManager input[type='text'] {
     margin-top: 5px;
     border-radius: 20px;
     width: 75%;
@@ -345,27 +336,6 @@ div.channelsManager {
     font-size: 16px;
     background-color: #d0d0d0;
     transition: .2s ease-in-out;
-}
-
-.loginBox .help {
-    display: inline-flex;
-    width: 75%;
-    justify-content: end;
-}
-
-.loginBox .help p {
-    margin-top: 8.5px;
-    margin-bottom: 10px;
-    font-size: 13.5px;
-    text-align: center;
-    color: var(--blue);
-    font-weight: 200;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.loginBox .help a {
-    text-decoration: none;
 }
 
 .loginBox .help button {
@@ -379,18 +349,6 @@ div.channelsManager {
 }
 
 .loginBox .help button:hover {
-    color: var(--purple);
-    text-decoration: underline;
-}
-
-.loginBox #btnWebLogin,
-.loginBox #btnConnectChannels {
-    width: 75%;
-    min-height: 38px;
-    height: auto;
-}
-
-.loginBox .help a:hover>p {
     color: var(--purple);
     text-decoration: underline;
 }
@@ -436,8 +394,7 @@ a span:hover::after {
 /************************************************
 ********************[Botão Login]***************
 ************************************************/
-.UserWrapper input[type="button"],
-.loginBox input[type="button"] {
+.UserWrapper input[type="button"] {
     color: #FFF;
     border: 1px solid #0066aa;
     background-color: #0268acc5;
@@ -462,45 +419,149 @@ a span:hover::after {
     width: 50%;
 }
 
-.UserWrapper input[type="button"]:hover,
-.loginBox input[type=button]:hover {
+.UserWrapper input[type="button"]:hover {
     color: #FFF;
     background-color: #0184db;
-    border: 1x solid #42b3ff;
+    border: 1px solid #42b3ff;
     cursor: pointer;
     transition: .5s ease 0s;
 }
 
-/* Login Web: convite e ação centralizados no espaço disponível. */
-.loginBox:has(#newLoginPanel:not(.none)),
-.loginBox:has(#webReadyPanel:not(.none)) {
-    align-self: center;
-    margin-top: 0;
-}
-
-.loginBox #newLoginPanel:not(.none),
-.loginBox #webReadyPanel:not(.none) {
+/* Login: mesma estrutura para OAuth clássico, entrada Web e conta pronta. */
+.loginBox>div:not(.none) {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 24px;
+    width: 100%;
+    max-width: 370px;
+    padding: 18px 22px;
+    gap: 9px;
+    text-align: left;
+    background: #07172baf;
+    border: 1px solid #a8c5df26;
+    border-radius: 18px;
+    box-shadow: 0 18px 38px #050e2060;
 }
 
-.loginBox #newLoginPanel p,
-.loginBox #webReadyPanel #webAccount {
-    max-width: 360px;
+.loginBox .login-eyebrow {
+    color: #9abfe0;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: .12em;
+}
+
+.loginBox h2 {
+    color: #f5f8ff;
     margin: 0;
-    font-size: 18px;
-    line-height: 1.5;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
-.loginBox #webReadyPanel .help {
-    margin-top: -12px;
+.loginBox .login-description {
+    color: #a9bfd7;
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1.45;
+}
+
+.loginBox .login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.loginBox .login-field label {
+    color: #dce9f7;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.loginBox .login-field input[type='text'],
+.loginBox .login-field input[type='password'] {
+    width: 100%;
+    height: 40px;
+    margin: 0;
+    padding: 0 12px;
+    color: #f5f8ff;
+    background: #102943;
+    border: 1px solid #50708d;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.loginBox .login-field input::placeholder {
+    color: #8fa9bf;
+}
+
+.loginBox .login-field input:hover,
+.loginBox .login-field input:focus {
+    width: 100%;
+    background: #13304e;
+    border-color: #a970ff;
+    box-shadow: 0 0 0 3px #9146ff30;
+}
+
+.loginBox .login-field input:disabled,
+.loginBox .login-field input:disabled:hover {
+    width: 100%;
+    color: #a9bfd7;
+    background: #273a50;
+    border-color: #40566e;
+    box-shadow: none;
+}
+
+.loginBox input[type='button'] {
+    width: 100%;
+    min-height: 44px;
+    height: auto;
+    margin-top: 4px;
+    padding: 9px 16px;
+    color: #fff;
+    background: #176caa;
+    border: 1px solid #2987c6;
+    border-radius: 11px;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.loginBox input[type='button']:hover {
+    background: #2385c7;
+    border-color: #56b0e9;
+    box-shadow: 0 4px 16px #1471af35;
+}
+
+.loginBox #btnWebLogin,
+.loginBox #btnConnectChannels {
+    width: 100%;
+    min-height: 44px;
+}
+
+.loginBox input[type='button']:focus-visible,
+.loginBox .help button:focus-visible {
+    outline: 2px solid #d7e7ff;
+    outline-offset: 3px;
+}
+
+.loginBox .help {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 12px;
+}
+
+.loginBox .help button {
+    padding: 4px 0;
+    color: #8fcbef;
+    font-size: 12px;
+    text-align: center;
 }
 
 .loginBox #webReadyPanel .web-ready-actions {
     justify-content: space-between;
-    gap: 12px;
 }
 
 .loginBox #webReadyPanel .web-ready-actions button {
@@ -515,42 +576,30 @@ a span:hover::after {
     display: none;
 }
 
-.loginBox .help button:focus-visible {
-    outline: 2px solid var(--purple);
-    outline-offset: 2px;
-}
-
 .loginBox #btnWebLogin {
-    width: min(75%, 320px);
-    min-height: 48px;
-    padding: 9px 20px;
     border: 1px solid #a970ff;
-    border-radius: 12px;
     background: #9146ff;
-    font-size: 17px;
-    font-weight: bold;
-    transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 
 .loginBox #btnWebLogin:hover {
+    cursor: pointer;
     background: #772ce8;
     border-color: #bf94ff;
     box-shadow: 0 4px 18px #9146ff55;
 }
 
-.loginBox #btnWebLogin:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 3px;
-}
-
 /* Msg Status & Barra de Count de Canais */
 #msgStatus {
-    max-width: 420px;
-    margin: 22px auto 8px;
-    padding: 0 8px;
+    width: min(100%, 370px);
+    margin: 0;
+    padding: 10px 12px;
+    color: #d5e7f7;
+    background: #0c2743;
+    border: 1px solid #3d6b91;
+    border-radius: 10px;
     font-weight: normal;
-    font-size: 15px;
-    line-height: 1.5;
+    font-size: 12px;
+    line-height: 1.4;
     overflow-wrap: anywhere;
 }
 
@@ -770,9 +819,14 @@ div[type='button'].cnFile.export {
     bottom: 6px;
     right: 13px;
     font-size: 14px;
-    color: #ff5555;
+    color: #8da9c2;
     font-weight: bold;
     cursor: pointer;
+}
+
+.version:hover {
+    color: #ff5555;
+    transition: .3s ease 0s;
 }
 
 /**************************************
@@ -1012,16 +1066,16 @@ span.sgSom:hover {
     animation: fadein 0.5s, fadeout 0.5s 2.75s;
 }
 
-div[name="version"] img{
-        width: 60px;
-        position: fixed;
-        bottom: -1px;
-        right: 100px;
-        opacity: 0.1;
-        transition: opacity ease-in-out 0.2s;
+div[name="version"] img {
+    width: 60px;
+    position: fixed;
+    bottom: -1px;
+    right: 100px;
+    opacity: 0.1;
+    transition: opacity ease-in-out 0.2s;
 }
 
-div[name="version"]:hover img{
+div[name="version"]:hover img {
     opacity: 1;
     transition: opacity ease-in-out 0.2s;
     cursor: help;
@@ -1148,7 +1202,7 @@ p#jc_Help:hover {
 }
 
 div.menu-bar section:hover>.mb-tooltip {
-    transform: translateX(40px);
+    transform: translateX(46px);
     display: block;
     margin-top: -30px;
     transition: translateX 1s ease 0.2s;

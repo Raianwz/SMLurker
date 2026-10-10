@@ -30,7 +30,7 @@ function waitLogin(valor) {
 async function joinChannels() {
     const getEl = (el) => document.querySelector(el)
     const getText = (el, txt) => el.textContent = `${txt}`
-    let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`
+    const channelPath = appcore.channels.path();
     let totalCN = getEl('#cntotal'), channels = {};
     let y = 0, durantion = 0, tmpCount = [];
     const ClockTimer = {
@@ -52,15 +52,11 @@ async function joinChannels() {
         }
     }
 
-    //if (appcore.helpers.env() === 'DEV') channelPath = appcore.path.join('./DevData/channels.json')
-
     if (!appcore.fs.exist(channelPath)) {
         throw 'Nenhum canal adicionado, por favor adicione um canal'
-    } else if (JSON.parse(appcore.fs.rd(channelPath)).length <= 0) {
-        throw 'Nenhum canal adicionado, por favor adicione um canal'
-    } else {
-        channels = JSON.parse(appcore.fs.rd(channelPath))
     }
+    channels = appcore.channels.read()
+    if (channels.length <= 0) throw 'Nenhum canal adicionado, por favor adicione um canal'
     durantion = 13.5 * (Math.ceil(channels.length / 17)) // Math.min(start + batchSize, words.length)
     let tmc = await tmi.rds();
 
@@ -102,11 +98,10 @@ async function joinChannels() {
 function removeChannel(chn) {
     let channels = chn.toString()
     let dt = new Date().toLocaleDateString().replaceAll('/', '.')
-    let channelPath = `${appcore.appr.getPath('userData')}\\Config\\channels.json`;
+    const channelPath = appcore.channels.path();
     let bkChannels = `${appcore.appr.getPath('desktop')}\\smlurker_lista.backup.${dt}.txt`;
-    if (appcore.helpers.env() === 'DEV') channelPath = appcore.path.join('./DevData/channels.json')
     if (appcore.fs.exist(channelPath)) {
-        let currentCn = JSON.parse(appcore.fs.rd(channelPath))
+        let currentCn = appcore.channels.read()
         let errMsg = `O canal ${channels.toUpperCase()} foi removido da sua Lista de Canais\n\tMotivo: Este canal não existe ou foi suspenso.\n\nUm arquivo de backup foi criado em sua área de trabalho!`;
         let onList = false, filtro;
 

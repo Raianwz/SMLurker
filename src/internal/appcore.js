@@ -5,6 +5,7 @@ const { join, resolve } = require('path')
 const { WControls } = require('./controls')
 const { WMenubar } = require('../components/window/menubar')
 const { smcore } = require('./smcore');
+const { getChannelsFilePath, readChannelsFile } = require('../components/helpers/channelFile');
 
 
 WControls(getCurrentWindow)
@@ -18,6 +19,10 @@ const appcore = {
         send: (event, data) => { ipcRenderer.send(event, data) },
     },
     appr: app,
+    channels: {
+        path: () => getChannelsFilePath(app),
+        read: () => readChannelsFile(getChannelsFilePath(app)),
+    },
     eshell: shell,
     wgetTitle: () => getCurrentWindow().getTitle(),
     wgetDev: () => { getCurrentWindow().webContents.openDevTools() },

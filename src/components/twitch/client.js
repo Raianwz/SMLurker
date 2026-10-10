@@ -91,7 +91,7 @@ function readLoginCredentials() {
 
 function resetLoginButton() {
     const btnEntrar = document.getElementById('btnEntrar');
-    btnEntrar.value = 'Entrar';
+    btnEntrar.value = 'Entrar nos canais';
     btnEntrar.classList.remove('loading', 'conectado');
     btnEntrar.onclick = entrarTwitch;
 }

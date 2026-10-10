@@ -5,6 +5,7 @@ const AutoLaunch = require('auto-launch'), childprocess = require('child_process
 const localPath = `${app.getPath('userData')}\\Config`, configPath = `${localPath}\\configs.json`;
 const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
 const { createConfigs } = require(path.resolve(__dirname, '../components/helpers/setupConfigs'));
+const { getChannelsFilePath, readChannelsFile } = require(path.resolve(__dirname, '../components/helpers/channelFile'));
 const sleep = async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 const loading = getEl('div[name="loading"]');
 let checkIniMin = false;
@@ -73,9 +74,9 @@ async function changeIni() {
 }
 
 async function exportarLista() {
-    let channelsFilePath = `${app.getPath('userData')}\\Config\\channels.json`;
+    let channelsFilePath = getChannelsFilePath(app);
     if (fs.existsSync(channelsFilePath)) {
-        let channels = JSON.parse(fs.readFileSync(channelsFilePath, { encoding: 'utf8' }))
+        let channels = readChannelsFile(channelsFilePath)
         channels.sort()
         channels = JSON.stringify(channels).replace(/[\"\[\]]/g, '');
         let dt = new Date().toLocaleDateString().replaceAll("/", '.')

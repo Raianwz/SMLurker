@@ -36,7 +36,7 @@ function btnsListener() {
 }
 
 async function loadChannelsFromFile() {
-    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
+    const channelFilePath = api.cr.channels.path();
     if (!dialogOpen) {
         dialogOpen = true;
         let file = api.cr.dg.showODS({
@@ -83,9 +83,9 @@ async function loadChannelsFromFile() {
 }
 
 async function exportListChannels() {
-    let channelsFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
+    let channelsFilePath = api.cr.channels.path();
     if (api.cr.fs.exist(channelsFilePath)) {
-        let channels = JSON.parse(api.cr.fs.rd(channelsFilePath))
+        let channels = api.cr.channels.read()
         channels.sort()
         let dt = new Date().toLocaleDateString().replaceAll("/",'.')
 
@@ -116,8 +116,8 @@ async function exportListChannels() {
 }
 
 function clearChannelList() {
-    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
-    if (!api.cr.fs.exist(channelFilePath) || JSON.parse(api.cr.fs.rd(channelFilePath)).length === 0) {
+    const channelFilePath = api.cr.channels.path();
+    if (!api.cr.fs.exist(channelFilePath) || api.cr.channels.read().length === 0) {
         Clog('Não há nenhum canal para limpar!')
         return
     }
@@ -148,7 +148,7 @@ function clearChannelList() {
 }
 
 function addChannel() {
-    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;;
+    const channelFilePath = api.cr.channels.path();
     let channels = newChannelInput.value.toLowerCase()
     let onList = false;
 
@@ -159,7 +159,7 @@ function addChannel() {
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
     if (api.cr.fs.exist(channelFilePath)) {
-        let oldChannels = JSON.parse(api.cr.fs.rd(channelFilePath))
+        let oldChannels = api.cr.channels.read()
         for (let x in channels) {
             if (oldChannels.includes(channels[x])) onList = true
         }
@@ -181,7 +181,7 @@ function addChannel() {
 }
 
 function removeChannel() {
-    const channelFilePath = `${api.cr.appr.getPath('userData')}\\Config\\channels.json`;
+    const channelFilePath = api.cr.channels.path();
     let channels = newChannelInput.value.toLowerCase()
 
     if (!channels || !channels.replace(/ /g, '')) {
@@ -190,8 +190,8 @@ function removeChannel() {
         return;
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
-    if (api.cr.fs.read(channelFilePath)) {
-        let currentChns = JSON.parse(api.cr.fs.rd(channelFilePath));
+    if (api.cr.fs.exist(channelFilePath)) {
+        let currentChns = api.cr.channels.read();
         let onList = false
         for (let x in channels) { if (currentChns.includes(channels[x])) onList = true }
 

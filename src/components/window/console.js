@@ -5,7 +5,7 @@ const { assetPath } = require('../helpers/assets')
 const getEl = (el) => document.querySelector(el)
 const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
 const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
-const audio = new Audio('https://github.com/Raianwz/json-sv-wz/raw/main/Chaos.mp3');
+const audio = new Audio(new URL('../assets/Chaos.ogg', document.baseURI).href);
 let jcConsolePanel = getEl('#jcConsole');
 const jcConsoleReset = () => { jcConsolePanel.value = "" }
 

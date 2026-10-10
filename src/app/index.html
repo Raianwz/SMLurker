@@ -94,26 +94,36 @@
             <div class="vlinep"></div>
             <div class="loginBox actived">
                 <div id="legacyLoginPanel" class="none">
-                    <p>Twitch Username</p>
-                    <input type="text" placeholder="DarkJunin123456" id="username">
-                    <p>Twitch OAuth</p>
-                    <input type="password" placeholder="oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" id="pass">
-                    <div class="help"><button type="button" onclick="iniciarLoginWeb()">Entrar com a Twitch</button></div>
-                    <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar">
+                    <span class="login-eyebrow">LOGIN CLÁSSICO</span>
+                    <p class="login-description">Use suas credenciais para entrar nos canais.</p>
+                    <div class="login-field">
+                        <label for="username">Usuário Twitch</label>
+                        <input type="text" placeholder="Seu usuário" id="username" autocomplete="username">
+                    </div>
+                    <div class="login-field">
+                        <label for="pass">Token OAuth</label>
+                        <input type="password" placeholder="oauth:..." id="pass" autocomplete="off">
+                    </div>
+                    <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar nos canais">
+                    <div class="help"><button type="button" onclick="iniciarLoginWeb()">Entrar com a Twitch pelo navegador</button></div>
                 </div>
                 <div id="newLoginPanel" class="none">
-                    <p>Faça o Login pelo navegador.</p>
+                    <span class="login-eyebrow">BEM-VINDO AO SMLURKER</span>
+                    <h2>Logar com Navegador</h2>
+                    <p class="login-description">Entre na sua conta Twitch pelo navegador.</p>
                     <input id="btnWebLogin" onclick="iniciarLoginWeb()" type="button" value="Entrar com a Twitch">
                 </div>
                 <div id="webReadyPanel" class="none">
-                    <p id="webAccount"></p>
+                    <span class="login-eyebrow">CONTA CONECTADA</span>
+                    <h2 id="webAccount"></h2>
+                    <p class="login-description">Tudo pronto para acompanhar seus canais.</p>
                     <input id="btnConnectChannels" onclick="conectarCanaisWeb()" type="button" value="Entrar nos canais">
                     <div class="help web-ready-actions">
                         <button id="btnUseLegacyLogin" class="none" type="button" onclick="voltarLoginLegado()">Usar login com OAuth</button>
                         <button type="button" onclick="iniciarLoginWeb()">Trocar conta</button>
                     </div>
                 </div>
-                <p id="msgStatus"></p>
+                <p id="msgStatus" role="status" aria-live="polite"></p>
                 <p id="cnCount"></p>
             </div>
             <div class="channelsManager none" id="cMng">
