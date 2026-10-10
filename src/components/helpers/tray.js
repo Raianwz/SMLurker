@@ -1,15 +1,14 @@
-const path = require('path'), fs = require('fs')
+const fs = require('fs')
 const { Menu, Tray, ipcMain, nativeImage: { createFromPath }, app } = require('electron');
+const { assetPath } = require('./assets');
 let tray = null, ppL = null, ezy = null;
 
 module.exports.SetUpTray = setUpTray;
 module.exports.ExportTray = exportTray;
 
-function setUpTray(app, win, env) {
+function setUpTray(app, win) {
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    let dist = process.resourcesPath, distFile = 'assets';
-    if (env(app) == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
-    ppL = path.join(dist, `${distFile}/ppL.ico`), ezy = path.join(dist, `${distFile}/miniezy.png`);
+    ppL = assetPath(app, 'ppL.ico'), ezy = assetPath(app, 'miniezy.png');
     const WinClosed = () => { try { if (win.isVisible()) { win.hide() } else { win.show() } } catch (err) { app.quit() } }
 
     const template = [{ label: 'SM Lurker', icon: ezy, enabled: false, }, { type: 'separator' },
@@ -35,12 +34,9 @@ function setUpTray(app, win, env) {
 
 function exportTray() {
     const { app, Notification } = require('@electron/remote');
-    const { appcore } = require('../../internal/appcore')
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     const Resize = (img) => createFromPath(img).resize({ height: '256', width: '256', quality: 'best' });
-    let dist = process.resourcesPath, distFile = 'assets';
-    if (appcore.helpers.env() == 'DEV') { dist = __dirname; distFile = '../../../src/assets' }
-    ppL = path.join(dist, `${distFile}/ppL.ico`)
+    ppL = assetPath(app, 'ppL.ico');
     if (fs.existsSync(configPath)) {
         let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
         if (!configs.NotifyTray) {

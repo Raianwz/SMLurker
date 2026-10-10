@@ -4,3 +4,4 @@ releases
 node_modules
 .vscode
 devdata
+/.web

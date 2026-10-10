@@ -172,7 +172,7 @@ app.on('ready', () => {
     initConfigs();
     CreateWindow();
     if (initialWebLoginUrl) void webLogin.handleCallback(initialWebLoginUrl);
-    SetUpTray(app, mainWindow, env);
+    SetUpTray(app, mainWindow);
     autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
     autoUpdater.addListener('update-downloaded', () => updateNotify())
 });

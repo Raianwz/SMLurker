@@ -64,8 +64,11 @@ Promise.allSettled([loadUserData(), api.auth.restoreWebLogin()]).then(([legacy, 
     } else {
         renderLoginMode();
         if (legacyAvailable && autoConnectEnabled && !restored.requiresLogin) entrarTwitch();
-        if (restored.type === 'error') showLoginStatus(restored.message);
-        else if (legacy.status === 'rejected') showLoginStatus('Não foi possível carregar as credenciais salvas. Entre com a Twitch.');
+        if (restored.type === 'error') {
+            showLoginStatus(legacyAvailable && restored.requiresLogin
+                ? 'A sessão do login Web não está mais válida. Para usar o OAuth salvo, clique em Entrar.'
+                : restored.message);
+        } else if (legacy.status === 'rejected') showLoginStatus('Não foi possível carregar as credenciais salvas. Entre com a Twitch.');
         else if (!legacyAvailable || !autoConnectEnabled) showLoginStatus('');
     }
 });

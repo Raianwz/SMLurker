@@ -182,7 +182,9 @@ test('invalid restored Web session does not auto-connect the legacy account', as
     const { element, calls } = createLoginFlow(undefined, true, true, invalid);
     await new Promise(setImmediate);
     assert.equal(calls.includes('connect'), false);
-    assert.equal(element('#msgStatus').textContent, 'Entre novamente.');
+    assert.equal(element('#legacyLoginPanel').classList.contains('none'), false);
+    assert.equal(element('#msgStatus').textContent,
+        'A sessão do login Web não está mais válida. Para usar o OAuth salvo, clique em Entrar.');
 });
 
 test('IRC authentication failure clears the Web session and returns to login', async () => {

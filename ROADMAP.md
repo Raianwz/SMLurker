@@ -19,6 +19,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 
 ## Próximos polimentos
 
+- [ ] Simplificar a tela de vinculação no projeto Web: destacar **Logar no SMLurker**, separar visualmente **Cancelar e voltar ao aplicativo**, e mostrar **Abrir o aplicativo novamente** apenas quando o retorno automático falhar. Reduzir textos técnicos e manter o nome da conta visível.
 - [ ] Mostrar estados mais claros de conexão: verificando sessão, conectando, canais conectados e erro, com opção de tentar novamente.
 - [ ] Separar as três ações na interface: **Desconectar** na barra lateral (só encerra o IRC), **Trocar conta** na tela de login (abre outra autenticação sem apagar a atual antes da confirmação) e **Sair da conta** no menu do perfil (apaga a sessão Web local e volta ao login). Preservar `credentials.json`; oferecer uma ação separada e confirmada caso o usuário queira esquecer o OAuth legado.
 - [ ] Melhorar navegação por teclado, foco visível e textos dos tooltips em todas as telas.
