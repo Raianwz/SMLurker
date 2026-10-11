@@ -4,6 +4,7 @@ const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
 const { SetUpTray } = require('./src/components/helpers/tray');
+const { startUpdateChecks } = require('./src/components/helpers/updateChecks');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
 const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
@@ -13,7 +14,8 @@ const { createWebSession } = require('./src/components/twitch/webSession');
 
 require('./src/components/ipc');
 require('./src/components/clog')
-let mainWindow, auxcheck;
+let mainWindow;
+let updateChecks;
 let queuedWebLoginResult = null;
 let forceShowLogin = false;
 const initialWebLoginUrl = callbackFromArgs(process.argv);
@@ -173,15 +175,21 @@ app.on('ready', () => {
     CreateWindow();
     if (initialWebLoginUrl) void webLogin.handleCallback(initialWebLoginUrl);
     SetUpTray(app, mainWindow);
-    autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
-    autoUpdater.addListener('update-downloaded', () => updateNotify())
+    updateChecks = startUpdateChecks({
+        updater: autoUpdater,
+        isPackaged: app.isPackaged,
+        onDownloaded: updateNotify,
+    });
 });
 
 
 // Quit when all windows are closed. 
 app.on('window-all-closed', () => {
-    autoUpdater.quitAndInstall(true, true)
     ipcMain.emit('closeConsole')
+    if (updateChecks?.isUpdateReady()) {
+        autoUpdater.quitAndInstall(true, true)
+        return
+    }
     if (process.platform !== 'darwin') app.quit()
 })
 
@@ -191,13 +199,19 @@ app.on('activate', () => {
     }
 })
 
-function updateNotify() {
-    let ntf = new Notification({
-        title: 'Atualização pronta!',
-        body: `Para instalar a versão ${auxcheck.releaseName} basta fechar o SMLurker.\nClique aqui para conferir o que mudou nessa versão.`
-    })
-    ntf.show()
-    ntf.on('click', () => shell.openExternal('https://github.com/Raianwz/SMLurker/releases/latest'))
+function updateNotify(info) {
+    if (!Notification.isSupported()) return;
+    try {
+        const version = info?.releaseName || info?.version || 'mais recente';
+        const ntf = new Notification({
+            title: 'Atualização pronta!',
+            body: `Para instalar a versão ${version} basta fechar o SMLurker.\nClique aqui para conferir o que mudou nessa versão.`
+        });
+        ntf.on('click', () => shell.openExternal('https://github.com/Raianwz/SMLurker/releases/latest'));
+        ntf.show();
+    } catch (error) {
+        console.warn('Não foi possível mostrar a notificação de atualização:', error);
+    }
 }
 
 function checkFiles() {
@@ -216,11 +230,4 @@ function iniMin(mainWindow) {
     } 
    
 }
-
-setInterval(() => {
-    if (env(app) !== "DEV") {
-        autoUpdater.checkForUpdates().then(rsp => { return auxcheck = rsp.updateInfo })
-        autoUpdater.addListener('update-downloaded', () => updateNotify())
-    }
-}, 1000 * 60 * 60);
 
