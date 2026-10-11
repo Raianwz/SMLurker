@@ -2,16 +2,14 @@
 const { appcore } = require('../../internal/appcore')
 //Desativar inputs e botões durante a mudança de telas
 function BlockLogin(valor) {
-    const items = ['#username', '#pass', '#txtCanal', 'div[type="button"].add', 'div[type="button"].remove'];
-    let btnFiles = document.querySelector('.cnFile');
-    for (let i = 0; i < items.length; i++) {
-        document.querySelector(items[i]).disabled = valor
-    }
-    if (valor == true) {
-        btnFiles.classList.add('block')
-        btnFiles.onclick = null;
-    } else {
-        btnFiles.classList.remove('block')
+    const items = [
+        '#username', '#pass', '#txtCanal',
+        '.channelsManager button.add',
+        '.channelsManager button.remove',
+        '.channelsManager button[name="loadChannelsFromFile"]',
+    ];
+    for (const selector of items) {
+        document.querySelectorAll(selector).forEach(item => { item.disabled = valor; });
     }
 }
 

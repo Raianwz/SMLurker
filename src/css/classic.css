@@ -1,0 +1,161 @@
+/*
+ * Referência visual para uma futura "Aparência Clássica".
+ * Base: SMLurker 0.1.13, com cores e elementos também presentes na 0.1.8.
+ * Este arquivo não é importado pelo aplicativo. As classes são exemplos
+ * reutilizáveis, não uma cópia da estrutura ou da lógica antiga.
+ */
+
+[data-appearance="classic"] {
+    --classic-background: #282b30;
+    --classic-titlebar: #202225;
+    --classic-profile-panel: #18191c;
+    --classic-settings-panel: #222325;
+    --classic-event-log: #0c0c0c;
+    --classic-divider: #18191b;
+    --classic-text: #ffffff;
+    --classic-muted: #a5a5a5;
+    --classic-input: #d0d0d0;
+    --classic-disabled: #747f8d;
+    --classic-blue: #0099ff;
+    --classic-blue-deep: #0268ac;
+    --classic-blue-hover: #0184db;
+    --classic-purple: #9148ff;
+    --classic-red: #f04747;
+    --classic-red-outline: #d44141;
+    --classic-warning: #ff5555;
+    color-scheme: dark;
+}
+
+/* Superfícies: fundo grafite, faixa superior escura e painel de perfil. */
+[data-appearance="classic"] .classic-shell {
+    color: var(--classic-text);
+    background: var(--classic-background);
+}
+
+[data-appearance="classic"] .classic-titlebar {
+    color: var(--classic-text);
+    background: var(--classic-titlebar);
+    border-bottom: 1px solid var(--classic-divider);
+}
+
+[data-appearance="classic"] .classic-profile-panel {
+    background: var(--classic-profile-panel);
+}
+
+[data-appearance="classic"] .classic-settings-panel {
+    background: var(--classic-settings-panel);
+}
+
+[data-appearance="classic"] .classic-divider {
+    border-color: var(--classic-purple);
+}
+
+[data-appearance="classic"] .classic-avatar {
+    width: 100px;
+    height: 100px;
+    border: 2px solid var(--classic-blue);
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Campos claros e arredondados, com destaque azul ou roxo no foco. */
+[data-appearance="classic"] .classic-field {
+    min-height: 30px;
+    padding: 4px 12px;
+    color: #18191c;
+    background: var(--classic-input);
+    border: 1px solid transparent;
+    border-radius: 20px;
+}
+
+[data-appearance="classic"] .classic-field:focus-visible {
+    border-color: var(--classic-blue);
+    outline: 2px solid var(--classic-blue);
+    outline-offset: 1px;
+}
+
+[data-appearance="classic"] .classic-field:disabled {
+    color: var(--classic-text);
+    background: var(--classic-disabled);
+    cursor: not-allowed;
+}
+
+/* Ações azuis; perigo com contorno vermelho e preenchimento no hover. */
+[data-appearance="classic"] .classic-button {
+    min-height: 34px;
+    padding: 5px 16px;
+    color: var(--classic-text);
+    background: var(--classic-blue-deep);
+    border: 1px solid #0066aa;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+[data-appearance="classic"] .classic-button:hover {
+    background: var(--classic-blue-hover);
+    border-color: #42b3ff;
+}
+
+[data-appearance="classic"] .classic-button--file {
+    background: #0099ff54;
+    border-color: transparent;
+}
+
+[data-appearance="classic"] .classic-button--file:hover {
+    background: var(--classic-blue);
+}
+
+[data-appearance="classic"] .classic-button--danger {
+    color: var(--classic-red-outline);
+    background: transparent;
+    border-color: var(--classic-red-outline);
+}
+
+[data-appearance="classic"] .classic-button--danger:hover {
+    color: var(--classic-text);
+    background: var(--classic-red);
+    border-color: var(--classic-red);
+}
+
+[data-appearance="classic"] .classic-button:focus-visible {
+    outline: 2px solid var(--classic-purple);
+    outline-offset: 2px;
+}
+
+/* Log quase preto, como o painel amplo das versões clássicas. */
+[data-appearance="classic"] .classic-event-log {
+    color: var(--classic-text);
+    background: var(--classic-event-log);
+    border-radius: 10px;
+}
+
+[data-appearance="classic"] .classic-status-pill {
+    width: fit-content;
+    padding: 2px 10px;
+    color: var(--classic-text);
+    background: #05558a;
+    border: 1px solid #0184db;
+    border-radius: 15px;
+}
+
+/* Controles e detalhes característicos da 0.1.13. */
+[data-appearance="classic"] .classic-switch-track {
+    background: #9a9a9a;
+    border: 1px solid #f1f1f1;
+    border-radius: 60px;
+}
+
+[data-appearance="classic"] .classic-switch-track[aria-checked="true"] {
+    background: var(--classic-purple);
+    border-color: #731cf5;
+}
+
+[data-appearance="classic"] .classic-settings-titlebar {
+    color: var(--classic-text);
+    background: #0a598f;
+}
+
+[data-appearance="classic"] .classic-version {
+    color: var(--classic-warning);
+    font-weight: bold;
+}

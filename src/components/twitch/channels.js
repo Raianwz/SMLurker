@@ -6,6 +6,13 @@ const clearInputs = () => { newChannelInput.focus(); Clog(''); }
 let dialogOpen = false
 btnsListener()
 
+function clearMissingChannelsWarning() {
+    const warning = document.getElementById('classicLoginError');
+    if (!warning || warning.hidden) return;
+    warning.textContent = '';
+    warning.hidden = true;
+}
+
 
 function btnsListener() {
     const Notify = async () => api.tw.data.loadNotify();
@@ -21,11 +28,11 @@ function btnsListener() {
     localStorage.getItem('volume') === null ? localStorage.setItem('volume', 30) : getEl('input#volBar').value = localStorage.getItem('volume');
     localStorage.getItem('volume') !== null ? getEl('#volTxt').innerText = localStorage.getItem('volume') : false
     getEl('input#volBar').addEventListener('input', () => { localStorage.setItem('volume', getEl('input#volBar').value); getEl('#volTxt').innerText = getEl('input#volBar').value })
-    getEl('div[name="addCanal"]').addEventListener('click', () => getEl('div[name="addCanal"]').className.includes('block') ? true : addChannel())
-    getEl('div[name="removerCanal"]').addEventListener('click', () => getEl('div[name="removerCanal"]').className.includes('block') ? true : removeChannel())
-    getEl('div[name="loadChannelsFromFile"]').addEventListener('click', () => getEl('div[name="loadChannelsFromFile"]').className.includes('block') ? true : loadChannelsFromFile())
-    getEl('div[name="exportFileList"]').addEventListener('click', () => getEl('div[name="exportFileList"]').className.includes('block') ? true : exportListChannels())
-    getEl('div[name="clearChannelList"]').addEventListener('click', () => getEl('div[name="clearChannelList"]').className.includes('block') ? true : clearChannelList())
+    getEl('button[name="addCanal"]').addEventListener('click', addChannel)
+    getEl('button[name="removerCanal"]').addEventListener('click', removeChannel)
+    getEl('button[name="loadChannelsFromFile"]').addEventListener('click', loadChannelsFromFile)
+    getEl('button[name="exportFileList"]').addEventListener('click', exportListChannels)
+    getEl('button[name="clearChannelList"]').addEventListener('click', clearChannelList)
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
     getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })
     getEl('#txtConexaoCanal').addEventListener('input', e => e.target.value = e.target.value.toLowerCase())
@@ -77,6 +84,7 @@ async function loadChannelsFromFile() {
         }
         channels = [...new Set(fixChannels(channels.filter(channel => typeof channel === 'string')))];
         api.cr.fs.write(channelFilePath, JSON.stringify(channels))
+        if (channels.length > 0) clearMissingChannelsWarning();
         Clog('🟢Arquivo adicionado!');
         dialogOpen = false;
     }
@@ -166,6 +174,7 @@ function addChannel() {
         if (!onList) {
             channels.forEach(chn => oldChannels.push(chn))
             api.cr.fs.write(channelFilePath, JSON.stringify(oldChannels))
+            clearMissingChannelsWarning();
             Clog(`✅Adicionado com Sucesso!`)
             newChannelInput.value = ""
             api.cr.helpers.sleep('1750').then(() => clearInputs())
@@ -174,6 +183,7 @@ function addChannel() {
         }
     } else {
         api.cr.fs.write(channelFilePath, JSON.stringify(channels))
+        clearMissingChannelsWarning();
         Clog(`✅Adicionado com Sucesso!`);
         newChannelInput.value = "";
         api.cr.helpers.sleep('1750').then(() => clearInputs())

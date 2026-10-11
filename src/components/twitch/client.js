@@ -73,8 +73,12 @@ Promise.allSettled([loadUserData(), api.auth.restoreWebLogin()]).then(([legacy, 
     }
 });
 
-function showLoginStatus(message) {
-    document.getElementById('msgStatus').textContent = String(message);
+function showLoginStatus(message, inlineMissingChannels = false) {
+    const text = String(message);
+    const classicError = document.getElementById('classicLoginError');
+    classicError.textContent = inlineMissingChannels ? text : '';
+    classicError.hidden = !inlineMissingChannels;
+    document.getElementById('msgStatus').textContent = inlineMissingChannels ? '' : text;
 }
 
 function readLoginCredentials() {
@@ -141,7 +145,8 @@ async function conectarCanais({ username, pass, fromWeb }) {
         const invalidWebToken = fromWeb && isWebAuthError(error);
         BlockLogin(false);
         if (fromWeb) document.getElementById('pass').value = '';
-        showLoginStatus(typeof error?.message === 'string' ? error.message : String(error));
+        const errorMessage = typeof error?.message === 'string' ? error.message : String(error);
+        showLoginStatus(errorMessage, !fromWeb && errorMessage.startsWith('Nenhum canal adicionado'));
         if (fromWeb) {
             btnEntrar.value = 'Entrar nos canais';
             btnEntrar.classList.remove('loading', 'conectado');

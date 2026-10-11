@@ -8,9 +8,16 @@ function jpManager() {
     const pingArea = (txt) => { let time = new Date(); jcPanel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
     const inText = (el, txt) => el.innerText = txt
     const waiting = () => appcore.helpers.sleep(800).then(() => waitBlock())
+    let toastTimeout;
     const JCtoast = (txt) => {
-        let x = getEl("#jc_Status"); x.textContent = `${txt}`; x.classList.add('show');
-        appcore.helpers.sleep('3000').then(() => { x.classList.remove('show'); x.textContent = ""; })
+        const status = getEl('#jc_Status');
+        clearTimeout(toastTimeout);
+        status.textContent = `${txt}`;
+        status.classList.add('show');
+        toastTimeout = setTimeout(() => {
+            status.classList.remove('show');
+            status.textContent = '';
+        }, 3000);
     }
     let btnJoin = getEl('#jc_Join'), btnPart = getEl('#jc_Part'), btnSair = getEl('#btnEntrar'), txtChannel;
     jcPNReset()

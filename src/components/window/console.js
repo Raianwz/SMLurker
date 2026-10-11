@@ -36,7 +36,7 @@ async function consoleManager() {
         audio.play()
     })
 
-    getEl('span[name=jc_clean]').addEventListener('click', jcConsoleReset)
+    getEl('button[name=jc_clean]').addEventListener('click', jcConsoleReset)
 
     function changeBar() {
         const value = this.value;

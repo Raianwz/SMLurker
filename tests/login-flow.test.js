@@ -99,7 +99,9 @@ test('failed channel join does not save credentials or show a connected state', 
     assert.equal(calls.includes('save'), false);
     assert.equal(calls.includes('disconnect'), true);
     assert.equal(element('#btnEntrar').value, 'Entrar nos canais');
-    assert.equal(element('#msgStatus').textContent, 'Nenhum canal adicionado');
+    assert.equal(element('#classicLoginError').textContent, 'Nenhum canal adicionado');
+    assert.equal(element('#classicLoginError').hidden, false);
+    assert.equal(element('#msgStatus').textContent, '');
 });
 
 test('new users see browser login and Web return waits for an explicit channel connection', async () => {

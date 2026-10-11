@@ -1,6 +1,8 @@
 const { smcore } = require('../../internal/smcore')
 const { appcore } = require('../../internal/appcore');
 const { ipcRenderer } = require('electron');
+const { setTimeout: sleep } = require('node:timers/promises');
+const { BATCH_SIZE, BATCH_DELAY_MS, CHANNEL_DELAY_MS, remainingJoinMs, formatRemainingMs } = require('./joinEstimate');
 const tmi = smcore.tmi;
 const changeAppSide = (btn, dest) => appcore.tr.changeside(btn, dest)
 const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
@@ -31,24 +33,36 @@ async function joinChannels() {
     const getEl = (el) => document.querySelector(el)
     const getText = (el, txt) => el.textContent = `${txt}`
     const channelPath = appcore.channels.path();
-    let totalCN = getEl('#cntotal'), channels = {};
-    let y = 0, durantion = 0, tmpCount = [];
+    const totalCN = getEl('#cntotal');
+    const timerLabel = getEl('#Mtimer');
+    let channels = [];
+    let batchCount = 0;
     const ClockTimer = {
-        start: (time) => {
-            var self = this;
-            let minutes, seconds;
-            this.intervalo = setInterval(() => {
-                minutes = parseInt(time / 60, 10);
-                seconds = parseInt(time % 60, 10);
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-                getText(getEl('#Mtimer'), `Tempo Estimado 🕘 ${minutes}m ${seconds}s`);
-                --time < 0 ? clearInterval(this.intervalo) : false
-            }, 1000)
+        interval: null,
+        deadline: 0,
+        render() {
+            const remaining = Math.max(1000, this.deadline - Date.now());
+            getText(timerLabel, `Tempo Estimado 🕘 ${formatRemainingMs(remaining)}`);
         },
-        stop: () => {
-            clearInterval(this.intervalo);
-            getText(getEl('#Mtimer'), `--:--`);
+        update(remainingMs) {
+            this.deadline = Date.now() + remainingMs;
+            this.render();
+            if (!this.interval) {
+                this.interval = setInterval(() => this.render(), 1000);
+                window.addEventListener('focus', this.onFocus);
+                document.addEventListener('visibilitychange', this.onVisibilityChange);
+            }
+        },
+        onFocus: () => ClockTimer.render(),
+        onVisibilityChange: () => {
+            if (!document.hidden) ClockTimer.render();
+        },
+        stop() {
+            clearInterval(this.interval);
+            this.interval = null;
+            window.removeEventListener('focus', this.onFocus);
+            document.removeEventListener('visibilitychange', this.onVisibilityChange);
+            getText(timerLabel, '--:--');
         }
     }
 
@@ -57,38 +71,39 @@ async function joinChannels() {
     }
     channels = appcore.channels.read()
     if (channels.length <= 0) throw 'Nenhum canal adicionado, por favor adicione um canal'
-    durantion = 13.5 * (Math.ceil(channels.length / 17)) // Math.min(start + batchSize, words.length)
-    let tmc = await tmi.rds();
+    while ((await tmi.rds()) !== 'OPEN') await sleep(1000);
 
-    while (tmc != 'OPEN') await appcore.helpers.sleep(1000);
+    let started = false;
+    try {
+        for (let x = 0; x < channels.length; x++) {
+            tmi.join(channels[x]).catch(err => {
+                if (err === 'msg_channel_suspended') {
+                    aCount();
+                    sleep(300).then(() => removeChannel(`${channels[x]}`));
+                }
+            })
 
-    for (let x = 0; x < channels.length; x++) {
-        tmi.join(channels[x]).catch(err => {
-            if (err === 'msg_channel_suspended') {
-                aCount();
-                appcore.helpers.sleep(300).then(() => removeChannel(`${channels[x]}`));
+            if (!started) {
+                changeAppSide(1);
+                waitLogin(true);
+                started = true;
             }
-        })
-
-        y++
-        if (x === 0) {
-            ClockTimer.start(durantion)
-            changeAppSide(1);
-            waitLogin(true)
+            ClockTimer.update(remainingJoinMs(channels.length, x));
+            batchCount++;
+            getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
+            if (batchCount === BATCH_SIZE && x < channels.length - 1) {
+                getText(totalCN, `🟡 Aguarde: ${x + 1}/${channels.length - gCount()}`)
+                batchCount = 0;
+                await sleep(BATCH_DELAY_MS);
+            }
+            await sleep(CHANNEL_DELAY_MS);
         }
-        getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
-        if (y > 17) {
-            getText(totalCN, `🟡 Aguarde: ${x + 1}/${channels.length -
-                gCount()}`)
-            y = 0;
-            await appcore.helpers.sleep(10.5 * 1000)
+    } finally {
+        if (started) {
+            ClockTimer.stop();
+            waitLogin(false);
         }
-        await appcore.helpers.sleep(200)
     }
-    ClockTimer.stop()
-    waitLogin(false)
-    //txtArea.value = "";
-    await appcore.helpers.sleep(200)
     ipcRenderer.send('sendChannelstoConsole', channels.length)
     getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
 
