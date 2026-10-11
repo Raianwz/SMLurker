@@ -34,8 +34,10 @@ test('join countdown catches up with elapsed time when the window regains focus'
             elements.set(selector, {
                 style: {},
                 textContent: '',
-                setAttribute() {},
-                removeAttribute() {},
+                disabled: false,
+                attributes: new Set(),
+                setAttribute(name) { this.attributes.add(name); },
+                removeAttribute(name) { this.attributes.delete(name); },
             });
         }
         return elements.get(selector);
@@ -78,6 +80,10 @@ test('join countdown catches up with elapsed time when the window regains focus'
     for (let i = 0; i < 10 && !focusListeners.has('focus'); i++) await Promise.resolve();
 
     assert.equal(element('#Mtimer').textContent, 'Tempo Estimado 🕘 00m 15s');
+    assert.equal(element('#conection_box').attributes.has('disabled'), true);
+    assert.equal(element('#swt_notifyMe').disabled, false);
+    assert.equal(element('#swt_notifyGift').disabled, false);
+    assert.equal(element('#volBar').disabled, false);
     now += 5_000;
     focusListeners.get('focus')();
     assert.equal(element('#Mtimer').textContent, 'Tempo Estimado 🕘 00m 10s');
@@ -97,4 +103,5 @@ test('join countdown catches up with elapsed time when the window regains focus'
     assert.equal(scheduledWaits.filter((ms) => ms === 200).length, 19);
     assert.equal(focusListeners.has('focus'), false);
     assert.equal(documentListeners.has('visibilitychange'), false);
+    assert.equal(element('#conection_box').attributes.has('disabled'), false);
 });

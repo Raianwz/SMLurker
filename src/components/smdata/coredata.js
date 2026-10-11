@@ -62,47 +62,73 @@ function giftVol(chk) {
     }
 }
 
+const profileRequests = new Map();
+const PROFILE_CACHE_MS = 24 * 60 * 60 * 1000;
+
+function profileCacheTime(value) {
+    if (typeof value !== 'string') return NaN;
+    const legacyDate = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(value);
+    if (legacyDate) {
+        const [, day, month, year] = legacyDate.map(Number);
+        const date = new Date(year, month - 1, day);
+        return date.getDate() === day && date.getMonth() === month - 1 ? date.getTime() : NaN;
+    }
+    return Date.parse(value);
+}
+
+function validProfile(profile, username) {
+    return profile && profile.login?.toLowerCase() === username.toLowerCase() &&
+        typeof profile.display_name === 'string' && typeof profile.profile_image_url === 'string';
+}
+
+async function loadProfile(username, profilePath) {
+    let cached = null;
+    try {
+        if (appcore.fs.exist(profilePath)) cached = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }));
+    } catch { /* Um cache danificado pode ser substituído pela próxima consulta. */ }
+
+    const matchingCache = validProfile(cached, username) ? cached : null;
+    const cachedAt = profileCacheTime(matchingCache?.expire);
+    if (Number.isFinite(cachedAt) && cachedAt <= Date.now() && Date.now() - cachedAt < PROFILE_CACHE_MS) {
+        return matchingCache;
+    }
+
+    try {
+        const updated = await getUser(username);
+        if (!validProfile(updated, username)) throw new Error('Perfil incompleto');
+        if (matchingCache?.chatColor && matchingCache.chatColor !== '#9148FF') {
+            updated.chatColor = matchingCache.chatColor;
+        }
+        updated.expire = new Date().toISOString();
+        appcore.fs.write(profilePath, JSON.stringify(updated));
+        return updated;
+    } catch {
+        return matchingCache;
+    }
+}
+
 //Criando Profile data
 async function createProfile() {
     const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
-    let profileData, exp, checkExp, oldExp, legacyColor;
-    let username = document.querySelector('#username').value.toString();
+    const username = document.querySelector('#username').value.toString();
     btnuser(`<img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting"><p class="mb-tooltip">Perfil</p>`)
 
-    if (appcore.fs.exist(profilePath)) {
-        profileData = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }))
-
-        if (Object.keys(profileData).length < 5 || profileData.login?.toLowerCase() !== username.toLowerCase()) {
-            profileData = await getUser(username)
-            profileData.expire = new Date().toLocaleDateString();
-            appcore.fs.write(profilePath, JSON.stringify(profileData));
-        }
-
-        exp = new Date();
-        oldExp = new Date(profileData.expire);
-        (exp.toDateString() !== oldExp.toDateString()) ? checkExp = true : checkExp = false
-    } else {
-        profileData = await getUser(username)
-        if (Object.keys(profileData).length > 0) {
-            exp = new Date().toISOString();
-            profileData.expire = exp;
-            appcore.fs.write(profilePath, JSON.stringify(profileData))
-        }
+    let request = profileRequests.get(username.toLowerCase());
+    if (!request) {
+        request = loadProfile(username, profilePath);
+        profileRequests.set(username.toLowerCase(), request);
+        request.then(
+            () => profileRequests.delete(username.toLowerCase()),
+            () => profileRequests.delete(username.toLowerCase()),
+        );
     }
+    const profileData = await request;
     let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
     btnuser("");
     btnuser(`<img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}"><p class="mb-tooltip">Perfil de ${displayName}</p>`)
-
-    if (checkExp) {
-        legacyColor = profileData.chatColor
-        profileData = await getUser(username)
-        if (legacyColor != '#9148FF') profileData.chatColor = legacyColor
-        profileData.expire = new Date().toISOString()
-        appcore.fs.write(profilePath, JSON.stringify(profileData))
-    }
     return { displayName, logo, userColor };
 }
 

@@ -10,21 +10,15 @@ const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 //Ativar/Desativar tempo estimado
 function waitLogin(valor) {
     const getEl = (el) => document.querySelector(el);
-    const isDisabled = valor === true;
-
-    getEl('#swt_notifyMe').disabled = isDisabled;
-    getEl('#swt_notifyGift').disabled = isDisabled;
-
-    const visibility = isDisabled ? 'hidden' : 'visible';
     const connectionBox = getEl('#conection_box');
 
-    if (isDisabled) {
+    if (valor === true) {
         connectionBox.setAttribute('disabled', true);
     } else {
         connectionBox.removeAttribute('disabled');
     }
 
-    getEl('#Mtimer').style.display = visibility === 'visible' ? 'none' : 'flex';
+    getEl('#Mtimer').style.display = valor === true ? 'flex' : 'none';
 }
 
 
