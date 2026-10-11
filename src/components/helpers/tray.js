@@ -13,8 +13,8 @@ module.exports.ExportTray = exportTray;
 
 function setUpTray(app, win) {
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    iconPath = assetPath(app, 'ppL.ico');
-    headerIconPath = assetPath(app, 'miniezy.png');
+    iconPath = assetPath(app, 'tray/ppL.ico');
+    headerIconPath = assetPath(app, 'tray/miniezy.png');
 
     const isOpen = () => !win.isDestroyed() && win.isVisible() && !win.isMinimized();
     const toggleWindow = () => {
@@ -93,7 +93,7 @@ function setUpTray(app, win) {
 function exportTray() {
     const { app, Notification } = require('@electron/remote');
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
-    const icon = assetPath(app, 'ppL.ico');
+    const icon = assetPath(app, 'tray/ppL.ico');
     const resize = (path) => createFromPath(path).resize({ height: '256', width: '256', quality: 'best' });
     if (fs.existsSync(configPath)) {
         const configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));

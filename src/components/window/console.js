@@ -5,7 +5,7 @@ const { assetPath } = require('../helpers/assets')
 const getEl = (el) => document.querySelector(el)
 const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
 const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
-const audio = new Audio(new URL('../assets/Chaos.ogg', document.baseURI).href);
+const audio = new Audio(new URL('../assets/audio/Chaos.ogg', document.baseURI).href);
 let jcConsolePanel = getEl('#jcConsole');
 const jcConsoleReset = () => { jcConsolePanel.value = "" }
 
@@ -82,7 +82,7 @@ function checkNotifyMe(channel, tags, message) {
     if (appcore.fs.exist(configPath)) {
         let configs = JSON.parse(appcore.fs.rd(configPath))
         if (configs.NotifyMe === true) {
-            let mention = assetPath(app, 'metion.png');
+            let mention = assetPath(app, 'notifications/metion.png');
             let notifica = new Notification({
                 icon: mention,
                 title: `Mencionado(a) em ${channel}`,
@@ -99,7 +99,7 @@ function checkNotifySub(channel, username, recipient) {
     if (appcore.fs.exist(configPath)) {
         let configs = JSON.parse(appcore.fs.rd(configPath))
         if (configs.NotifyGift === true) {
-            let gift = assetPath(app, 'gift.png')
+            let gift = assetPath(app, 'notifications/gift.png')
             let notifica = new Notification({
                 icon: gift, title: `Ganhou um Sub em ${channel}`,
                 body: `Você(@${recipient}) ganhou um SubGift de @${username} em ${channel}`,

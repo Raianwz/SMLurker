@@ -6,7 +6,11 @@ function assetPath(app, filename, { resourcesPath = process.resourcesPath, exist
     if (!app.isPackaged) return bundledPath;
 
     const externalPath = path.join(resourcesPath, 'assets', filename);
-    return existsSync(externalPath) ? externalPath : bundledPath;
+    if (existsSync(externalPath)) return externalPath;
+
+    // Instalações antigas tinham todos os assets diretamente em resources/assets.
+    const legacyPath = path.join(resourcesPath, 'assets', path.basename(filename));
+    return existsSync(legacyPath) ? legacyPath : bundledPath;
 }
 
 module.exports = { assetPath };
