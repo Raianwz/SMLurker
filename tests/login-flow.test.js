@@ -8,6 +8,8 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/cl
 
 function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError) {
     const calls = [];
+    const trayStatuses = [];
+    const clientHandlers = new Map();
     let onWebLoginResult;
     const elements = new Map();
     const element = (selector) => {
@@ -34,7 +36,7 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
     const api = {
         tw: {
             tmi: {
-                ini: () => ({}),
+                ini: () => ({ on: (name, listener) => clientHandlers.set(name, listener) }),
                 cn: async () => {
                     calls.push('connect');
                     if (connectError) throw connectError;
@@ -62,6 +64,9 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             jp: () => { calls.push('join-manager'); },
         },
         cr: {
+            ipc: { send: (name, status) => {
+                if (name === 'tray:connection-status') trayStatuses.push(status);
+            } },
             tr: {
                 changeside: (side) => { calls.push(`side:${side}`); },
                 blockinput: (blocked) => { calls.push(`block:${blocked}`); },
@@ -80,26 +85,40 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
         createElement: (tagName) => ({ tagName, style: {} }),
     } });
     vm.runInContext(source, context);
-    return { context, element, calls, webLoginResult: (result) => onWebLoginResult(result) };
+    return {
+        context, element, calls, trayStatuses,
+        emitClient: (name) => clientHandlers.get(name)?.(),
+        webLoginResult: (result) => onWebLoginResult(result),
+    };
 }
 
 test('legacy Entrar connects, joins and only then saves credentials', async () => {
-    const { context, element, calls } = createLoginFlow();
+    const { context, element, calls, trayStatuses } = createLoginFlow();
     await context.entrarTwitch();
     assert.deepEqual(calls.slice(0, 2), ['block:true', 'connect']);
     assert.ok(calls.indexOf('profile') < calls.indexOf('join'));
     assert.ok(calls.indexOf('save') > calls.indexOf('join'));
     assert.equal(element('#btnEntrar').value, 'Desconectar');
     assert.equal(element('#msgStatus').textContent, 'Entrou nos canais!');
+    assert.deepEqual(trayStatuses, ['connecting', 'connected']);
+});
+
+test('tray shows reconnection and recovery after an IRC interruption', async () => {
+    const { context, trayStatuses, emitClient } = createLoginFlow();
+    await context.entrarTwitch();
+    emitClient('disconnected');
+    emitClient('connected');
+    assert.deepEqual(trayStatuses, ['connecting', 'connected', 'reconnecting', 'connected']);
 });
 
 test('failed channel join does not save credentials or show a connected state', async () => {
-    const { context, element, calls } = createLoginFlow(new Error('Nenhum canal adicionado'));
+    const { context, element, calls, trayStatuses } = createLoginFlow(new Error('Nenhum canal adicionado'));
     await context.entrarTwitch();
     assert.equal(calls.includes('save'), false);
     assert.equal(calls.includes('disconnect'), true);
     assert.equal(element('#btnEntrar').value, 'Entrar nos canais');
     assert.equal(element('#classicLoginError').textContent, 'Nenhum canal adicionado');
+    assert.deepEqual(trayStatuses, ['connecting', 'disconnected']);
     assert.equal(element('#classicLoginError').hidden, false);
     assert.equal(element('#msgStatus').textContent, '');
 });

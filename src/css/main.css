@@ -1,4 +1,6 @@
 .container {
+    display: flex;
+    flex-direction: column;
     padding: 0;
     background: linear-gradient(145deg, #11192e 5%, #102b46 100%);
     /* background-color: var(--fundo-alt-1); */
@@ -45,98 +47,77 @@
 *****************************************[Windows Title & Buttons]**************************************
 *******************************************************************************************************/
 
-header {
+.main-titlebar {
+    position: relative;
     display: flex;
-    flex-direction: row;
-    background-color: #111a2a;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom: 0.01px #18191b solid;
-}
-
-header h1 {
-    text-align: center;
-    font-size: 1.25rem;
-    width: 100%;
-    font-weight: bold;
-    -webkit-user-select: none;
+    align-items: center;
+    justify-content: flex-end;
+    height: 38px;
+    background: #111a2a;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid #ffffff1a;
     -webkit-app-region: drag;
 }
 
-header div.window-buttons {
-    display: inline-flex;
-    fill: var(--text);
-    margin-top: 6px;
+.main-titlebar h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 1.25rem;
+    font-weight: bold;
+    pointer-events: none;
 }
 
-header div.config {
-    display: inline-flex;
-    fill: var(--text);
+.main-window-controls {
+    position: relative;
+    display: flex;
+    align-self: stretch;
+    -webkit-app-region: no-drag;
 }
 
-header w-buttons {
-    display: inline-flex;
-    fill: var(--text);
-}
-
-header w-buttons svg,
-header w-buttons svg path {
-    cursor: pointer;
-    fill: #FFF;
+.main-window-control {
+    display: grid;
+    place-items: center;
+    width: 40px;
     height: 100%;
-    transition: .2s ease 0s;
+    color: #b8cbe0;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
 }
 
-/********************************
-***********[Buttons]************
-********************************/
-.hideWindow,
-.minimizeWindow,
-.closeWindow {
-    margin-inline: 0px 20px;
+.main-window-control:last-child {
+    border-top-right-radius: 5px;
 }
 
-svg[name="menuConfig"] {
-    margin-left: 15px;
+.main-window-control svg,
+.main-window-control svg path {
+    cursor: pointer;
 }
 
-svg[name="menuConfig"]:hover path,
-.gearConfig:hover path {
-    transition: .3s ease 0s;
-    fill: var(--purple);
-}
-
-.hideWindow {
-    width: 16px;
-}
-
-.minimizeWindow {
+.main-window-control svg {
     width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-.closeWindow {
-    width: 18px;
-    margin-right: 9px;
-    padding: 1px;
-    border-top-right-radius: 4px;
+.main-window-control:hover {
+    color: #fff;
+    background: #263a55;
 }
 
-.hideWindow:hover {
-    transition: .03s ease 0s;
-    background-color: var(--purple);
-    box-shadow: 9px -3px 0px 3px var(--purple), -8px -3px 0px 3px var(--purple);
+.main-window-control-close:hover {
+    background: #bd4450;
 }
 
-.minimizeWindow:hover {
-    transition: .03s ease 0s;
-    background-color: var(--blue);
-    box-shadow: -5px -3px 0px 3px var(--blue), 5px -3px 0px 3px var(--blue);
-}
-
-.closeWindow:hover {
-    transition: .03s ease 0s;
-    background-color: var(--red);
-    box-shadow: 9px 0px 0px 0.2px var(--red), -11px 0px 0px 0.2px var(--red);
+.main-window-control:focus-visible {
+    outline: 2px solid #a970ff;
+    outline-offset: -3px;
 }
 
 /************************************************
@@ -148,6 +129,12 @@ div.mainBox {
     display: flex;
     width: 100vw;
     height: 100%;
+}
+
+div.main {
+    flex: 1;
+    min-height: 0;
+    height: auto;
 }
 
 div.menu-bar {
@@ -202,7 +189,7 @@ div.menu-bar>section[disabled]:hover {
 div.menu-bar #gearConfig {
     position: absolute;
     left: 4px;
-    top: 30px;
+    top: 43px;
     margin: 0px;
 }
 

@@ -4,6 +4,7 @@ const BlockLogin = (value) => api.cr.tr.blockinput(value);
 const createProfile = async () => api.tw.data.createProfile();
 const loadUserData = async () => api.tw.data.loadUserData();
 const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass);
+const updateTrayStatus = (status) => api.cr.ipc.send('tray:connection-status', status);
 let client = null;
 let legacyAvailable = false;
 let webCredentials = null;
@@ -103,6 +104,7 @@ function resetLoginButton() {
 async function conectarCanais({ username, pass, fromWeb }) {
     const btnEntrar = document.getElementById(fromWeb ? 'btnConnectChannels' : 'btnEntrar');
     BlockLogin(true);
+    updateTrayStatus('connecting');
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
     btnEntrar.onclick = null;
@@ -123,6 +125,16 @@ async function conectarCanais({ username, pass, fromWeb }) {
 
     try {
         client = tmi.ini(options);
+        const activeClient = client;
+        let channelsJoined = false;
+        if (typeof activeClient.on === 'function') {
+            activeClient.on('disconnected', () => {
+                if (channelsJoined && client === activeClient) updateTrayStatus('reconnecting');
+            });
+            activeClient.on('connected', () => {
+                if (channelsJoined && client === activeClient) updateTrayStatus('connected');
+            });
+        }
         showLoginStatus('Tentando conectar');
         await tmi.cn();
         showLoginStatus('Entrando nos canais...');
@@ -130,6 +142,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
             try { await createProfile(); } catch { /* A foto não deve impedir a conexão. */ }
         }
         await api.tw.jcnc();
+        channelsJoined = true;
 
         if (!fromWeb) await saveUserData(username, pass);
         if (fromWeb) document.getElementById('pass').value = '';
@@ -141,6 +154,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         btnEntrar.classList.remove('loading');
         btnEntrar.classList.add('conectado');
         btnEntrar.onclick = sairTwitch;
+        updateTrayStatus('connected');
     } catch (error) {
         const invalidWebToken = fromWeb && isWebAuthError(error);
         BlockLogin(false);
@@ -156,6 +170,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
             try { await tmi.dc(); } catch { /* A conexão pode não ter sido aberta. */ }
             client = null;
         }
+        updateTrayStatus('disconnected');
         if (invalidWebToken) {
             webCredentials = null;
             document.getElementById('login_box').innerHTML = 'account_circle <p class="mb-tooltip">Login</p>';
@@ -261,6 +276,7 @@ api.auth.onWebLoginResult(async (result) => {
 
 async function sairTwitch() {
     await tmi.dc()
+    updateTrayStatus('disconnected')
     const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
     const btnConnectChannels = document.getElementById('btnConnectChannels');

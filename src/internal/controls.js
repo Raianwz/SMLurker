@@ -7,7 +7,7 @@ function windowButtonsControls(app) {
         let wbt = ""
         if (app().getTitle() == 'SM Lurker') {
             wbt = `let el = (e) => document.querySelector(e)
-            let wButton = (btn) => el(\`svg[name=\${btn}]\`)
+            let wButton = (btn) => el(\`button[name=\${btn}]\`)
             let ShortMenu = [{
                 label: 'Recarregar',
                 click: ()=> { api.cr.ipc.send('sendtoCleanConsole') },
@@ -17,7 +17,21 @@ function windowButtonsControls(app) {
                 type: 'separator',
             }, {
                 label: 'Reiniciar',
-                click: () => { api.cr.appr.relaunch(); api.cr.appr.quit() },
+                click: () => {
+                    const answer = api.cr.dg.showMB({
+                        type: 'question',
+                        title: 'Reiniciar SMLurker',
+                        message: 'Deseja reiniciar agora?',
+                        buttons: ['Não', 'Sim'],
+                        defaultId: 0,
+                        cancelId: 0,
+                        noLink: true,
+                    });
+                    if (answer === 1) {
+                        api.cr.appr.relaunch();
+                        api.cr.appr.quit();
+                    }
+                },
             }]
             el('p.version').innerText += \`V\t\${api.cr.appr.getVersion()}\tbeta\`;
             el('p.version').addEventListener('click', () => api.cr.eshell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.cr.appr.getVersion()}\`))
