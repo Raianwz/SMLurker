@@ -4,6 +4,10 @@ const Clog = (txt) => getEl('#canalLog').innerText = txt;
 const newChannelInput = getEl('#txtCanal');
 const clearInputs = () => { newChannelInput.focus(); Clog(''); }
 let dialogOpen = false
+let viewingChannelList = false;
+let savedChannelList = [];
+let channelListReadError = false;
+let pendingChannelRemoval = null;
 btnsListener()
 
 function clearMissingChannelsWarning() {
@@ -11,6 +15,92 @@ function clearMissingChannelsWarning() {
     if (!warning || warning.hidden) return;
     warning.textContent = '';
     warning.hidden = true;
+}
+
+function refreshChannelList() {
+    try {
+        const filePath = api.cr.channels.path();
+        const channels = api.cr.fs.exist(filePath) ? api.cr.channels.read() : [];
+        if (!Array.isArray(channels)) throw new Error('Lista de canais inválida');
+        savedChannelList = channels.filter(channel => typeof channel === 'string')
+            .sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+        channelListReadError = false;
+    } catch {
+        savedChannelList = [];
+        channelListReadError = true;
+    }
+
+    const toggle = getEl('#toggleChannelList');
+    toggle.textContent = viewingChannelList ? 'Voltar' : channelListReadError
+        ? 'Ver lista' : `Ver lista (${savedChannelList.length})`;
+    renderChannelList();
+}
+
+function renderChannelList() {
+    const search = getEl('#channelListSearch').value.trim().toLowerCase().replace(/^#/, '');
+    const matches = savedChannelList.filter(channel => channel.replace(/^#/, '').toLowerCase().includes(search));
+    const list = getEl('#channelListItems');
+    const items = matches.map(channel => {
+        const item = document.createElement('li');
+        item.className = 'channel-list-item';
+        const name = document.createElement('span');
+        name.textContent = channel;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'channel-list-remove';
+        remove.textContent = '×';
+        remove.title = `Remover ${channel}`;
+        remove.setAttribute('aria-label', `Remover ${channel}`);
+        remove.disabled = newChannelInput.disabled;
+        remove.addEventListener('click', () => openChannelRemoveDialog(channel));
+        item.append(name, remove);
+        return item;
+    });
+    list.replaceChildren(...items);
+
+    getEl('#channelListSummary').textContent = channelListReadError
+        ? 'Lista indisponível' : search
+            ? `${matches.length} de ${savedChannelList.length} canais` :
+            `${savedChannelList.length} ${savedChannelList.length === 1 ? 'canal salvo' : 'canais salvos'}`;
+    const empty = getEl('#channelListEmpty');
+    empty.hidden = matches.length > 0;
+    empty.textContent = channelListReadError ? 'Não foi possível ler a lista de canais.' :
+        savedChannelList.length === 0 ? 'Nenhum canal salvo ainda.' : 'Nenhum canal encontrado.';
+}
+
+function toggleChannelList() {
+    viewingChannelList = !viewingChannelList;
+    getEl('#channelManagerEditor').classList.toggle('none', viewingChannelList);
+    getEl('#channelListView').classList.toggle('none', !viewingChannelList);
+    getEl('#toggleChannelList').setAttribute('aria-expanded', String(viewingChannelList));
+    if (viewingChannelList) getEl('#channelListSearch').value = '';
+    refreshChannelList();
+    if (viewingChannelList) getEl('#channelListSearch').focus();
+}
+
+function openChannelRemoveDialog(channel) {
+    if (newChannelInput.disabled) return;
+    pendingChannelRemoval = channel;
+    getEl('#channelRemoveName').textContent = channel;
+    getEl('#channelRemoveDialog').showModal();
+    getEl('#channelRemoveCancel').focus();
+}
+
+function confirmChannelRemoval() {
+    const channel = pendingChannelRemoval;
+    getEl('#channelRemoveDialog').close();
+    pendingChannelRemoval = null;
+    if (!channel || newChannelInput.disabled) return;
+
+    const filePath = api.cr.channels.path();
+    const channels = api.cr.fs.exist(filePath) ? api.cr.channels.read() : [];
+    const remaining = channels.filter(saved => saved !== channel);
+    if (remaining.length !== channels.length) {
+        api.cr.fs.write(filePath, JSON.stringify(remaining));
+        Clog(`${channel} removido da lista.`);
+    }
+    refreshChannelList();
+    getEl('#channelListSearch').focus();
 }
 
 
@@ -33,13 +123,27 @@ function btnsListener() {
     getEl('button[name="loadChannelsFromFile"]').addEventListener('click', loadChannelsFromFile)
     getEl('button[name="exportFileList"]').addEventListener('click', exportListChannels)
     getEl('button[name="clearChannelList"]').addEventListener('click', clearChannelList)
+    getEl('#toggleChannelList').addEventListener('click', toggleChannelList)
+    getEl('#channelListSearch').addEventListener('input', renderChannelList)
+    getEl('#channelRemoveCancel').addEventListener('click', () => getEl('#channelRemoveDialog').close())
+    getEl('#channelRemoveConfirm').addEventListener('click', confirmChannelRemoval)
+    getEl('#channelRemoveDialog').addEventListener('close', () => { pendingChannelRemoval = null; })
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
     getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })
     getEl('#txtConexaoCanal').addEventListener('input', e => e.target.value = e.target.value.toLowerCase())
-    newChannelInput.addEventListener('keypress', e => preventSymbols(e))
+    newChannelInput.addEventListener('keypress', e => {
+        const key = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (key !== ',') preventSymbols(e);
+    })
+    newChannelInput.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (!newChannelInput.disabled && !getEl('button[name="addCanal"]').disabled) addChannel();
+    })
     newChannelInput.addEventListener('input', () => { newChannelInput.classList.remove('warn'); Clog('') })
     mentions.addEventListener('click', async () => await Notify())
     subgift.addEventListener('click', async () => await Notify())
+    refreshChannelList()
 }
 
 async function loadChannelsFromFile() {
@@ -84,6 +188,7 @@ async function loadChannelsFromFile() {
         }
         channels = [...new Set(fixChannels(channels.filter(channel => typeof channel === 'string')))];
         api.cr.fs.write(channelFilePath, JSON.stringify(channels))
+        refreshChannelList();
         if (channels.length > 0) clearMissingChannelsWarning();
         Clog('🟢Arquivo adicionado!');
         dialogOpen = false;
@@ -152,42 +257,36 @@ function clearChannelList() {
     if (secondConfirmation !== 1) return
 
     api.cr.fs.write(channelFilePath, JSON.stringify([]))
+    refreshChannelList();
     Clog('Lista de canais limpa!')
 }
 
 function addChannel() {
     const channelFilePath = api.cr.channels.path();
-    let channels = newChannelInput.value.toLowerCase()
-    let onList = false;
+    const channels = fixChannels(newChannelInput.value.replace(/\s/g, '').split(','));
 
-    if (!channels || !channels.replace(/ /g, '')) {
+    if (channels.length === 0) {
         newChannelInput.classList.add('warn');
         Clog('Por favor digite um nome de canal');
         return;
     }
-    channels = fixChannels(channels.replace(/ /g, '').split(','));
-    if (api.cr.fs.exist(channelFilePath)) {
-        let oldChannels = api.cr.channels.read()
-        for (let x in channels) {
-            if (oldChannels.includes(channels[x])) onList = true
-        }
-        if (!onList) {
-            channels.forEach(chn => oldChannels.push(chn))
-            api.cr.fs.write(channelFilePath, JSON.stringify(oldChannels))
-            clearMissingChannelsWarning();
-            Clog(`✅Adicionado com Sucesso!`)
-            newChannelInput.value = ""
-            api.cr.helpers.sleep('1750').then(() => clearInputs())
-        } else {
-            Clog(`${JSON.stringify(channels).replace(/[\[\#\]"]/g, '')} já existe em sua lista!📝`);
-        }
-    } else {
-        api.cr.fs.write(channelFilePath, JSON.stringify(channels))
-        clearMissingChannelsWarning();
-        Clog(`✅Adicionado com Sucesso!`);
-        newChannelInput.value = "";
-        api.cr.helpers.sleep('1750').then(() => clearInputs())
+
+    const oldChannels = api.cr.fs.exist(channelFilePath) ? api.cr.channels.read() : [];
+    const existing = new Set(oldChannels);
+    const newChannels = channels.filter(channel => !existing.has(channel));
+    if (newChannels.length === 0) {
+        Clog(channels.length === 1 ? 'Este canal já está na lista!' : 'Todos esses canais já estão na lista!');
+        return;
     }
+
+    api.cr.fs.write(channelFilePath, JSON.stringify([...oldChannels, ...newChannels]));
+    refreshChannelList();
+    clearMissingChannelsWarning();
+    const skipped = channels.length - newChannels.length;
+    const addedText = newChannels.length === 1 ? '1 canal adicionado' : `${newChannels.length} canais adicionados`;
+    Clog(`✅ ${addedText}${skipped ? `; ${skipped} já estava${skipped === 1 ? '' : 'm'} na lista` : ''}!`);
+    newChannelInput.value = '';
+    api.cr.helpers.sleep('1750').then(() => clearInputs());
 }
 
 function removeChannel() {
@@ -210,6 +309,7 @@ function removeChannel() {
                 chn => chn !== channels[x]
             )
             api.cr.fs.write(channelFilePath, JSON.stringify(currentChns))
+            refreshChannelList();
             Clog('❎Removido com Sucesso!')
             api.cr.helpers.sleep('2750').then(() => clearInputs())
         } else {

@@ -30,6 +30,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 
 ## Evolução técnica
 
+- [ ] Avaliar importação da lista de canais do SMLurker Web para o Electron e envio da lista do Electron para o Web, com deduplicação e confirmação antes de substituir dados.
 - [ ] Planejar renovação do token Web com o projeto Web; hoje a sessão precisa de novo login quando o token expira.
 - [ ] Migrar as credenciais legadas em texto puro para armazenamento protegido, sem quebrar usuários atuais.
 - [ ] Reduzir o acesso do renderer a Node.js/`@electron/remote` e avaliar mover a conexão IRC para o processo principal.

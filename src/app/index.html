@@ -129,28 +129,50 @@
             </div>
             <div class="channelsManager none" id="cMng">
                 <section class="channel-manager-card" aria-labelledby="channelManagerTitle">
-                    <span class="channel-manager-eyebrow">SUA LISTA</span>
-                    <h2 id="channelManagerTitle">Gerenciar canais</h2>
-                    <p class="channel-manager-description">Adicione ou remova canais da sua lista.</p>
-                    <label class="channel-manager-label" for="txtCanal">Canal Twitch</label>
-                    <div class="channel-manager-input">
-                        <span aria-hidden="true">#</span>
-                        <input type="text" placeholder="nome_do_canal" id="txtCanal" autocomplete="off">
-                    </div>
-                    <div class="channel-manager-actions">
-                        <button name="addCanal" type="button" class="add">Adicionar<span class="material-icons" aria-hidden="true">add</span></button>
-                        <button name="removerCanal" type="button" class="remove">Remover<span class="material-icons" aria-hidden="true">remove</span></button>
-                    </div>
-                    <p class="channel-manager-status" id="canalLog" role="status" aria-live="polite"></p>
-                    <div class="channel-manager-files">
-                        <span class="channel-manager-section-title">ARQUIVOS E DADOS</span>
-                        <div class="channel-manager-file-actions">
-                            <button class="cnFile" type="button" name="loadChannelsFromFile">Importar lista<span class="material-icons" aria-hidden="true">file_upload</span></button>
-                            <button class="cnFile export" type="button" name="exportFileList">Exportar lista<span class="material-icons" aria-hidden="true">download</span></button>
+                    <div class="channel-manager-heading">
+                        <div>
+                            <span class="channel-manager-eyebrow">SUA LISTA</span>
+                            <h2 id="channelManagerTitle">Gerenciar canais</h2>
                         </div>
-                        <button class="cnFile clear" type="button" name="clearChannelList">Limpar lista<span class="material-icons" aria-hidden="true">delete_sweep</span></button>
+                        <button id="toggleChannelList" class="channel-list-toggle" type="button" aria-controls="channelListView" aria-expanded="false">Ver lista</button>
+                    </div>
+                    <div id="channelManagerEditor" class="channel-manager-editor">
+                        <p class="channel-manager-description">Adicione ou remova canais. Separe vários nomes por vírgula.</p>
+                        <label class="channel-manager-label" for="txtCanal">Canal Twitch</label>
+                        <div class="channel-manager-input">
+                            <span aria-hidden="true">#</span>
+                            <input type="text" placeholder="nome_do_canal" id="txtCanal" autocomplete="off">
+                        </div>
+                        <div class="channel-manager-actions">
+                            <button name="addCanal" type="button" class="add">Adicionar<span class="material-icons" aria-hidden="true">add</span></button>
+                            <button name="removerCanal" type="button" class="remove">Remover<span class="material-icons" aria-hidden="true">remove</span></button>
+                        </div>
+                        <p class="channel-manager-status" id="canalLog" role="status" aria-live="polite"></p>
+                        <div class="channel-manager-files">
+                            <span class="channel-manager-section-title">ARQUIVOS E DADOS</span>
+                            <div class="channel-manager-file-actions">
+                                <button class="cnFile" type="button" name="loadChannelsFromFile">Importar lista<span class="material-icons" aria-hidden="true">file_upload</span></button>
+                                <button class="cnFile export" type="button" name="exportFileList">Exportar lista<span class="material-icons" aria-hidden="true">download</span></button>
+                            </div>
+                            <button class="cnFile clear" type="button" name="clearChannelList">Limpar lista<span class="material-icons" aria-hidden="true">delete_sweep</span></button>
+                        </div>
+                    </div>
+                    <div id="channelListView" class="channel-list-view none">
+                        <label class="channel-manager-label" for="channelListSearch">Buscar canal</label>
+                        <input id="channelListSearch" class="channel-list-search" type="search" placeholder="Pesquisar na lista" autocomplete="off">
+                        <p id="channelListSummary" class="channel-list-summary" role="status" aria-live="polite"></p>
+                        <ul id="channelListItems" class="channel-list-items" aria-label="Canais salvos"></ul>
+                        <p id="channelListEmpty" class="channel-list-empty" hidden></p>
                     </div>
                 </section>
+                <dialog id="channelRemoveDialog" class="channel-remove-dialog" aria-labelledby="channelRemoveTitle">
+                    <h2 id="channelRemoveTitle">Remover canal?</h2>
+                    <p>Deseja remover <strong id="channelRemoveName"></strong> da lista?</p>
+                    <div class="channel-remove-actions">
+                        <button id="channelRemoveCancel" type="button">Não</button>
+                        <button id="channelRemoveConfirm" type="button">Sim</button>
+                    </div>
+                </dialog>
             </div>
             <div class="UserWrapper none">
                 <div class="NotifyWrapper">

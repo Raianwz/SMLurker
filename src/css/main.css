@@ -1747,3 +1747,210 @@ div.channelsManager:not(.none) {
     outline: 2px solid #d8e9ff;
     outline-offset: 2px;
 }
+
+.channel-manager-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.channel-manager-heading h2 {
+    margin-top: 6px;
+}
+
+.channelsManager button.channel-list-toggle {
+    flex: 0 0 auto;
+    min-height: 32px;
+    padding: 5px 9px;
+    color: #a9d6f5;
+    background: #173b5d;
+    border: 1px solid #365f82;
+    font-size: 11px;
+}
+
+.channelsManager button.channel-list-toggle:hover {
+    color: #fff;
+    background: #245176;
+}
+
+.channel-manager-editor:not(.none),
+.channel-list-view:not(.none) {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.channel-list-search {
+    width: 100%;
+    height: 38px;
+    padding: 0 11px;
+    color: #f5f8ff;
+    background: #102943;
+    border: 1px solid #50708d;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.channel-list-search::placeholder {
+    color: #8fa9bf;
+}
+
+.channel-list-search:focus {
+    border-color: #a970ff;
+    outline: 2px solid #9146ff30;
+}
+
+.channel-list-summary {
+    margin: 0;
+    color: #9bb2c9;
+    font-size: 11px;
+}
+
+.channel-list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: min(220px, calc(100vh - 285px));
+    margin: 0;
+    padding: 0 4px 0 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.channel-list-items:empty {
+    display: none;
+}
+
+.channel-list-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.channel-list-items::-webkit-scrollbar-thumb {
+    background: #49647e;
+    border-radius: 6px;
+}
+
+.channel-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 37px;
+    padding: 4px 6px 4px 10px;
+    color: #e8f2ff;
+    background: #102943;
+    border: 1px solid #36516b;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.channel-list-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.channelsManager button.channel-list-remove {
+    flex: 0 0 26px;
+    width: 26px;
+    min-height: 26px;
+    padding: 0;
+    color: #ff858a;
+    background: transparent;
+    border: 0;
+    font-size: 19px;
+    line-height: 1;
+}
+
+.channelsManager button.channel-list-remove:hover {
+    color: #fff;
+    background: #bc424b;
+}
+
+.channel-list-empty {
+    margin: 0;
+    padding: 20px 10px;
+    color: #9bb2c9;
+    background: #102943;
+    border: 1px dashed #36516b;
+    border-radius: 9px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.channel-list-empty[hidden] {
+    display: none;
+}
+
+.channel-remove-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: min(360px, calc(100vw - 36px));
+    margin: 0;
+    padding: 18px;
+    color: #f3f7ff;
+    background: #0b1c2d;
+    border: 1px solid #50708d;
+    border-radius: 13px;
+    box-shadow: 0 18px 45px #0009;
+    transform: translate(-50%, -50%);
+}
+
+.channel-remove-dialog::backdrop {
+    background: #030b17b8;
+}
+
+.channel-remove-dialog h2 {
+    margin: 0 0 9px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.channel-remove-dialog p {
+    color: #b8cde0;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.channel-remove-dialog strong {
+    color: #fff;
+    font-weight: bold;
+}
+
+.channel-remove-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 18px;
+}
+
+.channelsManager .channel-remove-actions button {
+    min-width: 84px;
+    min-height: 34px;
+}
+
+#channelRemoveCancel {
+    color: #fff;
+    background: #176caa;
+    border: 1px solid #2987c6;
+}
+
+#channelRemoveCancel:hover {
+    background: #2385c7;
+}
+
+#channelRemoveConfirm {
+    color: #ff858a;
+    background: transparent;
+    border: 1px solid #a9434a;
+}
+
+#channelRemoveConfirm:hover {
+    color: #fff;
+    background: #bc424b;
+    border-color: #e45e66;
+}
