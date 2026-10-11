@@ -1,7 +1,7 @@
 {
   "name": "SMlurker",
   "version": "0.1.14",
-  "description": "Twich Lurker app",
+  "description": "Twitch chat lurker for Windows",
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
@@ -18,17 +18,21 @@
   "author": "Raianwz",
   "license": "MIT",
   "bugs": {
-    "url": "https://smlurker.raianwz.com.br/issues"
+    "url": "https://github.com/Raianwz/SMLurker/issues"
   },
-  "homepage": "https://smlurker.raianwz.com.br/#readme",
+  "homepage": "https://github.com/Raianwz/SMLurker#readme",
   "build": {
     "appId": "com.smlurker",
     "productName": "SMLurker",
-    "copyright": "Copyright © 2024 ${author}",
+    "copyright": "Copyright © 2021-2026 Raianwz",
     "directories": {
       "buildResources": "src/assets",
       "output": "releases"
     },
+    "files": [
+      "main.js",
+      "src/**/*"
+    ],
     "extraResources": [
       {
         "from": "./src/assets/",
