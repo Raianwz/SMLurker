@@ -8,7 +8,6 @@ const { startUpdateChecks } = require('./src/components/helpers/updateChecks');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
 const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
-const { createConsoleW } = require('./src/components/clog')
 const { PROTOCOL, callbackFromArgs, createWebLogin } = require('./src/components/twitch/webLogin');
 const { createWebSession } = require('./src/components/twitch/webSession');
 
@@ -141,7 +140,6 @@ function CreateWindow() {
             mainWindow.show();
             mainWindow.focus();
         } else iniMin(mainWindow)
-        createConsoleW()
     })
 
 
@@ -213,7 +211,6 @@ function updateNotify(info) {
         console.warn('Não foi possível mostrar a notificação de atualização:', error);
     }
 }
-
 function checkFiles() {
     const fs = require('fs');
     let localPath = `${app.getPath('userData')}\\Config`;
@@ -230,4 +227,3 @@ function iniMin(mainWindow) {
     } 
    
 }
-

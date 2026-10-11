@@ -9,6 +9,7 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/window/pa
 function createPanel() {
     const handlers = new Map();
     const elements = new Map();
+    const sent = [];
     let maximized = false;
     const windowActions = [];
     const panelWindow = {
@@ -37,7 +38,10 @@ function createPanel() {
     };
     const context = {
         require(id) {
-            if (id === 'electron') return { ipcRenderer: { on: (event, handler) => handlers.set(event, handler) } };
+            if (id === 'electron') return { ipcRenderer: {
+                on: (event, handler) => handlers.set(event, handler),
+                send: (...args) => sent.push(args),
+            } };
             if (id === '@electron/remote') return { getCurrentWindow: () => panelWindow };
             if (id === '../../internal/appcore') return { appcore: { dg: { showMB() {} } } };
             throw new Error(`Unexpected module: ${id}`);
@@ -48,11 +52,11 @@ function createPanel() {
     };
     vm.runInNewContext(source, context);
     context.module.exports.consolePnListiner();
-    return { element, handlers, windowActions };
+    return { element, handlers, windowActions, sent };
 }
 
 test('event panel shows an empty state until an event arrives and after clearing', () => {
-    const { element, handlers } = createPanel();
+    const { element, handlers, sent } = createPanel();
     const empty = element('#panelEmpty');
     const log = element('#txtPanel');
 
@@ -65,6 +69,7 @@ test('event panel shows an empty state until an event arrives and after clearing
     assert.equal(log.value, '');
     assert.equal(empty.hidden, false);
     assert.equal(element('#txtTotal').innerText, 'Texto: 0/6000');
+    assert.deepEqual(sent, [['sendtoCleanConsole']]);
 });
 
 test('event panel keeps channel and mention counters working', () => {

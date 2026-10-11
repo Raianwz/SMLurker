@@ -10,7 +10,10 @@ const updateEmptyState = () => { panelEmpty.hidden = consoleText.value.length > 
 const cnPnReset = () => { consoleText.value = ""; barText(msgTotal, 'Texto: 0/6000'); barText(metionTotal, 'Menções: 0'); tmpM=0; updateEmptyState(); }
 
 function consoleListener() {
-    getEl('button[name=cn_clear]').addEventListener('click', cnPnReset)
+    getEl('button[name=cn_clear]').addEventListener('click', () => {
+        cnPnReset();
+        ipcRenderer.send('sendtoCleanConsole');
+    })
     const panelWindow = getCurrentWindow();
     const maximizeButton = getEl('#panelMaximize');
     const updateMaximizeButton = () => {
