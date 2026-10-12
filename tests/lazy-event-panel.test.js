@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { EventEmitter } = require('node:events');
 
-const source = fs.readFileSync(path.join(__dirname, '../src/components/clog.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '../src/components/ipc/eventPanel.js'), 'utf8');
 
 function createApp() {
     const ipcMain = new EventEmitter();
@@ -39,7 +39,7 @@ function createApp() {
             if (id === 'path') return path;
             throw new Error(`Unexpected import: ${id}`);
         },
-        __dirname: path.join(__dirname, '../src/components'),
+        __dirname: path.join(__dirname, '../src/components/ipc'),
     });
     return { ipcMain, windows };
 }

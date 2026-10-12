@@ -43,7 +43,7 @@ function createConsoleWindow() {
         nodeIntegration: true,
         webSecurity: true,
         enableRemoteModule: true,
-        preload: path.join(__dirname, "../preload.js"),
+        preload: path.join(__dirname, "../../preload.js"),
       },
     });
     enable(consoleWindow.webContents);

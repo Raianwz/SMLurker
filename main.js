@@ -8,136 +8,31 @@ const { startUpdateChecks } = require('./src/components/helpers/updateChecks');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
 const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
-const { PROTOCOL, callbackFromArgs, createWebLogin } = require('./src/components/twitch/webLogin');
-const { createWebSession } = require('./src/components/twitch/webSession');
-const { createLocalData } = require('./src/components/helpers/localData');
+const { PROTOCOL, callbackFromArgs } = require('./src/components/twitch/webLogin');
+const { createWebLoginController } = require('./src/components/ipc/webLogin');
+const { registerLocalDataIpc } = require('./src/components/ipc/localData');
 
-require('./src/components/ipc');
-require('./src/components/clog')
+require('./src/components/ipc/configWindow');
+require('./src/components/ipc/eventPanel');
 let mainWindow;
 let updateChecks;
-let queuedWebLoginResult = null;
-let forceShowLogin = false;
-let ircConnectionStatus = 'disconnected';
-ipcMain.on('tray:connection-status', (event, status) => {
-    if (event.sender === mainWindow?.webContents &&
-        ['disconnected', 'connecting', 'reconnecting', 'connected'].includes(status)) {
-        ircConnectionStatus = status;
-    }
-});
-const ircIsActive = () => ircConnectionStatus !== 'disconnected';
 const initialWebLoginUrl = callbackFromArgs(process.argv);
-const webSession = createWebSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage });
-const localData = createLocalData(app);
 function fromMainWindow(event) {
     if (event.sender !== mainWindow?.webContents) throw new Error('Janela não autorizada.');
 }
-ipcMain.handle('local:channels:list', (event) => { fromMainWindow(event); return localData.channels.list(); });
-ipcMain.handle('local:channels:add', (event, channels) => { fromMainWindow(event); return localData.channels.add(channels); });
-ipcMain.handle('local:channels:remove', (event, channels) => { fromMainWindow(event); return localData.channels.remove(channels); });
-ipcMain.handle('local:channels:replace', (event, channels) => { fromMainWindow(event); return localData.channels.replace(channels); });
-ipcMain.handle('local:preferences:get', (event) => { fromMainWindow(event); return localData.preferences.get(); });
-ipcMain.handle('local:preferences:update-notifications', (event, values) => {
-    fromMainWindow(event);
-    return localData.preferences.updateNotifications(values);
-});
-const webLogin = createWebLogin({
-    isPackaged: app.isPackaged,
-    openExternal: (url) => shell.openExternal(url),
-    onResult: (result) => {
-        if (result.type === 'success') {
-            if (ircIsActive()) {
-                queuedWebLoginResult = { type: 'error', message: 'Desconecte-se dos canais antes de trocar de conta.' };
-                flushWebLoginResult();
-                return;
-            }
-            forceShowLogin = false;
-            let remembered = false;
-            try {
-                remembered = webSession.save(result);
-                if (!remembered) webSession.clear();
-            } catch {
-                try { webSession.clear(); } catch { /* A sessão atual ainda pode ser usada em memória. */ }
-            }
-            result = { ...result, remembered };
-        }
-        queuedWebLoginResult = result;
-        flushWebLoginResult();
-    },
+registerLocalDataIpc({ app, ipcMain, fromMainWindow });
+const webLogin = createWebLoginController({
+    app, ipcMain, shell, Notification, safeStorage,
+    getMainWindow: () => mainWindow,
+    fromMainWindow,
 });
 checkFiles();
-
-function flushWebLoginResult() {
-    if (!queuedWebLoginResult || !mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isLoadingMainFrame()) return;
-    mainWindow.webContents.send('web-login:result', queuedWebLoginResult);
-    queuedWebLoginResult = null;
-}
-
-function requestWebLoginAgain() {
-    forceShowLogin = true;
-    if (mainWindow && !mainWindow.isDestroyed()) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.show();
-        mainWindow.focus();
-    }
-    if (Notification.isSupported()) {
-        try {
-            const notification = new Notification({
-                title: 'Login da Twitch necessário',
-                body: 'A sessão expirou ou foi recusada. Abra o SMLurker para entrar novamente.',
-            });
-            notification.on('click', () => {
-                if (mainWindow && !mainWindow.isDestroyed()) {
-                    if (mainWindow.isMinimized()) mainWindow.restore();
-                    mainWindow.show();
-                    mainWindow.focus();
-                }
-            });
-            notification.show();
-        } catch { /* A janela e a mensagem de login continuam disponíveis. */ }
-    }
-}
 
 if (process.defaultApp && process.argv.length >= 2) {
     app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
 } else {
     app.setAsDefaultProtocolClient(PROTOCOL);
 }
-
-ipcMain.handle('web-login:start', async () => {
-    if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de trocar de conta.' };
-    try {
-        await webLogin.start();
-        return { ok: true };
-    } catch (error) {
-        return { ok: false, message: error instanceof Error ? error.message : 'Não foi possível iniciar o login pelo navegador.' };
-    }
-});
-
-ipcMain.handle('web-login:restore', async () => {
-    const result = await webSession.restore();
-    if (result.requiresLogin) requestWebLoginAgain();
-    return result;
-});
-
-ipcMain.handle('web-login:invalid', () => {
-    try { webSession.clear(); } catch { /* A interface ainda solicitará um novo login. */ }
-    requestWebLoginAgain();
-    return { ok: true };
-});
-
-ipcMain.handle('web-login:logout', (event) => {
-    fromMainWindow(event);
-    if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de sair da conta.' };
-    try {
-        webSession.clear();
-        queuedWebLoginResult = null;
-        forceShowLogin = false;
-        return { ok: true };
-    } catch {
-        return { ok: false, message: 'Não foi possível apagar a sessão Web salva.' };
-    }
-});
 
 function CreateWindow() {
     mainWindow = new BrowserWindow({
@@ -165,7 +60,7 @@ function CreateWindow() {
     })
     enable(mainWindow.webContents);
     mainWindow.loadFile('./src/app/index.html');
-    mainWindow.webContents.on('did-finish-load', flushWebLoginResult);
+    mainWindow.webContents.on('did-finish-load', webLogin.flushResult);
 
     //Open Links in Browser
     mainWindow.webContents.on('will-navigate', (event, url) => {
@@ -177,7 +72,7 @@ function CreateWindow() {
     mainWindow.focus();
 
     mainWindow.once('ready-to-show', () => {
-        if (forceShowLogin) {
+        if (webLogin.shouldForceShowLogin()) {
             mainWindow.show();
             mainWindow.focus();
         } else iniMin(mainWindow)
