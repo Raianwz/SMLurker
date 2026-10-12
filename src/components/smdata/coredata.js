@@ -1,4 +1,5 @@
 const { appcore } = require('../../internal/appcore')
+const { fetchUserProfile } = require('./userProfileSource')
 /*============================================(GERENCIAMENTO DE DADOS)=========================================*/
 //Salvando dados
 async function saveUserData(user, pass) {
@@ -94,7 +95,7 @@ async function loadProfile(username, profilePath) {
     }
 
     try {
-        const updated = await getUser(username);
+        const updated = await fetchUserProfile(username);
         if (!validProfile(updated, username)) throw new Error('Perfil incompleto');
         if (matchingCache?.chatColor && matchingCache.chatColor !== '#9148FF') {
             updated.chatColor = matchingCache.chatColor;
@@ -107,13 +108,12 @@ async function loadProfile(username, profilePath) {
     }
 }
 
-//Criando Profile data
-async function createProfile() {
-    const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
+// Consulta compartilhada pela interface e pelo perfil visual.
+async function getUserProfile(username) {
+    if (typeof username !== 'string' || !/^[a-zA-Z0-9_]+$/.test(username)) {
+        throw new TypeError('Nome de usuário da Twitch inválido.');
+    }
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
-    const username = document.querySelector('#username').value.toString();
-    btnuser(`<img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting"><p class="mb-tooltip">Perfil</p>`)
-
     let request = profileRequests.get(username.toLowerCase());
     if (!request) {
         request = loadProfile(username, profilePath);
@@ -123,7 +123,16 @@ async function createProfile() {
             () => profileRequests.delete(username.toLowerCase()),
         );
     }
-    const profileData = await request;
+    return request;
+}
+
+//Criando Profile data
+async function createProfile() {
+    const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
+    const username = document.querySelector('#username').value.toString();
+    btnuser(`<img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting"><p class="mb-tooltip">Perfil</p>`)
+
+    const profileData = await getUserProfile(username);
     let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = profileData != null ? profileData.chatColor : '#9148FF';
@@ -132,25 +141,8 @@ async function createProfile() {
     return { displayName, logo, userColor };
 }
 
-//Chamando API's
-async function getUser(user) {
-    const wzapi = await fetch(`https://api.chat.raianwz.com.br/smlurker/${user}/`)
-    let udata = {};
-    if (wzapi.ok) {
-        udata = await wzapi.json()
-    } else if (!wzapi.ok) {
-        const smapi = await fetch(`https://apichatwz.vercel.app/smlurker/${user}/`)
-        udata = await smapi.json()
-    }
-    else {
-        udata = {
-            "id": 0, "login": udata.login, "display_name": `${user.toLowerCase()}`, "chatColor": '#9148FF', "profile_image_url": 'https://i.imgur.com/3TRjKcn.gif'
-        }
-    }
-    return udata
-}
-
 module.exports.saveUserData = saveUserData;
 module.exports.createProfile = createProfile;
+module.exports.getUserProfile = getUserProfile;
 module.exports.loadUserData = loadUserData;
 module.exports.loadNotify = loadNotify;

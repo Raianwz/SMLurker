@@ -21,7 +21,19 @@ function profileHarness(initialProfile, fetchImpl) {
     };
     const context = {
         module: { exports: {} },
-        require: () => ({ appcore }),
+        require: (id) => {
+            if (id === '../../internal/appcore') return { appcore };
+            if (id === './userProfileSource') {
+                return { fetchUserProfile: async (name) => {
+                    const response = await fetchImpl(`https://api.chat.raianwz.com.br/smlurker/${name}/`);
+                    if (response.ok) return response.json();
+                    const fallback = await fetchImpl(`https://apichatwz.vercel.app/smlurker/${name}/`);
+                    if (!fallback.ok) throw new Error('Profile unavailable');
+                    return fallback.json();
+                } };
+            }
+            throw new Error(`Unexpected module: ${id}`);
+        },
         document: {
             getElementById: () => userBox,
             querySelector: () => username,
@@ -31,6 +43,7 @@ function profileHarness(initialProfile, fetchImpl) {
     vm.runInNewContext(source, context);
     return {
         createProfile: context.module.exports.createProfile,
+        getUserProfile: context.module.exports.getUserProfile,
         userBox,
         username,
         getStored: () => stored && JSON.parse(stored),
@@ -91,4 +104,13 @@ test('failed refresh keeps a matching cached profile without updating its timest
     assert.equal(result.logo, old.profile_image_url);
     assert.equal(harness.getStored().expire, old.expire);
     assert.equal(harness.getWrites(), 0);
+});
+
+test('userprofile.get reuses the shared cache and validates usernames', async () => {
+    let calls = 0;
+    const harness = profileHarness(profile(new Date().toISOString()), () => { calls++; });
+    const result = await harness.getUserProfile('RaianWZ');
+    assert.equal(result.login, 'raianwz');
+    assert.equal(calls, 0);
+    await assert.rejects(harness.getUserProfile('../someone'), /Nome de usuário da Twitch inválido/);
 });

@@ -14,6 +14,12 @@ const api = {
             return () => ipcRenderer.removeListener('web-login:result', listener);
         },
     },
+    userprofile: {
+        get: (username) => {
+            const { getUserProfile } = require('./components/smdata/coredata');
+            return getUserProfile(username);
+        },
+    },
     tw: smcore,
     cr: appcore,
     console: {
