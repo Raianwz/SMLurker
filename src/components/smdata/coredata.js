@@ -82,7 +82,7 @@ function validProfile(profile, username) {
         typeof profile.display_name === 'string' && typeof profile.profile_image_url === 'string';
 }
 
-async function loadProfile(username, profilePath) {
+async function loadProfile(username, profilePath, accessToken) {
     let cached = null;
     try {
         if (appcore.fs.exist(profilePath)) cached = JSON.parse(appcore.fs.read(profilePath, { encoding: 'utf8' }));
@@ -95,7 +95,7 @@ async function loadProfile(username, profilePath) {
     }
 
     try {
-        const updated = await fetchUserProfile(username);
+        const updated = await fetchUserProfile(username, fetch, undefined, accessToken);
         if (!validProfile(updated, username)) throw new Error('Perfil incompleto');
         if (matchingCache?.chatColor && matchingCache.chatColor !== '#9148FF') {
             updated.chatColor = matchingCache.chatColor;
@@ -110,14 +110,14 @@ async function loadProfile(username, profilePath) {
 }
 
 // Consulta compartilhada pela interface e pelo perfil visual.
-async function getUserProfile(username) {
+async function getUserProfile(username, accessToken) {
     if (typeof username !== 'string' || !/^[a-zA-Z0-9_]+$/.test(username)) {
         throw new TypeError('Nome de usuário da Twitch inválido.');
     }
     const profilePath = `${appcore.appr.getPath('userData')}\\Config\\profile.json`;
     let request = profileRequests.get(username.toLowerCase());
     if (!request) {
-        request = loadProfile(username, profilePath);
+        request = loadProfile(username, profilePath, accessToken);
         profileRequests.set(username.toLowerCase(), request);
         request.then(
             () => profileRequests.delete(username.toLowerCase()),
@@ -151,11 +151,11 @@ function renderProfile(displayName, logo, userColor) {
     document.getElementById('user_box').replaceChildren(avatar, tooltip);
 }
 
-async function createProfile() {
+async function createProfile(accessToken) {
     const username = document.querySelector('#username').value.toString();
     renderProfile('Chatting', 'https://i.imgur.com/pTyMFWw.gif', '#618e54');
 
-    const profileData = await getUserProfile(username);
+    const profileData = await getUserProfile(username, accessToken);
     let logo = safeProfileImageUrl(profileData?.profile_image_url);
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
     let userColor = /^#[0-9a-fA-F]{6}$/.test(profileData?.chatColor) ? profileData.chatColor : '#9148FF';

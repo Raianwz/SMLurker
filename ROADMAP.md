@@ -17,6 +17,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Ao detectar token Web inválido, limpar a sessão, avisar por notificação nativa e abrir a tela de login.
 - [x] Cobrir os fluxos principais de login, restauração e conexão com testes automatizados.
 - [x] Centralizar a leitura de perfil em `api.userprofile.get(username)`, compartilhando o cache de 24 horas com a interface.
+- [x] Expor operações de canais e notificações pela API local do preload, com validação e gravação no processo principal para a tela principal.
 
 ## Próximos polimentos
 
@@ -31,7 +32,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 
 ## Evolução técnica
 
-- [ ] Consultar o perfil diretamente na Twitch quando houver credenciais válidas, mantendo o cache atual.
+- [x] Consultar o perfil diretamente na Twitch quando houver credenciais válidas, mantendo o cache atual e a Dank API como fallback.
 - [x] Usar a Dank API como fonte principal de perfil, com endereço reserva e a API legada Vercel como último fallback.
 - [ ] Avaliar importação da lista de canais do SMLurker Web para o Electron e envio da lista do Electron para o Web, com deduplicação e confirmação antes de substituir dados.
 - [ ] Planejar renovação do token Web com o projeto Web; hoje a sessão precisa de novo login quando o token expira.

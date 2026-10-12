@@ -10,6 +10,7 @@ const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
 const { PROTOCOL, callbackFromArgs, createWebLogin } = require('./src/components/twitch/webLogin');
 const { createWebSession } = require('./src/components/twitch/webSession');
+const { createLocalData } = require('./src/components/helpers/localData');
 
 require('./src/components/ipc');
 require('./src/components/clog')
@@ -27,6 +28,19 @@ ipcMain.on('tray:connection-status', (event, status) => {
 const ircIsActive = () => ircConnectionStatus !== 'disconnected';
 const initialWebLoginUrl = callbackFromArgs(process.argv);
 const webSession = createWebSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage });
+const localData = createLocalData(app);
+function fromMainWindow(event) {
+    if (event.sender !== mainWindow?.webContents) throw new Error('Janela não autorizada.');
+}
+ipcMain.handle('local:channels:list', (event) => { fromMainWindow(event); return localData.channels.list(); });
+ipcMain.handle('local:channels:add', (event, channels) => { fromMainWindow(event); return localData.channels.add(channels); });
+ipcMain.handle('local:channels:remove', (event, channels) => { fromMainWindow(event); return localData.channels.remove(channels); });
+ipcMain.handle('local:channels:replace', (event, channels) => { fromMainWindow(event); return localData.channels.replace(channels); });
+ipcMain.handle('local:preferences:get', (event) => { fromMainWindow(event); return localData.preferences.get(); });
+ipcMain.handle('local:preferences:update-notifications', (event, values) => {
+    fromMainWindow(event);
+    return localData.preferences.updateNotifications(values);
+});
 const webLogin = createWebLogin({
     isPackaged: app.isPackaged,
     openExternal: (url) => shell.openExternal(url),

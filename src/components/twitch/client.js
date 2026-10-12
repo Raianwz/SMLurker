@@ -1,7 +1,9 @@
 const tmi = api.tw.tmi;
 const changeAppSide = (btn, dest) => api.cr.tr.changeside(btn, dest);
 const BlockLogin = (value) => api.cr.tr.blockinput(value);
-const createProfile = async () => api.tw.data.createProfile();
+const createProfile = async () => api.tw.data.createProfile(
+    useLegacyLogin || !webCredentials ? document.getElementById('pass').value : webCredentials.pass
+);
 const loadUserData = async () => api.tw.data.loadUserData();
 const saveUserData = async (user, pass) => api.tw.data.saveUserData(user, pass);
 const updateTrayStatus = (status) => api.cr.ipc.send('tray:connection-status', status);

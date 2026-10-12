@@ -36,9 +36,9 @@ const smcore = {
         joinpart()
     },
     data: {
-        createProfile: async () => {
+        createProfile: async (accessToken) => {
             let { createProfile } = require('../components/smdata/coredata')
-            return createProfile()
+            return createProfile(accessToken)
         },
         loadUserData: async () => {
             let { loadUserData } = require('../components/smdata/coredata')

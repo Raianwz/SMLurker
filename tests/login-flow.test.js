@@ -8,6 +8,7 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/cl
 
 function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError) {
     const calls = [];
+    const profileTokens = [];
     const trayStatuses = [];
     const clientHandlers = new Map();
     let onWebLoginResult;
@@ -51,8 +52,9 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
                     }
                     return { hasCredentials: hasLegacyCredentials, autoConnect };
                 },
-                createProfile: async () => {
+                createProfile: async (token) => {
                     calls.push('profile');
+                    profileTokens.push(token);
                     return { displayName: 'RaianWZ', logo: 'https://example.com/avatar.png', userColor: '#9148ff' };
                 },
                 saveUserData: async () => { calls.push('save'); },
@@ -86,14 +88,14 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
     } });
     vm.runInContext(source, context);
     return {
-        context, element, calls, trayStatuses,
+        context, element, calls, trayStatuses, profileTokens,
         emitClient: (name) => clientHandlers.get(name)?.(),
         webLoginResult: (result) => onWebLoginResult(result),
     };
 }
 
 test('legacy Entrar connects, joins and only then saves credentials', async () => {
-    const { context, element, calls, trayStatuses } = createLoginFlow();
+    const { context, element, calls, trayStatuses, profileTokens } = createLoginFlow();
     await context.entrarTwitch();
     assert.deepEqual(calls.slice(0, 2), ['block:true', 'connect']);
     assert.ok(calls.indexOf('profile') < calls.indexOf('join'));
@@ -101,6 +103,7 @@ test('legacy Entrar connects, joins and only then saves credentials', async () =
     assert.equal(element('#btnEntrar').value, 'Desconectar');
     assert.equal(element('#msgStatus').textContent, 'Entrou nos canais!');
     assert.deepEqual(trayStatuses, ['connecting', 'connected']);
+    assert.deepEqual(profileTokens, ['oauth:legacy-token']);
 });
 
 test('tray shows reconnection and recovery after an IRC interruption', async () => {
@@ -124,7 +127,7 @@ test('failed channel join does not save credentials or show a connected state', 
 });
 
 test('new users see browser login and Web return waits for an explicit channel connection', async () => {
-    const { context, element, calls, webLoginResult } = createLoginFlow(undefined, false);
+    const { context, element, calls, webLoginResult, profileTokens } = createLoginFlow(undefined, false);
     await new Promise(setImmediate);
     assert.equal(element('#newLoginPanel').classList.contains('none'), false);
     assert.equal(element('#legacyLoginPanel').classList.contains('none'), true);
@@ -134,6 +137,7 @@ test('new users see browser login and Web return waits for an explicit channel c
     assert.equal(element('#webReadyPanel').classList.contains('none'), false);
     assert.equal(element('#btnUseLegacyLogin').classList.contains('none'), true);
     assert.equal(calls.includes('profile'), true);
+    assert.deepEqual(profileTokens, ['oauth:web-token']);
     assert.equal(element('#login_box').children[0].src, 'https://example.com/avatar.png');
     assert.equal(element('#pass').value, '');
     assert.equal(calls.includes('connect'), false);

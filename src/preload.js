@@ -4,6 +4,16 @@ const { smcore } = require('./internal/smcore')
 const { appcore } = require('./internal/appcore')
 
 const api = {
+    channels: {
+        list: () => ipcRenderer.invoke('local:channels:list'),
+        add: (channels) => ipcRenderer.invoke('local:channels:add', channels),
+        remove: (channels) => ipcRenderer.invoke('local:channels:remove', channels),
+        replace: (channels) => ipcRenderer.invoke('local:channels:replace', channels),
+    },
+    preferences: {
+        get: () => ipcRenderer.invoke('local:preferences:get'),
+        updateNotifications: (values) => ipcRenderer.invoke('local:preferences:update-notifications', values),
+    },
     auth: {
         startWebLogin: () => ipcRenderer.invoke('web-login:start'),
         restoreWebLogin: () => ipcRenderer.invoke('web-login:restore'),
@@ -15,9 +25,9 @@ const api = {
         },
     },
     userprofile: {
-        get: (username) => {
+        get: (username, accessToken) => {
             const { getUserProfile } = require('./components/smdata/coredata');
-            return getUserProfile(username);
+            return getUserProfile(username, accessToken);
         },
     },
     tw: smcore,

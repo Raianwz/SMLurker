@@ -9,7 +9,74 @@ const profile = {
 const dankUrl = 'https://dank.example.com';
 const legacyUrl = 'https://apichatwz.vercel.app/smlurker/raianwz/';
 
-test('Dank API is the primary profile source', async () => {
+test('valid OAuth token uses Twitch Helix before public profile sources', async () => {
+    const requests = [];
+    const result = await fetchUserProfile('raianwz', async (url, options) => {
+        requests.push({ url, options });
+        if (url.endsWith('/validate')) return {
+            ok: true, json: async () => ({ client_id: 'twitch-client', expires_in: 3600 }),
+        };
+        return { ok: true, json: async () => ({ data: [profile] }) };
+    }, dankUrl, 'oauth:secret-token');
+    assert.equal(result, profile);
+    assert.deepEqual(requests.map((request) => request.url), [
+        'https://id.twitch.tv/oauth2/validate',
+        'https://api.twitch.tv/helix/users?login=raianwz',
+    ]);
+    assert.equal(requests[0].options.headers.Authorization, 'OAuth secret-token');
+    assert.equal(requests[1].options.headers.Authorization, 'Bearer secret-token');
+    assert.equal(requests[1].options.headers['Client-Id'], 'twitch-client');
+    assert.ok(requests.every((request) => !request.url.includes('secret-token')));
+});
+
+test('invalid Twitch token falls back to Dank without forwarding credentials', async () => {
+    const requests = [];
+    const result = await fetchUserProfile('raianwz', async (url, options) => {
+        requests.push({ url, options });
+        if (url.endsWith('/validate')) return { ok: false, status: 401 };
+        return { ok: true, json: async () => profile };
+    }, dankUrl, 'oauth:expired-token');
+    assert.equal(result, profile);
+    assert.deepEqual(requests.map((request) => request.url), [
+        'https://id.twitch.tv/oauth2/validate',
+        `${dankUrl}/twitch/user/raianwz`,
+    ]);
+    assert.equal(requests[1].options.headers, undefined);
+});
+
+test('incomplete Helix response falls back to Dank', async () => {
+    const urls = [];
+    const result = await fetchUserProfile('raianwz', async (url) => {
+        urls.push(url);
+        if (url.endsWith('/validate')) return {
+            ok: true, json: async () => ({ client_id: 'twitch-client', expires_in: 3600 }),
+        };
+        if (url.includes('/helix/users')) return { ok: true, json: async () => ({ data: [] }) };
+        return { ok: true, json: async () => profile };
+    }, dankUrl, 'secret-token');
+    assert.equal(result, profile);
+    assert.deepEqual(urls, [
+        'https://id.twitch.tv/oauth2/validate',
+        'https://api.twitch.tv/helix/users?login=raianwz',
+        `${dankUrl}/twitch/user/raianwz`,
+    ]);
+});
+
+test('Twitch network failure still falls back to Dank', async () => {
+    const urls = [];
+    const result = await fetchUserProfile('raianwz', async (url) => {
+        urls.push(url);
+        if (url.endsWith('/validate')) throw new Error('offline');
+        return { ok: true, json: async () => profile };
+    }, dankUrl, 'secret-token');
+    assert.equal(result, profile);
+    assert.deepEqual(urls, [
+        'https://id.twitch.tv/oauth2/validate',
+        `${dankUrl}/twitch/user/raianwz`,
+    ]);
+});
+
+test('Dank API is the first profile source when no OAuth token is available', async () => {
     const urls = [];
     const result = await fetchUserProfile('raianwz', async (url) => {
         urls.push(url);

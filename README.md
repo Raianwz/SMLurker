@@ -38,7 +38,11 @@ O que já foi entregue e os próximos passos estão no [roadmap do Electron](ROA
 
 ## Perfil público
 
-O SMLurker consulta primeiro `https://dank.rwz.app` e usa `https://dank-api.vercel.app` como endereço reserva da Dank API. Se ambos falharem ou devolverem um perfil incompleto, `https://apichatwz.vercel.app` é o último recurso para o perfil. A URL preferida da Dank API pode ser trocada por `SMLURKER_DANK_API_URL`. Se a Dank API limitar consultas com `429`, o aplicativo pula seu endereço reserva e ainda tenta a API legada. O cache local de 24 horas continua em uso; uma resposta marcada `stale` pela Dank API é exibida sem renovar esse prazo.
+Com um token OAuth disponível, o SMLurker tenta primeiro consultar o perfil diretamente na Twitch Helix. O token é validado para obter o Client ID exigido pela Twitch e fica apenas nos cabeçalhos dessas requisições. Se essa consulta não puder entregar o perfil, o aplicativo tenta `https://dank.rwz.app`, depois `https://dank-api.vercel.app` e por último `https://apichatwz.vercel.app`. A URL preferida da Dank API pode ser trocada por `SMLURKER_DANK_API_URL`. Um `429` na fonte principal pula seu endereço reserva e ainda tenta a API legada. O cache local de 24 horas continua em uso; uma resposta `stale` da Dank API é exibida sem renovar esse prazo.
+
+## API local do Electron
+
+A ponte `api` do preload disponibiliza métodos assíncronos para a interface. `api.userprofile.get(username)` consulta o perfil com cache compartilhado. `api.channels.list()`, `add(channels)`, `remove(channels)` e `replace(channels)` gerenciam a lista local sem expor o caminho do arquivo à tela. `api.preferences.get()` lê as preferências e `updateNotifications({ NotifyMe, NotifyGift })` altera somente as opções de notificação. Canais e preferências são validados no processo principal antes de gravar os arquivos existentes.
 
 ## Executando o projeto
 
