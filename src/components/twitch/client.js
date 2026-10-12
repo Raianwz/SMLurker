@@ -242,6 +242,32 @@ async function voltarLoginLegado() {
     }
 }
 
+async function sairDaContaWeb() {
+    if (client || !webCredentials) return;
+    try {
+        const result = await api.auth.logoutWebLogin();
+        if (!result.ok) {
+            showLoginStatus(result.message);
+            return;
+        }
+        webCredentials = null;
+        useLegacyLogin = false;
+        document.getElementById('username').value = '';
+        document.getElementById('pass').value = '';
+        document.getElementById('login_box').innerHTML = 'account_circle <p class="mb-tooltip">Login</p>';
+        if (legacyAvailable) {
+            try {
+                const saved = await loadUserData();
+                legacyAvailable = saved.hasCredentials;
+            } catch { legacyAvailable = false; }
+        }
+        renderLoginMode();
+        showLoginStatus('Você saiu da conta Twitch neste aplicativo.');
+    } catch {
+        showLoginStatus('Não foi possível sair da conta. Tente novamente.');
+    }
+}
+
 function applyWebLogin(result, restored = false) {
     const status = document.getElementById('msgStatus');
     if (typeof result.username !== 'string' || typeof result.accessToken !== 'string' || !result.username || !result.accessToken) {

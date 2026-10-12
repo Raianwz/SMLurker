@@ -79,6 +79,7 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             onWebLoginResult: (callback) => { onWebLoginResult = callback; },
             restoreWebLogin: async () => savedSession,
             invalidateWebLogin: async () => { calls.push('invalidate-web-login'); },
+            logoutWebLogin: async () => { calls.push('logout-web-login'); return { ok: true }; },
         },
     };
     const context = vm.createContext({ api, document: {
@@ -173,6 +174,25 @@ test('saved legacy users can switch from Web login back to OAuth without changin
     assert.equal(element('#webReadyPanel').classList.contains('none'), false);
     assert.equal(element('#pass').value, '');
     assert.equal(calls.includes('connect'), false);
+});
+
+test('signing out clears the Web session and returns to login without removing legacy credentials', async () => {
+    const saved = { type: 'success', username: 'webuser', accessToken: 'saved-web-token' };
+    const { context, element, calls } = createLoginFlow(undefined, true, false, saved);
+    await new Promise(setImmediate);
+
+    await context.sairDaContaWeb();
+
+    assert.equal(calls.includes('logout-web-login'), true);
+    assert.equal(calls.includes('invalidate-web-login'), false);
+    assert.equal(element('#legacyLoginPanel').classList.contains('none'), false);
+    assert.equal(element('#webReadyPanel').classList.contains('none'), true);
+    assert.equal(element('#pass').value, 'oauth:legacy-token');
+    assert.equal(element('#username').value, 'raianwz');
+    assert.match(element('#msgStatus').textContent, /saiu da conta Twitch/);
+
+    await context.voltarLoginLegado();
+    assert.equal(element('#pass').value, 'oauth:legacy-token');
 });
 
 test('saved legacy credentials still connect automatically when configured', async () => {

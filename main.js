@@ -126,6 +126,19 @@ ipcMain.handle('web-login:invalid', () => {
     return { ok: true };
 });
 
+ipcMain.handle('web-login:logout', (event) => {
+    fromMainWindow(event);
+    if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de sair da conta.' };
+    try {
+        webSession.clear();
+        queuedWebLoginResult = null;
+        forceShowLogin = false;
+        return { ok: true };
+    } catch {
+        return { ok: false, message: 'Não foi possível apagar a sessão Web salva.' };
+    }
+});
+
 function CreateWindow() {
     mainWindow = new BrowserWindow({
         title: 'SM Lurker',

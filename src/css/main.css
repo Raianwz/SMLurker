@@ -572,16 +572,72 @@ a span:hover::after {
     text-align: center;
 }
 
-.loginBox #webReadyPanel .web-ready-actions {
+.loginBox #webReadyPanel .web-ready-header {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 12px;
 }
 
-.loginBox #webReadyPanel .web-ready-actions button {
+.loginBox #webReadyPanel .web-account-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.loginBox #webReadyPanel .web-account-actions button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    color: #9abfe0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.loginBox #webReadyPanel .web-account-actions button:hover,
+.loginBox #webReadyPanel .web-account-actions button:focus-visible {
+    color: #fff;
+    background: #1b3551;
+    border-color: #52769a;
+}
+
+.loginBox #webReadyPanel .web-account-actions button:focus-visible {
+    outline: 2px solid #d7e7ff;
+    outline-offset: 2px;
+}
+
+.loginBox #webReadyPanel .web-account-actions .material-icons {
+    font-size: 20px;
+}
+
+.loginBox #webReadyPanel .web-account-actions button::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    z-index: 2;
+    top: calc(100% + 6px);
+    right: 0;
+    display: none;
+    padding: 5px 8px;
+    color: #fff;
+    background: #3f2864;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: normal;
     white-space: nowrap;
+    pointer-events: none;
 }
 
-.loginBox #webReadyPanel .web-ready-actions button:last-child {
-    margin-left: auto;
+.loginBox #webReadyPanel .web-account-actions button:hover::after,
+.loginBox #webReadyPanel .web-account-actions button:focus-visible::after {
+    display: block;
+}
+
+.loginBox #webReadyPanel .web-ready-actions {
+    justify-content: flex-start;
 }
 
 .loginBox .help button.none {

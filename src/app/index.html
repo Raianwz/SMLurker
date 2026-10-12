@@ -100,13 +100,18 @@
                     <input id="btnWebLogin" onclick="iniciarLoginWeb()" type="button" value="Entrar com a Twitch">
                 </div>
                 <div id="webReadyPanel" class="none">
-                    <span class="login-eyebrow">CONTA CONECTADA</span>
+                    <div class="web-ready-header">
+                        <span class="login-eyebrow">CONTA CONECTADA</span>
+                        <div class="web-account-actions" aria-label="Ações da conta">
+                            <button type="button" aria-label="Trocar conta" data-tooltip="Trocar conta" onclick="iniciarLoginWeb()"><span class="material-icons" aria-hidden="true">swap_horiz</span></button>
+                            <button type="button" aria-label="Sair da conta" data-tooltip="Sair da conta" onclick="sairDaContaWeb()"><span class="material-icons" aria-hidden="true">exit_to_app</span></button>
+                        </div>
+                    </div>
                     <h2 id="webAccount"></h2>
                     <p class="login-description">Tudo pronto para acompanhar seus canais.</p>
                     <input id="btnConnectChannels" onclick="conectarCanaisWeb()" type="button" value="Entrar nos canais">
                     <div class="help web-ready-actions">
-                        <button id="btnUseLegacyLogin" class="none" type="button" onclick="voltarLoginLegado()">Usar login com OAuth</button>
-                        <button type="button" onclick="iniciarLoginWeb()">Trocar conta</button>
+                        <button id="btnUseLegacyLogin" class="none" type="button" onclick="voltarLoginLegado()">Login Clássico</button>
                     </div>
                 </div>
                 <p id="msgStatus" role="status" aria-live="polite"></p>

@@ -18,6 +18,7 @@ const api = {
         startWebLogin: () => ipcRenderer.invoke('web-login:start'),
         restoreWebLogin: () => ipcRenderer.invoke('web-login:restore'),
         invalidateWebLogin: () => ipcRenderer.invoke('web-login:invalid'),
+        logoutWebLogin: () => ipcRenderer.invoke('web-login:logout'),
         onWebLoginResult: (callback) => {
             const listener = (_event, result) => callback(result);
             ipcRenderer.on('web-login:result', listener);
