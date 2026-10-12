@@ -4,6 +4,16 @@ const { ipcRenderer } = require('electron');
 const { setTimeout: sleep } = require('node:timers/promises');
 const { BATCH_SIZE, BATCH_DELAY_MS, CHANNEL_DELAY_MS, remainingJoinMs, formatRemainingMs } = require('./joinEstimate');
 const tmi = smcore.tmi;
+const IRC_READY_TIMEOUT_MS = 15_000;
+const JOIN_TIMEOUT_MS = 10_000;
+
+function withTimeout(operation, ms, message) {
+    let timer;
+    return Promise.race([
+        Promise.resolve().then(operation),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), ms); }),
+    ]).finally(() => clearTimeout(timer));
+}
 const changeAppSide = (btn, dest) => appcore.tr.changeside(btn, dest)
 const gCount = () => smcore.lv.get(), aCount = () => smcore.lv.add();
 /*==============================================(ENTRANDO EM CANAIS)===========================================*/
@@ -65,28 +75,39 @@ async function joinChannels() {
     }
     channels = appcore.channels.read()
     if (channels.length <= 0) throw 'Nenhum canal adicionado, por favor adicione um canal'
-    while ((await tmi.rds()) !== 'OPEN') await sleep(1000);
+    const readyDeadline = Date.now() + IRC_READY_TIMEOUT_MS;
+    while (await withTimeout(() => tmi.rds(), IRC_READY_TIMEOUT_MS, 'Tempo esgotado ao verificar a conexão IRC.') !== 'OPEN') {
+        if (Date.now() >= readyDeadline) throw new Error('Tempo esgotado ao aguardar a conexão IRC.');
+        await sleep(Math.min(1000, readyDeadline - Date.now()));
+    }
 
     let started = false;
+    let joined = 0;
+    let failed = 0;
     try {
         for (let x = 0; x < channels.length; x++) {
-            tmi.join(channels[x]).catch(err => {
-                if (err === 'msg_channel_suspended') {
-                    aCount();
-                    sleep(300).then(() => removeChannel(`${channels[x]}`));
-                }
-            })
-
             if (!started) {
                 changeAppSide(1);
                 waitLogin(true);
                 started = true;
             }
             ClockTimer.update(remainingJoinMs(channels.length, x));
+            try {
+                await withTimeout(() => tmi.join(channels[x]), JOIN_TIMEOUT_MS,
+                    `Tempo esgotado ao entrar em ${channels[x]}.`);
+                joined++;
+            } catch (error) {
+                failed++;
+                if (error === 'msg_channel_suspended' || error?.message === 'msg_channel_suspended') {
+                    aCount();
+                    await sleep(300);
+                    removeChannel(channels[x]);
+                }
+            }
             batchCount++;
-            getText(totalCN, `🟢 Entrou: ${x + 1}/${channels.length - gCount()}`)
+            getText(totalCN, `🟢 Entrou: ${joined}/${channels.length - gCount()}`)
             if (batchCount === BATCH_SIZE && x < channels.length - 1) {
-                getText(totalCN, `🟡 Aguarde: ${x + 1}/${channels.length - gCount()}`)
+                getText(totalCN, `🟡 Aguarde: ${joined}/${channels.length - gCount()}`)
                 batchCount = 0;
                 await sleep(BATCH_DELAY_MS);
             }
@@ -98,8 +119,9 @@ async function joinChannels() {
             waitLogin(false);
         }
     }
-    ipcRenderer.send('sendChannelstoConsole', channels.length)
-    getText(totalCN, `🟣 Canais: ${channels.length - gCount()}`);
+    ipcRenderer.send('sendChannelstoConsole', joined)
+    getText(totalCN, failed ? `🟡 Canais: ${joined} (${failed} falharam)` : `🟣 Canais: ${joined}`);
+    if (joined === 0) throw new Error('Não foi possível entrar em nenhum canal.');
 
 }
 

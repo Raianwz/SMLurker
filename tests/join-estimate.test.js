@@ -57,6 +57,8 @@ test('join countdown catches up with elapsed time when the window regains focus'
         },
         setInterval: () => 1,
         clearInterval() {},
+        setTimeout,
+        clearTimeout,
         module: { exports: {} },
         require(id) {
             if (id === '../../internal/smcore') return { smcore: {
@@ -89,7 +91,7 @@ test('join countdown catches up with elapsed time when the window regains focus'
     assert.equal(element('#Mtimer').textContent, 'Tempo Estimado 🕘 00m 10s');
 
     const scheduledWaits = [];
-    for (let i = 0; i < 100 && !finished; i++) {
+    for (let i = 0; i < 1000 && !finished; i++) {
         if (waits.length) {
             const wait = waits.shift();
             scheduledWaits.push(wait.ms);
@@ -104,4 +106,44 @@ test('join countdown catches up with elapsed time when the window regains focus'
     assert.equal(focusListeners.has('focus'), false);
     assert.equal(documentListeners.has('visibilitychange'), false);
     assert.equal(element('#conection_box').attributes.has('disabled'), false);
+});
+
+test('a rejected join does not count as a connected channel', async () => {
+    const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/joinchannels.js'), 'utf8');
+    const elements = new Map();
+    const sent = [];
+    const element = (selector) => {
+        if (!elements.has(selector)) elements.set(selector, {
+            textContent: '', style: {}, setAttribute() {}, removeAttribute() {},
+        });
+        return elements.get(selector);
+    };
+    const context = {
+        module: { exports: {} },
+        document: { querySelector: element, addEventListener() {}, removeEventListener() {} },
+        window: { addEventListener() {}, removeEventListener() {} },
+        setInterval: () => 1,
+        clearInterval() {},
+        setTimeout,
+        clearTimeout,
+        require(id) {
+            if (id === '../../internal/smcore') return { smcore: {
+                tmi: { rds: async () => 'OPEN', join: async () => { throw new Error('join failed'); } },
+                lv: { get: () => 0, add() {} },
+            } };
+            if (id === '../../internal/appcore') return { appcore: {
+                tr: { changeside() {} },
+                channels: { path: () => 'channels.json', read: () => ['channel'] },
+                fs: { exist: () => true },
+            } };
+            if (id === 'electron') return { ipcRenderer: { send: (...args) => sent.push(args) } };
+            if (id === 'node:timers/promises') return { setTimeout: async () => {} };
+            if (id === './joinEstimate') return require('../src/components/twitch/joinEstimate');
+            throw new Error(`Unexpected module: ${id}`);
+        },
+    };
+    vm.runInNewContext(source, context);
+    await assert.rejects(context.module.exports.jc(), /Não foi possível entrar em nenhum canal/);
+    assert.equal(element('#cntotal').textContent, '🟡 Canais: 0 (1 falharam)');
+    assert.deepEqual(sent, [['sendChannelstoConsole', 0]]);
 });

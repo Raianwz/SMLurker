@@ -9,7 +9,7 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/smdata/co
 function profileHarness(initialProfile, fetchImpl) {
     let stored = initialProfile ? JSON.stringify(initialProfile) : null;
     let writes = 0;
-    const userBox = { innerHTML: '' };
+    const userBox = { replaceChildren(...children) { this.children = children; } };
     const username = { value: 'raianwz' };
     const appcore = {
         appr: { getPath: () => 'userData' },
@@ -37,7 +37,9 @@ function profileHarness(initialProfile, fetchImpl) {
         document: {
             getElementById: () => userBox,
             querySelector: () => username,
+            createElement: (tagName) => ({ tagName, style: {}, textContent: '' }),
         },
+        URL,
         fetch: fetchImpl,
     };
     vm.runInNewContext(source, context);
@@ -91,10 +93,23 @@ test('expired profile refreshes once for simultaneous callers and displays the n
     assert.equal(calls, 1);
     assert.equal(first.logo, 'https://example.com/new.png');
     assert.equal(second.displayName, 'New Name');
-    assert.match(harness.userBox.innerHTML, /new\.png/);
+    assert.match(harness.userBox.children[0].src, /new\.png/);
     assert.equal(harness.getWrites(), 1);
     await harness.createProfile();
     assert.equal(calls, 1);
+});
+
+test('remote profile fields are rendered as text and unsafe URLs or colors are rejected', async () => {
+    const harness = profileHarness({
+        ...profile(new Date().toISOString(), 'javascript:alert(1)'),
+        display_name: '<img src=x onerror=alert(1)>',
+        chatColor: 'red; background:url(javascript:alert(1))',
+    }, () => { throw new Error('Unexpected refresh'); });
+    const result = await harness.createProfile();
+    assert.equal(result.logo, 'https://i.imgur.com/pTyMFWw.gif');
+    assert.equal(result.userColor, '#9148FF');
+    assert.equal(harness.userBox.children[0].title, '<img src=x onerror=alert(1)>');
+    assert.equal(harness.userBox.children[1].textContent, 'Perfil de <img src=x onerror=alert(1)>');
 });
 
 test('failed refresh keeps a matching cached profile without updating its timestamp', async () => {
@@ -102,6 +117,18 @@ test('failed refresh keeps a matching cached profile without updating its timest
     const harness = profileHarness(old, async () => { throw new Error('offline'); });
     const result = await harness.createProfile();
     assert.equal(result.logo, old.profile_image_url);
+    assert.equal(harness.getStored().expire, old.expire);
+    assert.equal(harness.getWrites(), 0);
+});
+
+test('stale Dank API response is displayed without extending the local cache', async () => {
+    const old = profile(new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString());
+    const harness = profileHarness(old, async () => ({
+        ok: true,
+        json: async () => ({ ...old, profile_image_url: 'https://example.com/stale.png', stale: true }),
+    }));
+    const result = await harness.createProfile();
+    assert.equal(result.logo, 'https://example.com/stale.png');
     assert.equal(harness.getStored().expire, old.expire);
     assert.equal(harness.getWrites(), 0);
 });

@@ -55,14 +55,18 @@ async function consoleManager() {
         }
     })
 
-    appcore.sc.tmi.on('subgift', async (channel, username, recipient, userstate) => {
-        if (userstate.includes(userName) || userstate.includes(userDisplayName)) {
-            checkNotifySub(channel, username, userstate)
+    appcore.sc.tmi.on('subgift', (channel, username, streakMonths, recipient, methods, userstate) => {
+        const recipientLogin = userstate?.['msg-param-recipient-user-name'];
+        const matchesUser = [recipientLogin, recipient].some((name) =>
+            typeof name === 'string' &&
+            [userName, userDisplayName].some((ownName) => name.toLowerCase() === ownName.toLowerCase()));
+        if (matchesUser) {
+            checkNotifySub(channel, username, recipient)
         }
         if (localStorage.getItem('showGifts') === 'true') {
             let time = new Date();
-            ipcRenderer.send('sendtoConsole', `\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: 🎁 @${username} presentou  @${userstate} em ${channel}`)
-            console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${userstate} em ${channel}`);
+            ipcRenderer.send('sendtoConsole', `\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: 🎁 @${username} presentou  @${recipient} em ${channel}`)
+            console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${recipient} em ${channel}`);
         }
     })
 

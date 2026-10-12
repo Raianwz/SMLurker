@@ -100,6 +100,7 @@ async function loadProfile(username, profilePath) {
         if (matchingCache?.chatColor && matchingCache.chatColor !== '#9148FF') {
             updated.chatColor = matchingCache.chatColor;
         }
+        if (updated.stale === true) return updated;
         updated.expire = new Date().toISOString();
         appcore.fs.write(profilePath, JSON.stringify(updated));
         return updated;
@@ -127,17 +128,38 @@ async function getUserProfile(username) {
 }
 
 //Criando Profile data
+function safeProfileImageUrl(value) {
+    try {
+        const url = new URL(value);
+        return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password
+            ? url.href : 'https://i.imgur.com/pTyMFWw.gif';
+    } catch {
+        return 'https://i.imgur.com/pTyMFWw.gif';
+    }
+}
+
+function renderProfile(displayName, logo, userColor) {
+    const avatar = document.createElement('img');
+    avatar.className = 'avatar';
+    avatar.title = displayName;
+    avatar.alt = displayName;
+    avatar.src = logo;
+    avatar.style.color = userColor;
+    const tooltip = document.createElement('p');
+    tooltip.className = 'mb-tooltip';
+    tooltip.textContent = `Perfil de ${displayName}`;
+    document.getElementById('user_box').replaceChildren(avatar, tooltip);
+}
+
 async function createProfile() {
-    const btnuser = (e) => document.getElementById('user_box').innerHTML = `${e}`;
     const username = document.querySelector('#username').value.toString();
-    btnuser(`<img class="avatar" style='color:#618e54' src="https://i.imgur.com/pTyMFWw.gif" alt="Chatting"><p class="mb-tooltip">Perfil</p>`)
+    renderProfile('Chatting', 'https://i.imgur.com/pTyMFWw.gif', '#618e54');
 
     const profileData = await getUserProfile(username);
-    let logo = profileData != null ? profileData.profile_image_url : 'https://i.imgur.com/pTyMFWw.gif';
+    let logo = safeProfileImageUrl(profileData?.profile_image_url);
     let displayName = profileData != null ? profileData.display_name : username.toLowerCase();
-    let userColor = profileData != null ? profileData.chatColor : '#9148FF';
-    btnuser("");
-    btnuser(`<img title="${displayName}" class="avatar" style='color:${userColor}' src="${logo}" alt="${displayName}"><p class="mb-tooltip">Perfil de ${displayName}</p>`)
+    let userColor = /^#[0-9a-fA-F]{6}$/.test(profileData?.chatColor) ? profileData.chatColor : '#9148FF';
+    renderProfile(displayName, logo, userColor);
     return { displayName, logo, userColor };
 }
 

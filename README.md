@@ -36,6 +36,10 @@ A sessão Web é restaurada após reiniciar ou recarregar o aplicativo enquanto 
 
 O que já foi entregue e os próximos passos estão no [roadmap do Electron](ROADMAP.md).
 
+## Perfil público
+
+O SMLurker consulta primeiro `https://dank.rwz.app` e usa `https://dank-api.vercel.app` como endereço reserva da Dank API. Se ambos falharem ou devolverem um perfil incompleto, `https://apichatwz.vercel.app` é o último recurso para o perfil. A URL preferida da Dank API pode ser trocada por `SMLURKER_DANK_API_URL`. Se a Dank API limitar consultas com `429`, o aplicativo pula seu endereço reserva e ainda tenta a API legada. O cache local de 24 horas continua em uso; uma resposta marcada `stale` pela Dank API é exibida sem renovar esse prazo.
+
 ## Executando o projeto
 
 Você precisa ter [Node.js](https://nodejs.org/) e npm instalados.

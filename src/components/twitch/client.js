@@ -276,7 +276,6 @@ api.auth.onWebLoginResult(async (result) => {
 
 async function sairTwitch() {
     await tmi.dc()
-    updateTrayStatus('disconnected')
     const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
     const btnConnectChannels = document.getElementById('btnConnectChannels');
@@ -290,6 +289,7 @@ async function sairTwitch() {
     }, 200)
 
     client = null;
+    updateTrayStatus('disconnected')
     btnEntrar.blur();
     resetLoginButton();
     btnConnectChannels.value = 'Entrar nos canais';

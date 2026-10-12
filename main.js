@@ -17,6 +17,14 @@ let mainWindow;
 let updateChecks;
 let queuedWebLoginResult = null;
 let forceShowLogin = false;
+let ircConnectionStatus = 'disconnected';
+ipcMain.on('tray:connection-status', (event, status) => {
+    if (event.sender === mainWindow?.webContents &&
+        ['disconnected', 'connecting', 'reconnecting', 'connected'].includes(status)) {
+        ircConnectionStatus = status;
+    }
+});
+const ircIsActive = () => ircConnectionStatus !== 'disconnected';
 const initialWebLoginUrl = callbackFromArgs(process.argv);
 const webSession = createWebSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage });
 const webLogin = createWebLogin({
@@ -24,6 +32,11 @@ const webLogin = createWebLogin({
     openExternal: (url) => shell.openExternal(url),
     onResult: (result) => {
         if (result.type === 'success') {
+            if (ircIsActive()) {
+                queuedWebLoginResult = { type: 'error', message: 'Desconecte-se dos canais antes de trocar de conta.' };
+                flushWebLoginResult();
+                return;
+            }
             forceShowLogin = false;
             let remembered = false;
             try {
@@ -78,6 +91,7 @@ if (process.defaultApp && process.argv.length >= 2) {
 }
 
 ipcMain.handle('web-login:start', async () => {
+    if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de trocar de conta.' };
     try {
         await webLogin.start();
         return { ok: true };

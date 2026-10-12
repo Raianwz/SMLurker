@@ -32,7 +32,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 ## Evolução técnica
 
 - [ ] Consultar o perfil diretamente na Twitch quando houver credenciais válidas, mantendo o cache atual.
-- [ ] Integrar a Dank API como fallback de perfil quando o endpoint estiver pronto; até lá, preservar as fontes remotas atuais.
+- [x] Usar a Dank API como fonte principal de perfil, com endereço reserva e a API legada Vercel como último fallback.
 - [ ] Avaliar importação da lista de canais do SMLurker Web para o Electron e envio da lista do Electron para o Web, com deduplicação e confirmação antes de substituir dados.
 - [ ] Planejar renovação do token Web com o projeto Web; hoje a sessão precisa de novo login quando o token expira.
 - [ ] Migrar as credenciais legadas em texto puro para armazenamento protegido, sem quebrar usuários atuais.
