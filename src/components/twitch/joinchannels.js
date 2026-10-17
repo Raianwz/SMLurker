@@ -24,8 +24,12 @@ function waitLogin(valor) {
 
     if (valor === true) {
         connectionBox.setAttribute('disabled', true);
+        connectionBox.setAttribute('aria-disabled', 'true');
+        connectionBox.tabIndex = -1;
     } else {
         connectionBox.removeAttribute('disabled');
+        connectionBox.setAttribute('aria-disabled', 'false');
+        connectionBox.tabIndex = 0;
     }
 
     getEl('#Mtimer').style.display = valor === true ? 'flex' : 'none';

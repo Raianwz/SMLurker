@@ -8,6 +8,7 @@ function BlockLogin(valor) {
         '.channelsManager button.remove',
         '.channelsManager button.channel-list-remove',
         '.channelsManager #channelRemoveConfirm',
+        '.channelsManager #channelUndoButton',
         '.channelsManager button[name="loadChannelsFromFile"]',
     ];
     for (const selector of items) {

@@ -59,24 +59,24 @@
             </div>
         </header>
         <div class="main">
-            <div class="menu-bar">
-                <section id="gearConfig" class="material-icons" title="Configurações">settings <p class="mb-tooltip">Configurações</p></section>
-                <section id="login_box" class="material-icons selected">account_circle <p class="mb-tooltip">Login</p>
+            <div class="menu-bar" role="navigation" aria-label="Navegação principal">
+                <section id="gearConfig" class="material-icons" role="button" tabindex="0" aria-label="Abrir configurações">settings <p class="mb-tooltip">Abrir configurações</p></section>
+                <section id="login_box" class="material-icons selected" role="button" tabindex="0" aria-label="Login">account_circle <p class="mb-tooltip">Login</p>
                 </section>
-                <section id="user_box" class="material-icons none">account_circle<p class="mb-tooltip">Perfil</p>
+                <section id="user_box" class="material-icons none" role="button" tabindex="0" aria-label="Perfil">account_circle<p class="mb-tooltip">Perfil</p>
                 </section>
-                <section id="channels_box" class="material-icons">description<p class="mb-tooltip">Gerenciar Canais</p>
+                <section id="channels_box" class="material-icons" role="button" tabindex="0" aria-label="Gerenciar canais">description<p class="mb-tooltip">Gerenciar canais</p>
                 </section>
-                <section id="conection_box" class="material-icons none" disabled>link<p class="mb-tooltip">Conexão de Canais
+                <section id="conection_box" class="material-icons none" role="button" tabindex="-1" aria-label="Conexão rápida de canais" aria-disabled="true" disabled>link<p class="mb-tooltip">Conexão rápida de canais
                 </p>
             </section>
-            <section id="console_open" class="material-icons none">speaker_notes<p class="mb-tooltip">Painel
+            <section id="console_open" class="material-icons none" role="button" tabindex="0" aria-label="Abrir painel de eventos">speaker_notes<p class="mb-tooltip">Painel
                 de Eventos</p>
             </section>
-            <section id="app_exit" class="material-icons none" onclick="sairTwitch()">exit_to_app<p
-                class="mb-tooltip">Desconectar</p>
+            <section id="app_exit" class="material-icons none" role="button" tabindex="0" aria-label="Desconectar da Twitch" onclick="sairTwitch()">exit_to_app<p
+                class="mb-tooltip">Desconectar da Twitch</p>
             </section>
-            <section id="refresh" class="material-icons" title="Recarregar">refresh <p class="mb-tooltip">Recarregar</p></section>
+            <section id="refresh" class="material-icons" role="button" tabindex="0" aria-label="Abrir menu de recarga">refresh <p class="mb-tooltip">Recarregar ou reiniciar</p></section>
         </div>
             <div class="vlinep"></div>
             <div class="loginBox actived">
@@ -105,8 +105,8 @@
                     <div class="web-ready-header">
                         <span class="login-eyebrow">CONTA CONECTADA</span>
                         <div class="web-account-actions" aria-label="Ações da conta">
-                            <button type="button" aria-label="Trocar conta" data-tooltip="Trocar conta" onclick="iniciarLoginWeb()"><span class="material-icons" aria-hidden="true">swap_horiz</span></button>
-                            <button type="button" aria-label="Sair da conta" data-tooltip="Sair da conta" onclick="sairDaContaWeb()"><span class="material-icons" aria-hidden="true">exit_to_app</span></button>
+                            <button type="button" aria-label="Entrar com outra conta Twitch" data-tooltip="Trocar conta Twitch" onclick="iniciarLoginWeb()"><span class="material-icons" aria-hidden="true">swap_horiz</span></button>
+                            <button type="button" aria-label="Sair da conta Twitch" data-tooltip="Sair da conta Twitch" onclick="sairDaContaWeb()"><span class="material-icons" aria-hidden="true">exit_to_app</span></button>
                         </div>
                     </div>
                     <h2 id="webAccount"></h2>
@@ -127,6 +127,10 @@
                             <h2 id="channelManagerTitle">Gerenciar canais</h2>
                         </div>
                         <button id="toggleChannelList" class="channel-list-toggle" type="button" aria-controls="channelListView" aria-expanded="false">Ver lista</button>
+                    </div>
+                    <div id="channelUndoNotice" class="channel-undo-notice" hidden>
+                        <span id="channelUndoText" role="status" aria-live="polite"></span>
+                        <button id="channelUndoButton" type="button" aria-label="Desfazer a última remoção de canal">Desfazer</button>
                     </div>
                     <div id="channelManagerEditor" class="channel-manager-editor">
                         <p class="channel-manager-description">Adicione ou remova canais. Separe vários nomes por vírgula.</p>
@@ -186,8 +190,8 @@
                             <span id="cntotal">&#x1F7E3 Canais: 0</span>
                             <div style="min-height: 10px; height: 10px;">
                                 <div id="volBox">
-                                    <span class="sgSom material-icons"title="Testar Som de SubGift">volume_up</span>
-                                    <input id="volBar" type="range" min="1" max="100" value="30">
+                                    <span class="sgSom material-icons" role="button" tabindex="0" aria-label="Testar som de SubGift" title="Testar som de SubGift">volume_up</span>
+                                    <input id="volBar" type="range" min="1" max="100" value="30" aria-label="Volume do som de SubGift">
                                     <p id="volTxt">100</p>
                                 </div>
                             </div>
@@ -208,7 +212,7 @@
                             <span class="quick-eyebrow">CONEXÃO RÁPIDA</span>
                             <h2>Conexão de Canais</h2>
                         </div>
-                        <button id="jc_Help" class="quick-help" type="button" aria-label="Como funciona a conexão rápida" title="Como funciona">
+                        <button id="jc_Help" class="quick-help" type="button" aria-label="Como funciona a conexão rápida" title="Como funciona a conexão rápida">
                             <span class="material-icons-outlined" aria-hidden="true">info</span>
                         </button>
                     </div>

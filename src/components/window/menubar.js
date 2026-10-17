@@ -23,10 +23,17 @@ function windowMenuBar(app) {
             }
           }
   
-          mSec('login_box').addEventListener('click', (e) => sectionHandle(e.target.id,'.loginBox'));
-          mSec('channels_box').addEventListener('click', (e) => sectionHandle(e.target.id,'.channelsManager'));;
-          mSec('user_box').addEventListener('click', (e) => sectionHandle(e.target.id,'.UserWrapper'));;
-          mSec('conection_box').addEventListener('click', (e) => sectionHandle(e.target.id,'.JoinLeave'));;
+          mSec('login_box').addEventListener('click', () => sectionHandle('login_box','.loginBox'));
+          mSec('channels_box').addEventListener('click', () => sectionHandle('channels_box','.channelsManager'));
+          mSec('user_box').addEventListener('click', () => sectionHandle('user_box','.UserWrapper'));
+          mSec('conection_box').addEventListener('click', () => sectionHandle('conection_box','.JoinLeave'));
+          document.querySelectorAll('.menu-bar > section[role="button"]').forEach((item) => {
+            item.addEventListener('keydown', (event) => {
+              if (item.hasAttribute('disabled') || !['Enter', ' '].includes(event.key)) return;
+              event.preventDefault();
+              item.click();
+            });
+          });
           `;
 
     }

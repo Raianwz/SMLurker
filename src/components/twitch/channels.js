@@ -8,7 +8,37 @@ let viewingChannelList = false;
 let savedChannelList = [];
 let channelListReadError = false;
 let pendingChannelRemoval = null;
+let lastRemovedChannels = [];
 btnsListener()
+
+function rememberChannelRemoval(channels) {
+    lastRemovedChannels = channels;
+    const notice = getEl('#channelUndoNotice');
+    getEl('#channelUndoText').textContent = channels.length === 1
+        ? `${channels[0]} removido da lista.`
+        : `${channels.length} canais removidos da lista.`;
+    notice.hidden = false;
+}
+
+async function undoChannelRemoval() {
+    if (!lastRemovedChannels.length || newChannelInput.disabled) return;
+    const channels = lastRemovedChannels;
+    const button = getEl('#channelUndoButton');
+    button.disabled = true;
+    try {
+        await api.channels.add(channels);
+        lastRemovedChannels = [];
+        getEl('#channelUndoNotice').hidden = true;
+        await refreshChannelList();
+        clearMissingChannelsWarning();
+        Clog(channels.length === 1 ? `${channels[0]} restaurado à lista.` : `${channels.length} canais restaurados à lista.`);
+        getEl(viewingChannelList ? '#channelListSearch' : '#txtCanal').focus();
+    } catch {
+        Clog('Não foi possível desfazer a remoção. Tente novamente.');
+    } finally {
+        button.disabled = false;
+    }
+}
 
 function clearMissingChannelsWarning() {
     const warning = document.getElementById('classicLoginError');
@@ -93,12 +123,15 @@ async function confirmChannelRemoval() {
 
     try {
         const result = await api.channels.remove([channel]);
-        if (result.removed) Clog(`${channel} removido da lista.`);
+        if (result.removed) {
+            rememberChannelRemoval([channel]);
+            Clog(`${channel} removido da lista.`);
+        }
         await refreshChannelList();
     } catch {
         Clog('Não foi possível remover o canal.');
     }
-    getEl('#channelListSearch').focus();
+    getEl(lastRemovedChannels.length ? '#channelUndoButton' : '#channelListSearch').focus();
 }
 
 
@@ -137,6 +170,7 @@ function btnsListener() {
     getEl('#channelListSearch').addEventListener('input', renderChannelList)
     getEl('#channelRemoveCancel').addEventListener('click', () => getEl('#channelRemoveDialog').close())
     getEl('#channelRemoveConfirm').addEventListener('click', confirmChannelRemoval)
+    getEl('#channelUndoButton').addEventListener('click', undoChannelRemoval)
     getEl('#channelRemoveDialog').addEventListener('close', () => { pendingChannelRemoval = null; })
     getEl('#username').addEventListener('keypress', e => preventSymbols(e))
     getEl('#txtConexaoCanal').addEventListener('keypress', e => { preventSymbols(e) })
@@ -204,6 +238,8 @@ async function loadChannelsFromFile() {
             return;
         }
         await refreshChannelList();
+        lastRemovedChannels = [];
+        getEl('#channelUndoNotice').hidden = true;
         if (channels.length > 0) clearMissingChannelsWarning();
         Clog('🟢Arquivo adicionado!');
         dialogOpen = false;
@@ -277,6 +313,8 @@ async function clearChannelList() {
     try {
         await api.channels.replace([]);
         await refreshChannelList();
+        lastRemovedChannels = [];
+        getEl('#channelUndoNotice').hidden = true;
     } catch {
         Clog('Não foi possível limpar a lista de canais.');
         return;
@@ -320,11 +358,14 @@ async function removeChannel() {
     }
     channels = fixChannels(channels.replace(/ /g, '').split(','));
     try {
+        const current = await api.channels.list();
         const result = await api.channels.remove(channels);
         if (result.removed) {
+            rememberChannelRemoval(current.filter(channel => channels.includes(channel)));
             await refreshChannelList();
             Clog('❎Removido com Sucesso!')
-            api.cr.helpers.sleep('2750').then(() => clearInputs())
+            newChannelInput.value = '';
+            getEl('#channelUndoButton').focus();
         } else {
             newChannelInput.classList.add('warn')
             Clog('🫤Canal não encontrado!');

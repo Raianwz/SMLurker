@@ -1315,7 +1315,12 @@ div[name="version"]:hover img {
 
 .quick-input:focus-within {
     border-color: #a970ff;
-    box-shadow: 0 0 0 3px #9146ff30;
+    box-shadow: 0 0 0 2px #9146ff26;
+}
+
+.quick-input #txtConexaoCanal:focus-visible,
+.channel-manager-input #txtCanal:focus-visible {
+    outline: none !important;
 }
 
 #txtConexaoCanal,
@@ -1509,7 +1514,8 @@ div[name="version"]:hover img {
     background-color: var(--red);
 }
 
-div.menu-bar section:hover>.mb-tooltip {
+div.menu-bar section:hover>.mb-tooltip,
+div.menu-bar section:focus-visible>.mb-tooltip {
     transform: translateX(46px);
     display: block;
     margin-top: -30px;
@@ -1517,7 +1523,8 @@ div.menu-bar section:hover>.mb-tooltip {
     z-index: 1;
 }
 
-section#user_box:hover>.mb-tooltip {
+section#user_box:hover>.mb-tooltip,
+section#user_box:focus-visible>.mb-tooltip {
     width: fit-content;
     white-space: pre-wrap;
     max-width: 200px;
@@ -1651,7 +1658,7 @@ div.channelsManager:not(.none) {
 
 .channel-manager-input:focus-within {
     border-color: #a970ff;
-    box-shadow: 0 0 0 3px #9146ff30;
+    box-shadow: 0 0 0 2px #9146ff26;
 }
 
 .channel-manager-input:has(#txtCanal.warn) {
@@ -1790,6 +1797,36 @@ div.channelsManager:not(.none) {
 .channelsManager button:focus-visible {
     outline: 2px solid #d8e9ff;
     outline-offset: 2px;
+}
+
+.channel-undo-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    color: #d8e9ff;
+    background: #173b5d;
+    border: 1px solid #50708d;
+    border-radius: 9px;
+    font-size: 11px;
+}
+
+.channel-undo-notice[hidden] {
+    display: none;
+}
+
+.channelsManager .channel-undo-notice button {
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 4px 9px;
+    color: #fff;
+    background: #6640a0;
+    border: 1px solid #a970ff;
+}
+
+.channelsManager .channel-undo-notice button:hover {
+    background: #7b4fbc;
 }
 
 .channel-manager-heading {

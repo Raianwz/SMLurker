@@ -9,7 +9,10 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/smdata/co
 function profileHarness(initialProfile, fetchImpl) {
     let stored = initialProfile ? JSON.stringify(initialProfile) : null;
     let writes = 0;
-    const userBox = { replaceChildren(...children) { this.children = children; } };
+    const userBox = {
+        setAttribute(name, value) { this[name] = value; },
+        replaceChildren(...children) { this.children = children; },
+    };
     const username = { value: 'raianwz' };
     const appcore = {
         appr: { getPath: () => 'userData' },
@@ -66,6 +69,7 @@ test('fresh profile cache serves the new login without another API call', async 
     const harness = profileHarness(profile(new Date().toISOString()), () => { calls++; });
     const result = await harness.createProfile();
     assert.equal(result.logo, 'https://example.com/old.png');
+    assert.equal(harness.userBox['aria-label'], 'Perfil de Old Name');
     assert.equal(calls, 0);
     assert.equal(harness.getWrites(), 0);
 });

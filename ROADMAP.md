@@ -28,8 +28,8 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 
 - [ ] Mostrar estados mais claros de conexão: verificando sessão, conectando, canais conectados e erro, com opção de tentar novamente.
 - [ ] Avaliar mover **Sair da conta** da tela de login para o menu do perfil e oferecer uma ação separada e confirmada para esquecer o OAuth legado.
-- [ ] Melhorar navegação por teclado, foco visível e textos dos tooltips em todas as telas.
-- [ ] Oferecer desfazer a última remoção de canal durante a sessão.
+- [x] Melhorar navegação por teclado, foco visível e textos dos tooltips em todas as telas.
+- [x] Oferecer desfazer a última remoção de canal durante a sessão.
 - [ ] Evitar registrar novamente os mesmos listeners da interface a cada reconexão.
 - [ ] Mostrar o estado de espera pela abertura do IRC em `joinchannels.js` enquanto a conexão ainda não está pronta.
 - [ ] Testar manualmente login, Ctrl+R, reconexão, expiração de token e notificações no Windows instalado e portátil.

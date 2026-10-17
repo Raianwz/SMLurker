@@ -164,6 +164,33 @@ test('removing a channel from the list requires confirmation', async () => {
     assert.equal(element('#channelListSummary').textContent, '1 canal salvo');
 });
 
+test('undo restores the last removed channel and hides the action', async () => {
+    const { element, saved } = createChannelManager();
+    element('#txtCanal').value = 'raianwz,felps';
+    await element('button[name="addCanal"]').handlers.click();
+    element('#toggleChannelList').handlers.click();
+    await new Promise(setImmediate);
+    element('#channelListItems').children[0].children[1].handlers.click();
+    await element('#channelRemoveConfirm').handlers.click();
+
+    assert.equal(element('#channelUndoNotice').hidden, false);
+    assert.match(element('#channelUndoText').textContent, /removido da lista/);
+    await element('#channelUndoButton').handlers.click();
+    assert.deepEqual(JSON.parse(saved.at(-1)).sort(), ['#felps', '#raianwz']);
+    assert.equal(element('#channelUndoNotice').hidden, true);
+});
+
+test('undo restores only channels removed by the latest removal', async () => {
+    const { element, saved } = createChannelManager();
+    element('#txtCanal').value = 'raianwz,felps,patopapao';
+    await element('button[name="addCanal"]').handlers.click();
+    element('#txtCanal').value = 'raianwz,felps';
+    await element('button[name="removerCanal"]').handlers.click();
+    assert.deepEqual(JSON.parse(saved.at(-1)), ['#patopapao']);
+    await element('#channelUndoButton').handlers.click();
+    assert.deepEqual(JSON.parse(saved.at(-1)).sort(), ['#felps', '#patopapao', '#raianwz']);
+});
+
 test('channel editing is disabled while connecting, while export and clear remain available', () => {
     const source = fs.readFileSync(path.join(__dirname, '../src/components/window/transitions.js'), 'utf8');
     const inputs = [{ disabled: false }, { disabled: false }, { disabled: false }];

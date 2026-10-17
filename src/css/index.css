@@ -75,6 +75,15 @@ textarea,
     outline: none;
 }
 
+:where(button, input, select, textarea, a, [role="button"]):focus-visible {
+    outline: 2px solid #b884ff !important;
+    outline-offset: 2px !important;
+}
+
+[data-appearance="classic"] :where(button, input, select, textarea, a, [role="button"]):focus-visible {
+    outline-color: #65b8ff !important;
+}
+
 :disabled(input):disabled(textarea) {
     -webkit-user-select: none;
     user-select: none;

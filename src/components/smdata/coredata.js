@@ -148,7 +148,9 @@ function renderProfile(displayName, logo, userColor) {
     const tooltip = document.createElement('p');
     tooltip.className = 'mb-tooltip';
     tooltip.textContent = `Perfil de ${displayName}`;
-    document.getElementById('user_box').replaceChildren(avatar, tooltip);
+    const profileButton = document.getElementById('user_box');
+    profileButton.setAttribute('aria-label', tooltip.textContent);
+    profileButton.replaceChildren(avatar, tooltip);
 }
 
 async function createProfile(accessToken) {

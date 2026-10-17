@@ -212,6 +212,12 @@
     box-shadow: inset 3px 0 var(--classic-purple);
 }
 
+[data-appearance="classic"] .channel-undo-notice {
+    color: var(--classic-text);
+    background: var(--classic-profile-panel);
+    border-color: var(--classic-divider);
+}
+
 [data-appearance="classic"] .UserWrapper {
     background: var(--classic-profile-panel);
 }

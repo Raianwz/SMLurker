@@ -27,7 +27,8 @@ async function consoleManager() {
     volBar.addEventListener('click', changeBar);
     volBar.click()
 
-    getEl('span.sgSom').addEventListener('click', () => {
+    const testSound = getEl('span.sgSom');
+    testSound.addEventListener('click', () => {
         if (localStorage.getItem('volume') !== null) {
             if (localStorage.getItem('volume') < 10) audio.volume = `0.0${localStorage.getItem('volume')}`
             else if (localStorage.getItem('volume') >= 10 && localStorage.getItem('volume') < 100) audio.volume = `0.${localStorage.getItem('volume')}`
@@ -35,6 +36,11 @@ async function consoleManager() {
         }
         audio.play()
     })
+    testSound.addEventListener('keydown', (event) => {
+        if (!['Enter', ' '].includes(event.key)) return;
+        event.preventDefault();
+        testSound.click();
+    });
 
     getEl('button[name=jc_clean]').addEventListener('click', jcConsoleReset)
 
