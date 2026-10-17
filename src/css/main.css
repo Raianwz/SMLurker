@@ -659,20 +659,175 @@ a span:hover::after {
 
 /* Msg Status & Barra de Count de Canais */
 #msgStatus {
+    position: relative;
     width: min(100%, 370px);
     margin: 0;
-    padding: 10px 12px;
-    color: #d5e7f7;
+    padding: 12px 14px 12px 34px;
+    color: #e6f2ff;
     background: #0c2743;
     border: 1px solid #3d6b91;
+    border-left: 4px solid #a970ff;
     border-radius: 10px;
-    font-weight: normal;
-    font-size: 12px;
+    box-shadow: 0 8px 22px #030b1740;
+    font-weight: bold;
+    font-size: 13px;
     line-height: 1.4;
     overflow-wrap: anywhere;
 }
 
+#msgStatus::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    width: 9px;
+    height: 9px;
+    background: #b884ff;
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
 #msgStatus:empty {
+    display: none;
+}
+
+#msgStatus[data-state="checking"],
+#msgStatus[data-state="connecting"],
+#msgStatus[data-state="joining"] {
+    border-color: #4d7ca6;
+    border-left-color: #a970ff;
+}
+
+#msgStatus[data-state="connected"] {
+    color: #c9f5dd;
+    background: #123b30;
+    border-color: #398967;
+    border-left-color: #58cb8e;
+}
+
+#msgStatus[data-state="connected"]::before {
+    background: #58cb8e;
+}
+
+#msgStatus[data-state="error"] {
+    color: #ffe3df;
+    background: #43232b;
+    border-color: #b85963;
+    border-left-color: #ff858a;
+}
+
+#msgStatus[data-state="error"]::before {
+    background: #ff858a;
+}
+
+.loginBox .retry-connection {
+    align-self: flex-start;
+    min-height: 32px;
+    padding: 5px 11px;
+    color: #fff;
+    background: #176caa;
+    border: 1px solid #56a0d7;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.loginBox .retry-connection:hover {
+    background: #2385c7;
+}
+
+.loginBox .retry-connection[hidden] {
+    display: none;
+}
+
+.connection-summary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.connected-status {
+    width: fit-content;
+    max-width: calc(100% - 24px);
+    margin: 12px auto 0;
+    padding: 5px 10px;
+    color: #c9f5dd;
+    background: #123b30;
+    border: 1px solid #398967;
+    border-radius: 20px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.connected-status[data-state="connected"] {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 0;
+    color: #a9bfd7;
+    background: transparent;
+    border: 0;
+    font-size: 12px;
+}
+
+.connected-status[data-state="connected"]::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    background: #52b982;
+    border-radius: 50%;
+}
+
+.connected-status[data-state="reconnecting"] {
+    color: #ffe7ad;
+    background: #46351e;
+    border-color: #a67b30;
+}
+
+.connected-status:empty {
+    display: none;
+}
+
+.connection-summary .connected-status,
+.live-status {
+    margin: 10px 0 0;
+}
+
+.UserWrapper .connection-summary span#cntotal {
+    margin: 10px 0 0;
+    width: auto;
+    color: #a9bfd7;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.live-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #a9bfd7;
+    font-size: 12px;
+}
+
+.live-status::before {
+    content: '';
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    background: #f15b67;
+    border-radius: 50%;
+}
+
+.live-status[data-state="checking"]::before,
+.live-status[data-state="unknown"]::before {
+    background: #8096ad;
+}
+
+.live-status[hidden] {
     display: none;
 }
 

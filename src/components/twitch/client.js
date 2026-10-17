@@ -13,6 +13,80 @@ let webCredentials = null;
 let autoConnectEnabled = false;
 let useLegacyLogin = false;
 let appActionInProgress = false;
+let retryAction = null;
+let liveStatusTimer = null;
+let liveStatusChangeTimer = null;
+let liveStatusRun = 0;
+const LIVE_STATUS_REFRESH_MS = 2 * 60 * 1000;
+
+function stopLiveStatus() {
+    liveStatusRun++;
+    clearTimeout(liveStatusTimer);
+    clearTimeout(liveStatusChangeTimer);
+    liveStatusTimer = null;
+    liveStatusChangeTimer = null;
+    const status = document.getElementById('liveStatus');
+    status.hidden = true;
+    status.textContent = '';
+    status.title = '';
+}
+
+async function refreshLiveStatus(run) {
+    if (run !== liveStatusRun || !client) return;
+    const status = document.getElementById('liveStatus');
+    const logins = typeof client.getChannels === 'function'
+        ? client.getChannels().map((channel) => channel.replace(/^#/, '')).filter(Boolean)
+        : [];
+    status.hidden = false;
+    status.dataset.state = 'checking';
+    status.textContent = 'Ao vivo: verificando...';
+    status.title = '';
+    try {
+        const channels = await api.streams.status(logins);
+        if (run !== liveStatusRun) return;
+        const confirmed = channels.filter((channel) => !channel.stale);
+        const live = confirmed.filter((channel) => channel.is_live === true);
+        const unknown = channels.length - confirmed.filter((channel) => typeof channel.is_live === 'boolean').length;
+        status.dataset.state = unknown === channels.length && channels.length ? 'unknown' : 'ready';
+        status.textContent = unknown === channels.length && channels.length
+            ? 'Ao vivo: indisponível'
+            : `Ao vivo: ${live.length}${unknown ? '+' : ''}`;
+        status.title = unknown
+            ? `${unknown} ${unknown === 1 ? 'canal sem confirmação atual' : 'canais sem confirmação atual'}.`
+            : live.length ? `Ao vivo: ${live.map((channel) => channel.login).join(', ')}` : 'Nenhum canal conectado está ao vivo.';
+    } catch {
+        if (run !== liveStatusRun) return;
+        status.dataset.state = 'unknown';
+        status.textContent = 'Ao vivo: indisponível';
+        status.title = 'Não foi possível consultar os canais ao vivo.';
+    } finally {
+        if (run === liveStatusRun) {
+            liveStatusTimer = setTimeout(() => void refreshLiveStatus(run), LIVE_STATUS_REFRESH_MS);
+        }
+    }
+}
+
+function startLiveStatus() {
+    stopLiveStatus();
+    if (typeof api.streams?.status !== 'function') return;
+    void refreshLiveStatus(liveStatusRun);
+}
+
+function queueLiveStatusRefresh() {
+    clearTimeout(liveStatusChangeTimer);
+    liveStatusChangeTimer = setTimeout(() => {
+        liveStatusChangeTimer = null;
+        if (client) startLiveStatus();
+    }, 2000);
+}
+
+document.getElementById('retryConnection').addEventListener('click', () => {
+    if (!retryAction || client) return;
+    const action = retryAction;
+    retryAction = null;
+    document.getElementById('retryConnection').hidden = true;
+    void action();
+});
 
 async function disconnectForAppAction() {
     if (!client) return;
@@ -25,6 +99,7 @@ async function disconnectForAppAction() {
     } finally {
         clearTimeout(timeout);
         client = null;
+        stopLiveStatus();
         updateTrayStatus('disconnected');
     }
 }
@@ -92,10 +167,12 @@ function renderLoginMode() {
     if (webCredentials) document.getElementById('webAccount').textContent = `Twitch: @${webCredentials.username}`;
 }
 
-showLoginStatus('Verificando sessão salva...');
-Promise.allSettled([loadUserData(), api.auth.restoreWebLogin()]).then(([legacy, saved]) => {
+async function restoreLoginState() {
+    setConnectionStatus('checking', 'Verificando sessão salva...');
+    const [legacy, saved] = await Promise.allSettled([loadUserData(), api.auth.restoreWebLogin()]);
     legacyAvailable = legacy.status === 'fulfilled' && legacy.value.hasCredentials;
     autoConnectEnabled = legacy.status === 'fulfilled' && legacy.value.autoConnect === true;
+    if (client) return;
     if (webCredentials) {
         if (autoConnectEnabled) void conectarCanaisWeb();
         return;
@@ -106,22 +183,44 @@ Promise.allSettled([loadUserData(), api.auth.restoreWebLogin()]).then(([legacy, 
         if (autoConnectEnabled) void conectarCanaisWeb();
     } else {
         renderLoginMode();
-        if (legacyAvailable && autoConnectEnabled && !restored.requiresLogin) entrarTwitch();
+        if (legacyAvailable && autoConnectEnabled && !restored.requiresLogin) {
+            void entrarTwitch();
+            return;
+        }
         if (restored.type === 'error') {
-            showLoginStatus(legacyAvailable && restored.requiresLogin
+            setConnectionStatus('error', legacyAvailable && restored.requiresLogin
                 ? 'A sessão do login Web não está mais válida. Para usar o OAuth salvo, clique em Entrar.'
-                : restored.message);
-        } else if (legacy.status === 'rejected') showLoginStatus('Não foi possível carregar as credenciais salvas. Entre com a Twitch.');
+                : restored.message, { retry: restored.requiresLogin ? iniciarLoginWeb : restoreLoginState });
+        } else if (legacy.status === 'rejected') {
+            setConnectionStatus('error', 'Não foi possível carregar as credenciais salvas. Entre com a Twitch.', { retry: restoreLoginState });
+        }
         else if (!legacyAvailable || !autoConnectEnabled) showLoginStatus('');
     }
-});
+}
 
-function showLoginStatus(message, inlineMissingChannels = false) {
+void restoreLoginState();
+
+function setConnectionStatus(state, message, { retry = null, inlineMissingChannels = false } = {}) {
     const text = String(message);
     const classicError = document.getElementById('classicLoginError');
     classicError.textContent = inlineMissingChannels ? text : '';
     classicError.hidden = !inlineMissingChannels;
-    document.getElementById('msgStatus').textContent = inlineMissingChannels ? '' : text;
+    const status = document.getElementById('msgStatus');
+    status.textContent = inlineMissingChannels ? '' : text;
+    status.setAttribute('data-state', state);
+    const connectedStatus = document.getElementById('connectedStatus');
+    connectedStatus.textContent = ['joining', 'connected', 'reconnecting'].includes(state) ? text : '';
+    connectedStatus.setAttribute('data-state', state);
+    if (state === 'connected') startLiveStatus();
+    else stopLiveStatus();
+    retryAction = retry;
+    const retryButton = document.getElementById('retryConnection');
+    retryButton.hidden = !retry;
+    retryButton.textContent = retry === iniciarLoginWeb ? 'Entrar novamente' : 'Tentar novamente';
+}
+
+function showLoginStatus(message, inlineMissingChannels = false) {
+    setConnectionStatus('info', message, { inlineMissingChannels });
 }
 
 function readLoginCredentials() {
@@ -150,7 +249,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
     btnEntrar.onclick = null;
-    showLoginStatus('Iniciando Client');
+    setConnectionStatus('connecting', 'Preparando conexão com a Twitch...');
 
     const options = {
         options: { debug: false, skipUpdatingEmotesets: true },
@@ -171,15 +270,26 @@ async function conectarCanais({ username, pass, fromWeb }) {
         let channelsJoined = false;
         if (typeof activeClient.on === 'function') {
             activeClient.on('disconnected', () => {
-                if (channelsJoined && client === activeClient) updateTrayStatus('reconnecting');
+                if (channelsJoined && client === activeClient) {
+                    updateTrayStatus('reconnecting');
+                    setConnectionStatus('reconnecting', 'Reconectando ao chat da Twitch...');
+                }
             });
             activeClient.on('connected', () => {
-                if (channelsJoined && client === activeClient) updateTrayStatus('connected');
+                if (channelsJoined && client === activeClient) {
+                    updateTrayStatus('connected');
+                    setConnectionStatus('connected', 'Canais conectados.');
+                }
             });
+            for (const event of ['join', 'part']) {
+                activeClient.on(event, (_channel, _username, self) => {
+                    if (self && channelsJoined && client === activeClient) queueLiveStatusRefresh();
+                });
+            }
         }
-        showLoginStatus('Tentando conectar');
+        setConnectionStatus('connecting', 'Conectando ao chat da Twitch...');
         await tmi.cn();
-        showLoginStatus('Entrando nos canais...');
+        setConnectionStatus('joining', 'Entrando nos canais...');
         if (!fromWeb) {
             try { await createProfile(); } catch { /* A foto não deve impedir a conexão. */ }
         }
@@ -191,7 +301,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         api.console.manager();
         api.tw.jp();
         changeAppSide(1);
-        showLoginStatus('Entrou nos canais!');
+        setConnectionStatus('connected', 'Canais conectados.');
         btnEntrar.value = 'Desconectar';
         btnEntrar.classList.remove('loading');
         btnEntrar.classList.add('conectado');
@@ -202,7 +312,6 @@ async function conectarCanais({ username, pass, fromWeb }) {
         BlockLogin(false);
         if (fromWeb) document.getElementById('pass').value = '';
         const errorMessage = typeof error?.message === 'string' ? error.message : String(error);
-        showLoginStatus(errorMessage, !fromWeb && errorMessage.startsWith('Nenhum canal adicionado'));
         if (fromWeb) {
             btnEntrar.value = 'Entrar nos canais';
             btnEntrar.classList.remove('loading', 'conectado');
@@ -212,14 +321,20 @@ async function conectarCanais({ username, pass, fromWeb }) {
             try { await tmi.dc(); } catch { /* A conexão pode não ter sido aberta. */ }
             client = null;
         }
+        changeAppSide(0);
         updateTrayStatus('disconnected');
         if (invalidWebToken) {
             webCredentials = null;
             document.getElementById('login_box').innerHTML = 'account_circle <p class="mb-tooltip">Login</p>';
             renderLoginMode();
-            showLoginStatus('A sessão da Twitch não é mais válida. Entre com a Twitch novamente.');
             try { await api.auth.invalidateWebLogin(); } catch { /* A mensagem de login já está visível. */ }
         }
+        setConnectionStatus('error', invalidWebToken
+            ? 'A sessão da Twitch não é mais válida. Entre com a Twitch novamente.'
+            : errorMessage, {
+            inlineMissingChannels: !fromWeb && errorMessage.startsWith('Nenhum canal adicionado'),
+            retry: invalidWebToken ? iniciarLoginWeb : fromWeb ? conectarCanaisWeb : entrarTwitch,
+        });
     }
 }
 
@@ -231,7 +346,7 @@ async function entrarTwitch() {
     try {
         credentials = readLoginCredentials();
     } catch (error) {
-        showLoginStatus(error.message);
+        setConnectionStatus('error', error.message);
         return;
     }
     await conectarCanais({ ...credentials, fromWeb: false });
@@ -255,11 +370,10 @@ async function iniciarLoginWeb() {
     }
     try {
         const result = await api.auth.startWebLogin();
-        showLoginStatus(result.ok
-            ? 'Conclua o login no navegador para voltar ao SMLurker.'
-            : result.message);
+        if (result.ok) setConnectionStatus('checking', 'Conclua o login no navegador para voltar ao SMLurker.');
+        else setConnectionStatus('error', result.message, { retry: iniciarLoginWeb });
     } catch {
-        showLoginStatus('Não foi possível abrir o login no navegador. Tente novamente.');
+        setConnectionStatus('error', 'Não foi possível abrir o login no navegador. Tente novamente.', { retry: iniciarLoginWeb });
     }
 }
 
@@ -309,9 +423,8 @@ async function sairDaContaWeb() {
 }
 
 function applyWebLogin(result, restored = false) {
-    const status = document.getElementById('msgStatus');
     if (typeof result.username !== 'string' || typeof result.accessToken !== 'string' || !result.username || !result.accessToken) {
-        status.textContent = 'O login retornou dados incompletos. Tente novamente.';
+        setConnectionStatus('error', 'O login retornou dados incompletos. Tente novamente.', { retry: iniciarLoginWeb });
         return;
     }
     webCredentials = { username: result.username, pass: `oauth:${result.accessToken}` };
@@ -319,23 +432,23 @@ function applyWebLogin(result, restored = false) {
     document.getElementById('username').value = result.username;
     document.getElementById('pass').value = '';
     renderLoginMode();
-    status.textContent = restored
+    setConnectionStatus('ready', restored
         ? 'Sessão restaurada. Clique em Entrar nos canais quando quiser iniciar.'
         : result.remembered === false
             ? 'Login concluído, mas não foi possível salvar a sessão. Um novo login será necessário após reiniciar.'
-            : 'Login concluído. Clique em Entrar nos canais quando quiser iniciar.';
+            : 'Login concluído. Clique em Entrar nos canais quando quiser iniciar.');
     void showWebProfile(result.username);
 }
 
 api.auth.onWebLoginResult(async (result) => {
-    const status = document.getElementById('msgStatus');
     if (result.type === 'error') {
-        status.textContent = result.message;
+        if (client) document.getElementById('msgStatus').textContent = result.message;
+        else setConnectionStatus('error', result.message, { retry: iniciarLoginWeb });
         return;
     }
     if (result.type !== 'success') return;
     if (client) {
-        status.textContent = 'Desconecte-se dos canais antes de entrar pelo navegador novamente.';
+        document.getElementById('msgStatus').textContent = 'Desconecte-se dos canais antes de entrar pelo navegador novamente.';
         return;
     }
     applyWebLogin(result);
@@ -352,7 +465,6 @@ async function sairTwitch() {
     BlockLogin(false)
     setTimeout(() => {
         getInner('jc_Status', '')
-        getInner('msgStatus', '');
         getInner('UserBox', '');
     }, 200)
 
@@ -364,5 +476,6 @@ async function sairTwitch() {
     btnConnectChannels.classList.remove('loading', 'conectado');
     btnConnectChannels.onclick = conectarCanaisWeb;
     renderLoginMode();
+    setConnectionStatus('ready', 'Desconectado dos canais. Você pode entrar novamente quando quiser.');
     api.cr.ipc.send('sendtoCleanConsole')
 }

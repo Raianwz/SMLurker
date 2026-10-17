@@ -116,7 +116,8 @@
                         <button id="btnUseLegacyLogin" class="none" type="button" onclick="voltarLoginLegado()">Login Clássico</button>
                     </div>
                 </div>
-                <p id="msgStatus" role="status" aria-live="polite"></p>
+                <p id="msgStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+                <button id="retryConnection" class="retry-connection" type="button" hidden>Tentar novamente</button>
                 <p id="cnCount"></p>
             </div>
             <div class="channelsManager none" id="cMng">
@@ -187,7 +188,6 @@
                             </div>
                         </switch_container>
                         <div style="width: 165px;">
-                            <span id="cntotal">&#x1F7E3 Canais: 0</span>
                             <div style="min-height: 10px; height: 10px;">
                                 <div id="volBox">
                                     <span class="sgSom material-icons" role="button" tabindex="0" aria-label="Testar som de SubGift" title="Testar som de SubGift">volume_up</span>
@@ -200,6 +200,11 @@
 
                 </div>
                 <div class="hline"></div>
+                <div class="connection-summary">
+                    <span id="cntotal">&#x1F7E3; Canais: 0</span>
+                    <p id="connectedStatus" class="connected-status" role="status" aria-live="polite" aria-atomic="true"></p>
+                    <p id="liveStatus" class="live-status" role="status" aria-live="polite" hidden></p>
+                </div>
                 <span id="Mtimer">🕘--:--</span>
                <div name="version">
                 <img src="https://cdn.7tv.app/emote/01HDJNCSHR000BCR3BMAP4HFH8/4x.webp" alt="pepeSit">

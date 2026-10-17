@@ -17,14 +17,21 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
     const element = (selector) => {
         if (!elements.has(selector)) {
             const classes = new Set();
+            const handlers = {};
             elements.set(selector, {
                 value: '',
                 textContent: '',
+                hidden: false,
+                dataset: {},
+                handlers,
+                attributes: {},
                 classList: {
                     add: (...names) => names.forEach((name) => classes.add(name)),
                     remove: (...names) => names.forEach((name) => classes.delete(name)),
                     contains: (name) => classes.has(name),
                 },
+                addEventListener(name, listener) { handlers[name] = listener; },
+                setAttribute(name, value) { this.attributes[name] = value; },
                 replaceChildren(...children) { this.children = children; },
                 blur() {},
             });
@@ -38,10 +45,14 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
     const api = {
         tw: {
             tmi: {
-                ini: () => ({ on: (name, listener) => clientHandlers.set(name, listener) }),
+                ini: () => ({
+                    on: (name, listener) => clientHandlers.set(name, listener),
+                    getChannels: () => ['#raianwz', '#outro'],
+                }),
                 cn: async () => {
                     calls.push('connect');
-                    if (connectError) throw connectError;
+                    const failure = typeof connectError === 'function' ? connectError() : connectError;
+                    if (failure) throw failure;
                 },
                 dc: async () => { calls.push('disconnect'); },
             },
@@ -80,7 +91,8 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
         console: { manager: () => { calls.push('console'); } },
         auth: {
             onWebLoginResult: (callback) => { onWebLoginResult = callback; },
-            restoreWebLogin: async () => savedSession,
+            startWebLogin: async () => { calls.push('start-web-login'); return { ok: true }; },
+            restoreWebLogin: async () => typeof savedSession === 'function' ? savedSession() : savedSession,
             invalidateWebLogin: async () => { calls.push('invalidate-web-login'); },
             logoutWebLogin: async () => { calls.push('logout-web-login'); return { ok: true }; },
         },
@@ -146,17 +158,79 @@ test('legacy Entrar connects, joins and only then saves credentials', async () =
     assert.ok(calls.indexOf('profile') < calls.indexOf('join'));
     assert.ok(calls.indexOf('save') > calls.indexOf('join'));
     assert.equal(element('#btnEntrar').value, 'Desconectar');
-    assert.equal(element('#msgStatus').textContent, 'Entrou nos canais!');
+    assert.equal(element('#msgStatus').textContent, 'Canais conectados.');
+    assert.equal(element('#connectedStatus').textContent, 'Canais conectados.');
+    assert.equal(element('#msgStatus').attributes['data-state'], 'connected');
     assert.deepEqual(trayStatuses, ['connecting', 'connected']);
     assert.deepEqual(profileTokens, ['oauth:legacy-token']);
 });
 
+test('shows live channels beside connection status and clears them on disconnect', async () => {
+    const flow = createLoginFlow();
+    const queried = [];
+    flow.context.api.streams = {
+        status: async (logins) => {
+            queried.push(...logins);
+            return [
+                { login: 'raianwz', is_live: true, stale: false },
+                { login: 'outro', is_live: false, stale: false },
+            ];
+        },
+    };
+    await flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+    assert.deepEqual(queried, ['raianwz', 'outro']);
+    assert.equal(flow.element('#liveStatus').textContent, 'Ao vivo: 1');
+    assert.equal(flow.element('#liveStatus').hidden, false);
+    await flow.context.sairTwitch();
+    assert.equal(flow.element('#liveStatus').hidden, true);
+});
+
 test('tray shows reconnection and recovery after an IRC interruption', async () => {
-    const { context, trayStatuses, emitClient } = createLoginFlow();
+    const { context, element, trayStatuses, emitClient } = createLoginFlow();
     await context.entrarTwitch();
     emitClient('disconnected');
+    assert.equal(element('#connectedStatus').textContent, 'Reconectando ao chat da Twitch...');
     emitClient('connected');
+    assert.equal(element('#connectedStatus').textContent, 'Canais conectados.');
     assert.deepEqual(trayStatuses, ['connecting', 'connected', 'reconnecting', 'connected']);
+});
+
+test('session verification has a visible state and a temporary failure can be retried', async () => {
+    let restoreAttempts = 0;
+    const flow = createLoginFlow(undefined, false, false, () => {
+        restoreAttempts++;
+        return restoreAttempts === 1
+            ? { type: 'error', message: 'Não foi possível verificar a sessão.' }
+            : { type: 'success', username: 'raianwz', accessToken: 'restored-token' };
+    });
+    assert.equal(flow.element('#msgStatus').textContent, 'Verificando sessão salva...');
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'checking');
+    await new Promise(setImmediate);
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'error');
+    assert.equal(flow.element('#retryConnection').hidden, false);
+    flow.element('#retryConnection').handlers.click();
+    await new Promise(setImmediate);
+    assert.equal(restoreAttempts, 2);
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'ready');
+    assert.equal(flow.element('#retryConnection').hidden, true);
+});
+
+test('a failed IRC connection shows an error and retry connects with the same credentials', async () => {
+    let attempts = 0;
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, () =>
+        ++attempts === 1 ? new Error('Falha de rede') : null);
+    const connecting = flow.context.entrarTwitch();
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'connecting');
+    await connecting;
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'error');
+    assert.equal(flow.element('#msgStatus').textContent, 'Falha de rede');
+    assert.equal(flow.element('#retryConnection').hidden, false);
+    flow.element('#retryConnection').handlers.click();
+    await new Promise(setImmediate);
+    assert.equal(attempts, 2);
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'connected');
+    assert.equal(flow.element('#retryConnection').hidden, true);
 });
 
 test('failed channel join does not save credentials or show a connected state', async () => {
@@ -169,6 +243,8 @@ test('failed channel join does not save credentials or show a connected state', 
     assert.deepEqual(trayStatuses, ['connecting', 'disconnected']);
     assert.equal(element('#classicLoginError').hidden, false);
     assert.equal(element('#msgStatus').textContent, '');
+    assert.equal(element('#retryConnection').hidden, false);
+    assert.equal(calls.includes('side:0'), true);
 });
 
 test('new users see browser login and Web return waits for an explicit channel connection', async () => {
@@ -286,4 +362,8 @@ test('IRC authentication failure clears the Web session and returns to login', a
     assert.equal(calls.includes('invalidate-web-login'), true);
     assert.equal(element('#newLoginPanel').classList.contains('none'), false);
     assert.match(element('#msgStatus').textContent, /Entre com a Twitch novamente/);
+    assert.equal(element('#retryConnection').textContent, 'Entrar novamente');
+    element('#retryConnection').handlers.click();
+    await new Promise(setImmediate);
+    assert.equal(calls.includes('start-web-login'), true);
 });

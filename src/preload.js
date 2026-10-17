@@ -49,6 +49,12 @@ const api = {
             return getUserProfile(username, accessToken);
         },
     },
+    streams: {
+        status: (logins) => {
+            const { fetchLiveStatus } = require('./components/twitch/liveStatusSource');
+            return fetchLiveStatus(logins);
+        },
+    },
     tw: smcore,
     cr: appcore,
     console: {

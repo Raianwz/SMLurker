@@ -366,6 +366,48 @@
     border-radius: 8px;
 }
 
+[data-appearance="classic"] #msgStatus {
+    border-left-color: var(--classic-blue);
+}
+
+[data-appearance="classic"] #msgStatus::before {
+    background: var(--classic-blue);
+}
+
+[data-appearance="classic"] #msgStatus[data-state="error"] {
+    color: #ffe3df;
+    border-color: var(--classic-red);
+    border-left-color: var(--classic-red);
+}
+
+[data-appearance="classic"] #msgStatus[data-state="error"]::before {
+    background: var(--classic-red);
+}
+
+[data-appearance="classic"] #msgStatus[data-state="connected"] {
+    color: var(--classic-text);
+    background: #17482d;
+    border-color: #43a56b;
+}
+
+[data-appearance="classic"] .connected-status[data-state="connected"] {
+    color: var(--classic-muted);
+    background: transparent;
+    border: 0;
+}
+
+[data-appearance="classic"] .live-status {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] .UserWrapper .connection-summary #cntotal {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] #msgStatus[data-state="connected"]::before {
+    background: #43a56b;
+}
+
 [data-appearance="classic"] #jc_Status {
     color: var(--classic-text);
     background: #0c639c;
