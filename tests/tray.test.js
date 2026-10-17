@@ -17,9 +17,9 @@ function setupTray() {
     const emit = (name, ...args) => (listeners.get(name) ?? []).forEach((listener) => listener(...args));
     let visible = true;
     let minimized = false;
-    let dialogAnswer = 0;
     let tray;
     const win = {
+        webContents: { send: (...args) => calls.push(args) },
         isDestroyed: () => false,
         isVisible: () => visible,
         isMinimized: () => minimized,
@@ -51,10 +51,6 @@ function setupTray() {
             if (id === 'electron') return {
                 Menu: { buildFromTemplate: (items) => ({ items }) },
                 Tray: FakeTray,
-                dialog: { showMessageBoxSync: (options) => {
-                    calls.push(options);
-                    return dialogAnswer;
-                } },
                 ipcMain,
                 nativeImage: { createFromPath() {} },
             };
@@ -69,7 +65,6 @@ function setupTray() {
         tray: () => tray,
         win,
         choose: (label) => tray.menu.items.find((item) => item.label === label).click(),
-        answer: (value) => { dialogAnswer = value; },
     };
 }
 
@@ -99,13 +94,8 @@ test('tray tooltip and menu reflect connection status and channel count', () => 
     assert.match(fixture.tray().tooltip, /Desconectado/);
 });
 
-test('restart from tray only happens after confirmation', () => {
+test('restart from tray uses the guarded restart flow', () => {
     const fixture = setupTray();
     fixture.choose('Reiniciar');
-    assert.deepEqual(Array.from(fixture.calls[0].buttons), ['Não', 'Sim']);
-    assert.equal(fixture.calls[0].cancelId, 0);
-    assert.equal(fixture.calls.length, 1);
-    fixture.answer(1);
-    fixture.choose('Reiniciar');
-    assert.deepEqual(fixture.calls.slice(2), ['relaunch', 'quit']);
+    assert.deepEqual(fixture.calls, [['app-reload:requested', 'restart']]);
 });

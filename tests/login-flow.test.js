@@ -6,12 +6,13 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/client.js'), 'utf8');
 
-function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError) {
+function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1) {
     const calls = [];
     const profileTokens = [];
     const trayStatuses = [];
     const clientHandlers = new Map();
     let onWebLoginResult;
+    let onAppActionRequested;
     const elements = new Map();
     const element = (selector) => {
         if (!elements.has(selector)) {
@@ -66,8 +67,10 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             jp: () => { calls.push('join-manager'); },
         },
         cr: {
+            dg: { showMB: (options) => { calls.push(options); return dialogAnswer; } },
             ipc: { send: (name, status) => {
                 if (name === 'tray:connection-status') trayStatuses.push(status);
+                if (name === 'sendtoCleanConsole') calls.push('clean-console');
             } },
             tr: {
                 changeside: (side) => { calls.push(`side:${side}`); },
@@ -81,8 +84,12 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             invalidateWebLogin: async () => { calls.push('invalidate-web-login'); },
             logoutWebLogin: async () => { calls.push('logout-web-login'); return { ok: true }; },
         },
+        reload: {
+            onRequested: (callback) => { onAppActionRequested = callback; },
+            perform: (action) => { calls.push(`perform:${action}`); },
+        },
     };
-    const context = vm.createContext({ api, document: {
+    const context = vm.createContext({ api, setTimeout, clearTimeout, document: {
         getElementById: (id) => element(`#${id}`),
         querySelector: element,
         createElement: (tagName) => ({ tagName, style: {} }),
@@ -92,8 +99,45 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
         context, element, calls, trayStatuses, profileTokens,
         emitClient: (name) => clientHandlers.get(name)?.(),
         webLoginResult: (result) => onWebLoginResult(result),
+        requestAppAction: (action) => onAppActionRequested(action),
     };
 }
+
+test('reload asks before leaving connected channels and disconnects before reloading', async () => {
+    const flow = createLoginFlow();
+    await flow.context.entrarTwitch();
+    await flow.requestAppAction('reload');
+    const dialog = flow.calls.find((call) => typeof call === 'object');
+    assert.equal(dialog.message, 'Deseja recarregar o SMLurker?');
+    assert.match(dialog.detail, /conectado à Twitch/);
+    assert.deepEqual(Array.from(dialog.buttons), ['Não', 'Sim']);
+    assert.equal(dialog.cancelId, 0);
+    assert.ok(flow.calls.indexOf('disconnect') < flow.calls.indexOf('perform:reload'));
+    assert.ok(flow.calls.indexOf('clean-console') < flow.calls.indexOf('perform:reload'));
+});
+
+test('declining reload keeps the Twitch connection and page active', async () => {
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, undefined, 0);
+    await flow.context.entrarTwitch();
+    await flow.requestAppAction('reload');
+    assert.equal(flow.calls.includes('disconnect'), false);
+    assert.equal(flow.calls.includes('perform:reload'), false);
+});
+
+test('reload without a channel connection needs no confirmation', async () => {
+    const flow = createLoginFlow();
+    await flow.requestAppAction('reload');
+    assert.equal(flow.calls.some((call) => typeof call === 'object'), false);
+    assert.equal(flow.calls.includes('perform:reload'), true);
+});
+
+test('restart confirms and disconnects before relaunching', async () => {
+    const flow = createLoginFlow();
+    await flow.context.entrarTwitch();
+    await flow.requestAppAction('restart');
+    assert.ok(flow.calls.indexOf('disconnect') < flow.calls.indexOf('perform:restart'));
+    assert.equal(flow.calls.find((call) => typeof call === 'object').message, 'Deseja reiniciar agora?');
+});
 
 test('legacy Entrar connects, joins and only then saves credentials', async () => {
     const { context, element, calls, trayStatuses, profileTokens } = createLoginFlow();

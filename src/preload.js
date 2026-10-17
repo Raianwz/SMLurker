@@ -22,6 +22,16 @@ const api = {
             return () => ipcRenderer.removeListener('appearance:changed', listener);
         },
     },
+    reload: {
+        request: () => ipcRenderer.send('app-reload:request'),
+        requestRestart: () => ipcRenderer.send('app-restart:request'),
+        perform: (action) => ipcRenderer.send('app-reload:perform', action),
+        onRequested: (callback) => {
+            const listener = (_event, action) => callback(action);
+            ipcRenderer.on('app-reload:requested', listener);
+            return () => ipcRenderer.removeListener('app-reload:requested', listener);
+        },
+    },
     auth: {
         startWebLogin: () => ipcRenderer.invoke('web-login:start'),
         restoreWebLogin: () => ipcRenderer.invoke('web-login:restore'),

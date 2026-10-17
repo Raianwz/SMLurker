@@ -12,6 +12,46 @@ let legacyAvailable = false;
 let webCredentials = null;
 let autoConnectEnabled = false;
 let useLegacyLogin = false;
+let appActionInProgress = false;
+
+async function disconnectForAppAction() {
+    if (!client) return;
+    let timeout;
+    try {
+        await Promise.race([
+            Promise.resolve().then(() => tmi.dc()).catch(() => {}),
+            new Promise((resolve) => { timeout = setTimeout(resolve, 3000); }),
+        ]);
+    } finally {
+        clearTimeout(timeout);
+        client = null;
+        updateTrayStatus('disconnected');
+    }
+}
+
+api.reload.onRequested(async (action) => {
+    if (appActionInProgress || !['reload', 'restart'].includes(action)) return;
+    const connected = Boolean(client);
+    if (connected || action === 'restart') {
+        const answer = api.cr.dg.showMB({
+            type: 'question',
+            title: action === 'reload' ? 'Recarregar SMLurker' : 'Reiniciar SMLurker',
+            message: action === 'reload' ? 'Deseja recarregar o SMLurker?' : 'Deseja reiniciar agora?',
+            detail: connected
+                ? `Você ainda está conectado à Twitch. Deseja realmente sair e ${action === 'reload' ? 'recarregar' : 'reiniciar'}?`
+                : undefined,
+            buttons: ['Não', 'Sim'],
+            defaultId: 0,
+            cancelId: 0,
+            noLink: true,
+        });
+        if (answer !== 1) return;
+    }
+    appActionInProgress = true;
+    await disconnectForAppAction();
+    if (action === 'reload') api.cr.ipc.send('sendtoCleanConsole');
+    api.reload.perform(action);
+});
 
 function isWebAuthError(error) {
     const message = typeof error?.message === 'string' ? error.message : String(error);

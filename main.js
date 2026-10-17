@@ -11,6 +11,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 const { PROTOCOL, callbackFromArgs } = require('./src/components/twitch/webLogin');
 const { createWebLoginController } = require('./src/components/ipc/webLogin');
 const { registerLocalDataIpc } = require('./src/components/ipc/localData');
+const { registerReloadIpc, attachReloadShortcut } = require('./src/components/ipc/reload');
 
 require('./src/components/ipc/configWindow');
 require('./src/components/ipc/eventPanel');
@@ -21,6 +22,7 @@ function fromMainWindow(event) {
     if (event.sender !== mainWindow?.webContents) throw new Error('Janela não autorizada.');
 }
 registerLocalDataIpc({ app, ipcMain, fromMainWindow });
+registerReloadIpc({ app, ipcMain, getMainWindow: () => mainWindow });
 const webLogin = createWebLoginController({
     app, ipcMain, shell, Notification, safeStorage,
     getMainWindow: () => mainWindow,
@@ -59,6 +61,7 @@ function CreateWindow() {
         }
     })
     enable(mainWindow.webContents);
+    attachReloadShortcut(mainWindow);
     mainWindow.loadFile('./src/app/index.html');
     mainWindow.webContents.on('did-finish-load', webLogin.flushResult);
 

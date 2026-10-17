@@ -22,6 +22,10 @@ function setupControls(answer) {
     let menu;
     let domReady;
     const api = {
+        reload: {
+            request: () => calls.push('request-reload'),
+            requestRestart: () => calls.push('request-restart'),
+        },
         cr: {
             appr: {
                 getVersion: () => '0.1.14',
@@ -74,16 +78,13 @@ test('main titlebar has accessible buttons for tray, minimize and exit', () => {
     assert.deepEqual(calls, ['hide', 'tray-notice', 'minimize', 'close']);
 });
 
-test('restart menu requires an explicit Yes', () => {
-    const no = setupControls(0);
-    no.element('#refresh').click();
-    no.getMenu().find((item) => item.label === 'Reiniciar').click();
-    assert.deepEqual(Array.from(no.calls[0].buttons), ['Não', 'Sim']);
-    assert.equal(no.calls[0].cancelId, 0);
-    assert.equal(no.calls.length, 1);
-
-    const yes = setupControls(1);
-    yes.element('#refresh').click();
-    yes.getMenu().find((item) => item.label === 'Reiniciar').click();
-    assert.deepEqual(yes.calls.slice(1), ['relaunch', 'quit']);
+test('reload and restart menu items request the guarded actions', () => {
+    const controls = setupControls(0);
+    controls.element('#refresh').click();
+    const reload = controls.getMenu().find((item) => item.label === 'Recarregar');
+    const restart = controls.getMenu().find((item) => item.label === 'Reiniciar');
+    assert.equal(reload.role, undefined);
+    reload.click();
+    restart.click();
+    assert.deepEqual(controls.calls, ['request-reload', 'request-restart']);
 });

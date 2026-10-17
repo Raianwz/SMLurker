@@ -18,16 +18,20 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Cobrir os fluxos principais de login, restauração e conexão com testes automatizados.
 - [x] Centralizar a leitura de perfil em `api.userprofile.get(username)`, compartilhando o cache de 24 horas com a interface.
 - [x] Expor operações de canais e notificações pela API local do preload, com validação e gravação no processo principal para a tela principal.
+- [x] Simplificar a tela de vinculação no projeto Web: destacar **Logar no SMLurker**, manter a conta visível, separar **Cancelar e voltar ao aplicativo** e oferecer **Abrir novamente** após a tentativa de retorno.
+- [x] Oferecer **Desconectar** para encerrar apenas o IRC, **Trocar conta** sem apagar a sessão atual antes da confirmação e **Sair da conta** para remover a sessão Web local, preservando o OAuth legado.
+- [x] Confirmar a remoção individual de canais e exigir duas confirmações para limpar a lista inteira.
+- [x] Limitar o tempo de espera pela abertura do IRC e pela entrada em cada canal.
+- [x] Oferecer os visuais **Moderno** e **Clássico** nas configurações, persistindo a escolha e aplicando-a às janelas abertas.
 
 ## Próximos polimentos
 
-- [ ] Simplificar a tela de vinculação no projeto Web: destacar **Logar no SMLurker**, separar visualmente **Cancelar e voltar ao aplicativo**, e mostrar **Abrir o aplicativo novamente** apenas quando o retorno automático falhar. Reduzir textos técnicos e manter o nome da conta visível.
 - [ ] Mostrar estados mais claros de conexão: verificando sessão, conectando, canais conectados e erro, com opção de tentar novamente.
-- [ ] Separar as três ações na interface: **Desconectar** na barra lateral (só encerra o IRC), **Trocar conta** na tela de login (abre outra autenticação sem apagar a atual antes da confirmação) e **Sair da conta** no menu do perfil (apaga a sessão Web local e volta ao login). Preservar `credentials.json`; oferecer uma ação separada e confirmada caso o usuário queira esquecer o OAuth legado.
+- [ ] Avaliar mover **Sair da conta** da tela de login para o menu do perfil e oferecer uma ação separada e confirmada para esquecer o OAuth legado.
 - [ ] Melhorar navegação por teclado, foco visível e textos dos tooltips em todas as telas.
-- [ ] Confirmar ações destrutivas na lista de canais e oferecer desfazer a última remoção durante a sessão.
+- [ ] Oferecer desfazer a última remoção de canal durante a sessão.
 - [ ] Evitar registrar novamente os mesmos listeners da interface a cada reconexão.
-- [ ] Corrigir a espera pela abertura do IRC em `joinchannels.js`, atualizando o estado e aplicando um tempo limite.
+- [ ] Mostrar o estado de espera pela abertura do IRC em `joinchannels.js` enquanto a conexão ainda não está pronta.
 - [ ] Testar manualmente login, Ctrl+R, reconexão, expiração de token e notificações no Windows instalado e portátil.
 
 ## Evolução técnica

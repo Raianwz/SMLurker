@@ -10,28 +10,12 @@ function windowButtonsControls(app) {
             let wButton = (btn) => el(\`button[name=\${btn}]\`)
             let ShortMenu = [{
                 label: 'Recarregar',
-                click: ()=> { api.cr.ipc.send('sendtoCleanConsole') },
-                role: 'reload',
-                accelerator: 'CmdOrCtrl+R',
+                click: () => api.reload.request(),
             }, {
                 type: 'separator',
             }, {
                 label: 'Reiniciar',
-                click: () => {
-                    const answer = api.cr.dg.showMB({
-                        type: 'question',
-                        title: 'Reiniciar SMLurker',
-                        message: 'Deseja reiniciar agora?',
-                        buttons: ['Não', 'Sim'],
-                        defaultId: 0,
-                        cancelId: 0,
-                        noLink: true,
-                    });
-                    if (answer === 1) {
-                        api.cr.appr.relaunch();
-                        api.cr.appr.quit();
-                    }
-                },
+                click: () => api.reload.requestRestart(),
             }]
             el('p.version').innerText += \`V\t\${api.cr.appr.getVersion()}\tbeta\`;
             el('p.version').addEventListener('click', () => api.cr.eshell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.cr.appr.getVersion()}\`))

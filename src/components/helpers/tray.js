@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { Menu, Tray, dialog, ipcMain, nativeImage: { createFromPath } } = require('electron');
+const { Menu, Tray, ipcMain, nativeImage: { createFromPath } } = require('electron');
 const { assetPath } = require('./assets');
 
 let tray = null;
@@ -46,19 +46,8 @@ function setUpTray(app, win) {
             { label: 'Painel de Eventos', click: () => ipcMain.emit('openConsole') },
             { type: 'separator' },
             { label: 'Reiniciar', click: () => {
-                const answer = dialog.showMessageBoxSync({
-                    type: 'question',
-                    title: 'Reiniciar SMLurker',
-                    message: 'Deseja reiniciar agora?',
-                    buttons: ['Não', 'Sim'],
-                    defaultId: 0,
-                    cancelId: 0,
-                    noLink: true,
-                });
-                if (answer === 1) {
-                    app.relaunch();
-                    app.quit();
-                }
+                if (win.isDestroyed()) return;
+                win.webContents.send('app-reload:requested', 'restart');
             } },
             { type: 'separator' },
             { label: 'Fechar e Sair', click: () => { ipcMain.emit('closeConsole'); app.quit(); } },
