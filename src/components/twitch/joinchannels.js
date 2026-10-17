@@ -80,10 +80,13 @@ async function joinChannels() {
     channels = appcore.channels.read()
     if (channels.length <= 0) throw 'Nenhum canal adicionado, por favor adicione um canal'
     const readyDeadline = Date.now() + IRC_READY_TIMEOUT_MS;
+    const loginStatus = getEl('#msgStatus');
+    getText(loginStatus, 'Aguardando conexão com o chat da Twitch...');
     while (await withTimeout(() => tmi.rds(), IRC_READY_TIMEOUT_MS, 'Tempo esgotado ao verificar a conexão IRC.') !== 'OPEN') {
         if (Date.now() >= readyDeadline) throw new Error('Tempo esgotado ao aguardar a conexão IRC.');
         await sleep(Math.min(1000, readyDeadline - Date.now()));
     }
+    getText(loginStatus, 'Entrando nos canais...');
 
     let started = false;
     let joined = 0;

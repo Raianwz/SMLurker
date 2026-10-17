@@ -23,6 +23,52 @@ test('join estimate formats remaining wall-clock time', () => {
     assert.equal(formatRemainingMs(0), '00m 00s');
 });
 
+test('waiting for IRC readiness is shown below login and cleared when channels start', async () => {
+    const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/joinchannels.js'), 'utf8');
+    const elements = new Map();
+    const element = (selector) => {
+        if (!elements.has(selector)) elements.set(selector, {
+            textContent: '', style: {}, setAttribute() {}, removeAttribute() {},
+        });
+        return elements.get(selector);
+    };
+    let resolveReady;
+    const context = {
+        module: { exports: {} },
+        document: { querySelector: element, addEventListener() {}, removeEventListener() {} },
+        window: { addEventListener() {}, removeEventListener() {} },
+        setInterval: () => 1,
+        clearInterval() {},
+        setTimeout,
+        clearTimeout,
+        require(id) {
+            if (id === '../../internal/smcore') return { smcore: {
+                tmi: {
+                    rds: () => new Promise((resolve) => { resolveReady = resolve; }),
+                    join: async () => {},
+                },
+                lv: { get: () => 0, add() {} },
+            } };
+            if (id === '../../internal/appcore') return { appcore: {
+                tr: { changeside() {} },
+                channels: { path: () => 'channels.json', read: () => ['#raianwz'] },
+                fs: { exist: () => true },
+            } };
+            if (id === 'electron') return { ipcRenderer: { send() {} } };
+            if (id === 'node:timers/promises') return { setTimeout: async () => {} };
+            if (id === './joinEstimate') return require('../src/components/twitch/joinEstimate');
+            throw new Error(`Unexpected module: ${id}`);
+        },
+    };
+    vm.runInNewContext(source, context);
+    const joining = context.module.exports.jc();
+    assert.equal(element('#msgStatus').textContent, 'Aguardando conexão com o chat da Twitch...');
+    await Promise.resolve();
+    resolveReady('OPEN');
+    await joining;
+    assert.equal(element('#msgStatus').textContent, 'Entrando nos canais...');
+});
+
 test('join countdown catches up with elapsed time when the window regains focus', async () => {
     const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/joinchannels.js'), 'utf8');
     const elements = new Map();
