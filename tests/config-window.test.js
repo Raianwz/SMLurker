@@ -9,11 +9,13 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/configs/c
 function createConfigWindow() {
     const elements = new Map();
     const actions = [];
-    let saved = { ini: false, autologin: false, inimin: false };
+    let saved = { ini: false, autologin: false, inimin: false, appearance: 'modern' };
+    const documentElement = { dataset: {} };
     const element = (selector) => {
         if (!elements.has(selector)) {
             elements.set(selector, {
                 checked: false,
+                value: '',
                 addEventListener(event, handler) { this[event] = handler; },
                 classList: { add() {}, remove() {} },
             });
@@ -39,9 +41,16 @@ function createConfigWindow() {
     };
     const context = {
         __dirname: path.join(__dirname, '../src/app'),
-        document: { querySelector: element },
+        document: { querySelector: element, documentElement },
         require(id) {
             if (id === '@electron/remote') return remote;
+            if (id === 'electron') return { ipcRenderer: {
+                invoke: async (channel, value) => {
+                    assert.equal(channel, 'appearance:set');
+                    saved = { ...saved, appearance: value };
+                    return value;
+                },
+            } };
             if (id === 'fs') return fakeFs;
             if (id === 'path') return path;
             if (id === 'auto-launch') return class AutoLaunch {};
@@ -51,7 +60,7 @@ function createConfigWindow() {
         },
     };
     vm.runInNewContext(source, context);
-    return { actions, element, getSaved: () => saved };
+    return { actions, element, documentElement, getSaved: () => saved };
 }
 
 test('configuration window keeps switches and file/window actions connected', () => {
@@ -75,4 +84,16 @@ test('configuration window keeps switches and file/window actions connected', ()
         ['minimize'],
         ['close'],
     ]);
+});
+
+test('visual selection saves the appearance and applies it in the settings window', async () => {
+    const { element, documentElement, getSaved } = createConfigWindow();
+    assert.equal(element('#appearanceSelect').value, 'modern');
+    assert.equal(documentElement.dataset.appearance, 'modern');
+
+    element('#appearanceSelect').value = 'classic';
+    await element('#appearanceSelect').change();
+
+    assert.equal(getSaved().appearance, 'classic');
+    assert.equal(documentElement.dataset.appearance, 'classic');
 });

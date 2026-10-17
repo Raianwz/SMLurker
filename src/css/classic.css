@@ -1,8 +1,7 @@
 /*
- * Referência visual para uma futura "Aparência Clássica".
+ * Aparência Clássica, baseada nas cores do SMLurker 0.1.13 e 0.1.8.
  * Base: SMLurker 0.1.13, com cores e elementos também presentes na 0.1.8.
- * Este arquivo não é importado pelo aplicativo. As classes são exemplos
- * reutilizáveis, não uma cópia da estrutura ou da lógica antiga.
+ * As regras abaixo adaptam a interface atual sem alterar sua estrutura.
  */
 
 [data-appearance="classic"] {
@@ -20,6 +19,7 @@
     --classic-blue-deep: #0268ac;
     --classic-blue-hover: #0184db;
     --classic-purple: #9148ff;
+    --classic-panel-border: #4b3569;
     --classic-red: #f04747;
     --classic-red-outline: #d44141;
     --classic-warning: #ff5555;
@@ -158,4 +158,467 @@
 [data-appearance="classic"] .classic-version {
     color: var(--classic-warning);
     font-weight: bold;
+}
+
+/* Janela principal */
+[data-appearance="classic"] .container {
+    color: var(--classic-text);
+    background: var(--classic-background);
+}
+
+[data-appearance="classic"] .main-titlebar {
+    background: var(--classic-titlebar);
+    border-bottom-color: var(--classic-divider);
+}
+
+[data-appearance="classic"] .main-window-control:hover,
+[data-appearance="classic"] .window-control:hover {
+    background: #393d43;
+}
+
+[data-appearance="classic"] .main-titlebar button[name="hideWindow"]:hover {
+    color: var(--classic-text);
+    background: var(--classic-purple);
+}
+
+[data-appearance="classic"] .main-titlebar button[name="minWindow"]:hover {
+    color: var(--classic-text);
+    background: var(--classic-blue);
+}
+
+[data-appearance="classic"] .main-window-control-close:hover,
+[data-appearance="classic"] .window-control-close:hover {
+    background: var(--classic-red);
+}
+
+[data-appearance="classic"] div.menu-bar {
+    background: var(--classic-titlebar);
+    border-right-color: var(--classic-divider);
+}
+
+[data-appearance="classic"] div.menu-bar > section {
+    color: #b4bac2;
+}
+
+[data-appearance="classic"] div.menu-bar > section:hover,
+[data-appearance="classic"] div.menu-bar > section.selected,
+[data-appearance="classic"] div.menu-bar > section#gearConfig:hover,
+[data-appearance="classic"] div.menu-bar > section#refresh:hover {
+    color: var(--classic-text);
+    background: #3e344e;
+}
+
+[data-appearance="classic"] div.menu-bar > section.selected {
+    box-shadow: inset 3px 0 var(--classic-purple);
+}
+
+[data-appearance="classic"] .UserWrapper {
+    background: var(--classic-profile-panel);
+}
+
+[data-appearance="classic"] .loginBox > div:not(.none),
+[data-appearance="classic"] .channel-manager-card,
+[data-appearance="classic"] .quick-connect-card,
+[data-appearance="classic"] .quick-history {
+    background: var(--classic-settings-panel);
+    border-color: #46484c;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+[data-appearance="classic"] .channel-manager-card,
+[data-appearance="classic"] .quick-connect-card {
+    border-color: var(--classic-panel-border);
+}
+
+[data-appearance="classic"] .loginBox .login-eyebrow,
+[data-appearance="classic"] .channel-manager-eyebrow,
+[data-appearance="classic"] .channel-manager-section-title,
+[data-appearance="classic"] .quick-eyebrow {
+    color: #a989db;
+}
+
+[data-appearance="classic"] .loginBox h2,
+[data-appearance="classic"] .channel-manager-card h2,
+[data-appearance="classic"] .quick-connect-card h2,
+[data-appearance="classic"] .quick-history h3 {
+    color: var(--classic-text);
+}
+
+[data-appearance="classic"] .loginBox .login-description,
+[data-appearance="classic"] .channel-manager-description,
+[data-appearance="classic"] .quick-description {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] .loginBox .login-field input,
+[data-appearance="classic"] .loginBox .login-field input:hover,
+[data-appearance="classic"] .loginBox .login-field input:focus,
+[data-appearance="classic"] .channel-manager-input,
+[data-appearance="classic"] .quick-input {
+    color: #18191c;
+    background: var(--classic-input);
+    border-color: #8b8d91;
+    border-radius: 20px;
+}
+
+[data-appearance="classic"] .loginBox .login-field input::placeholder,
+[data-appearance="classic"] .channel-manager-input #txtCanal::placeholder,
+[data-appearance="classic"] #txtConexaoCanal::placeholder {
+    color: #555a60;
+}
+
+[data-appearance="classic"] .channel-manager-input #txtCanal,
+[data-appearance="classic"] .channel-manager-input #txtCanal:hover,
+[data-appearance="classic"] .channel-manager-input #txtCanal:focus,
+[data-appearance="classic"] .quick-input input {
+    color: #18191c;
+}
+
+[data-appearance="classic"] #txtConexaoCanal,
+[data-appearance="classic"] #txtConexaoCanal:hover,
+[data-appearance="classic"] #txtConexaoCanal:focus {
+    color: #18191c;
+}
+
+[data-appearance="classic"] .loginBox .login-field input:focus,
+[data-appearance="classic"] .channel-manager-input:focus-within,
+[data-appearance="classic"] .quick-input:focus-within {
+    border-color: var(--classic-blue);
+    box-shadow: 0 0 0 2px #0099ff55;
+}
+
+[data-appearance="classic"] .loginBox .login-field input:disabled,
+[data-appearance="classic"] .loginBox .login-field input:disabled:hover,
+[data-appearance="classic"] .channel-manager-input:has(#txtCanal:disabled),
+[data-appearance="classic"] .quick-input:has(#txtConexaoCanal:disabled) {
+    color: var(--classic-text);
+    background: var(--classic-disabled);
+    border-color: var(--classic-disabled);
+    box-shadow: none;
+}
+
+[data-appearance="classic"] .channel-list-search {
+    color: #18191c;
+    background: var(--classic-input);
+    border-color: #8b8d91;
+    border-radius: 20px;
+}
+
+[data-appearance="classic"] .channel-list-search::placeholder {
+    color: #555a60;
+}
+
+[data-appearance="classic"] .channel-list-search:focus {
+    border-color: var(--classic-blue);
+    outline-color: #0099ff55;
+}
+
+[data-appearance="classic"] .channel-list-item,
+[data-appearance="classic"] .channel-list-empty,
+[data-appearance="classic"] .channel-remove-dialog {
+    color: var(--classic-text);
+    background: #18191c;
+    border-color: #46484c;
+}
+
+[data-appearance="classic"] .channel-list-summary,
+[data-appearance="classic"] .channel-remove-dialog p {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] .loginBox input[type='button']:not(:disabled):not(.loading),
+[data-appearance="classic"] .loginBox #btnWebLogin:not(:disabled):not(.loading),
+[data-appearance="classic"] .channelsManager button.add:not(:disabled),
+[data-appearance="classic"] .quick-button-join:not(:disabled) {
+    color: var(--classic-text);
+    background: var(--classic-blue-deep);
+    border-color: #0066aa;
+    border-radius: 15px;
+    box-shadow: none;
+}
+
+[data-appearance="classic"] .loginBox input[type='button']:not(:disabled):not(.loading):hover,
+[data-appearance="classic"] .loginBox #btnWebLogin:not(:disabled):not(.loading):hover,
+[data-appearance="classic"] .channelsManager button.add:not(:disabled):hover,
+[data-appearance="classic"] .quick-button-join:not(:disabled):hover {
+    background: var(--classic-blue-hover);
+    border-color: #42b3ff;
+}
+
+[data-appearance="classic"] .loginBox #webReadyPanel .web-account-actions button:hover,
+[data-appearance="classic"] .loginBox #webReadyPanel .web-account-actions button:focus-visible {
+    background: #404248;
+    border-color: #737780;
+}
+
+[data-appearance="classic"] #msgStatus,
+[data-appearance="classic"] .channel-manager-status:not(:empty) {
+    color: var(--classic-text);
+    background: #18191c;
+    border-color: #55575b;
+    border-radius: 8px;
+}
+
+[data-appearance="classic"] #jc_Status {
+    color: var(--classic-text);
+    background: #0c639c;
+    border-color: var(--classic-blue);
+    border-radius: 8px;
+}
+
+[data-appearance="classic"] #jcConsole {
+    color: var(--classic-text);
+    background: var(--classic-event-log);
+    border-color: #46484c;
+}
+
+[data-appearance="classic"] #jcConsole::placeholder {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] .channelsManager button.cnFile:not(.clear):not(:disabled) {
+    color: #69bfff;
+    background: transparent;
+    border-color: #1685d0;
+}
+
+[data-appearance="classic"] .channelsManager button.cnFile:not(.clear):not(:disabled):hover {
+    color: var(--classic-text);
+    background: var(--classic-blue-deep);
+    border-color: #42b3ff;
+}
+
+[data-appearance="classic"] .channelsManager button.cnFile.clear:not(:disabled) {
+    color: #ff858a;
+    background: transparent;
+    border-color: #a9434a;
+}
+
+[data-appearance="classic"] .channelsManager button.cnFile.clear:not(:disabled):hover {
+    color: var(--classic-text);
+    background: #bc424b;
+    border-color: #e45e66;
+}
+
+[data-appearance="classic"] .channel-manager-files {
+    border-top-color: #55575b;
+}
+
+[data-appearance="classic"] .channelsManager button.channel-list-toggle {
+    color: #c7a5ff;
+    background: #30263e;
+    border-color: var(--classic-panel-border);
+}
+
+[data-appearance="classic"] .channelsManager button.channel-list-toggle:hover {
+    color: var(--classic-text);
+    background: #513a70;
+}
+
+[data-appearance="classic"] #jc_Help {
+    color: #f1cd17;
+    background: transparent;
+    border-color: transparent;
+}
+
+[data-appearance="classic"] #jc_Help:hover {
+    color: #ffd502;
+    background: transparent;
+    border-color: transparent;
+    filter: drop-shadow(0 0 4px #ffd50266);
+}
+
+[data-appearance="classic"] .version {
+    color: var(--classic-warning);
+}
+
+/* Janela de configurações */
+[data-appearance="classic"] .container {
+    border-color: var(--classic-divider);
+}
+
+[data-appearance="classic"] .titlebar {
+    position: relative;
+    padding-left: 0;
+    background: #0a598f;
+    border-bottom-color: #084776;
+}
+
+[data-appearance="classic"] .titlebar h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+[data-appearance="classic"] .titlebar .window-control {
+    color: var(--classic-text);
+}
+
+[data-appearance="classic"] .titlebar .window-control:not(.window-control-close):hover {
+    background: var(--classic-blue);
+}
+
+[data-appearance="classic"] .config-content::-webkit-scrollbar-thumb {
+    background: #7652a8;
+}
+
+[data-appearance="classic"] .settings-card,
+[data-appearance="classic"] .appearance-row {
+    background: var(--classic-settings-panel);
+    border-color: #494b4e;
+    border-radius: 8px;
+}
+
+[data-appearance="classic"] .setting-row:hover,
+[data-appearance="classic"] .appearance-row:hover {
+    background: #333539;
+}
+
+[data-appearance="classic"] .config-heading p,
+[data-appearance="classic"] .setting-copy small,
+[data-appearance="classic"] .action-copy small {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] .config-eyebrow {
+    color: #a989db;
+}
+
+[data-appearance="classic"] .switch-track {
+    background: #f1f1f1;
+    border-color: #f1f1f1;
+}
+
+[data-appearance="classic"] .switch-track::after {
+    background: var(--classic-purple);
+}
+
+[data-appearance="classic"] .switch:checked + .switch-track {
+    background: var(--classic-purple);
+    border-color: #731cf5;
+}
+
+[data-appearance="classic"] .switch:checked + .switch-track::after {
+    background: var(--classic-text);
+}
+
+[data-appearance="classic"] .appearance-row select {
+    color: #18191c;
+    background: var(--classic-input);
+    border-color: #8b8d91;
+    border-radius: 20px;
+}
+
+[data-appearance="classic"] .file-action {
+    background: transparent;
+    border-color: transparent;
+    border-radius: 8px;
+}
+
+[data-appearance="classic"] .file-action:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+[data-appearance="classic"] .action-icon {
+    color: var(--classic-disabled);
+    background: transparent;
+}
+
+[data-appearance="classic"] .action-icon svg {
+    width: 28px;
+    height: 28px;
+    transition: fill .15s ease, color .15s ease;
+}
+
+[data-appearance="classic"] .file-action[name="abrirLocal"] .action-icon {
+    color: #ffd502;
+}
+
+[data-appearance="classic"] .file-action[name="abrirLocal"]:hover .action-icon svg {
+    fill: #ffd502;
+}
+
+[data-appearance="classic"] .file-action[name="exportarLista"]:hover .action-icon {
+    color: #b8bbc0;
+}
+
+[data-appearance="classic"] .action-arrow {
+    color: var(--classic-muted);
+}
+
+/* Painel de eventos */
+[data-appearance="classic"] .panel-shell > header {
+    position: relative;
+    padding-left: 0;
+    background: var(--classic-titlebar);
+    border-bottom-color: var(--classic-divider);
+}
+
+[data-appearance="classic"] .panel-shell > header h1 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+[data-appearance="classic"] .panel-shell > header .window-control {
+    color: var(--classic-purple);
+}
+
+[data-appearance="classic"] .panel-shell > header .window-control:not(.window-control-close):hover {
+    color: var(--classic-text);
+    background: var(--classic-purple);
+}
+
+[data-appearance="classic"] .panel-shell > header .window-control-close:hover {
+    color: var(--classic-text);
+}
+
+[data-appearance="classic"] #txtPanel {
+    color: var(--classic-text);
+    background: var(--classic-event-log);
+    border-color: #55575b;
+    border-radius: 10px;
+}
+
+[data-appearance="classic"] #txtPanel::-webkit-scrollbar-track {
+    background: #222222;
+}
+
+[data-appearance="classic"] #txtPanel::-webkit-scrollbar-thumb {
+    background: #3f3f3f;
+    border-color: var(--classic-event-log);
+}
+
+[data-appearance="classic"] .panel-eyebrow,
+[data-appearance="classic"] .panel-empty .material-icons {
+    color: var(--classic-blue);
+}
+
+[data-appearance="classic"] .panel-hint,
+[data-appearance="classic"] .panel-empty {
+    color: var(--classic-muted);
+}
+
+[data-appearance="classic"] .panel-empty strong {
+    color: var(--classic-text);
+}
+
+[data-appearance="classic"] .svg-box {
+    background: transparent;
+    border-color: transparent;
+}
+
+[data-appearance="classic"] .svg-box:first-child svg {
+    background: var(--classic-purple);
+}
+
+[data-appearance="classic"] div#mentionsbar {
+    background: var(--classic-background);
+    border-top-color: var(--classic-divider);
 }

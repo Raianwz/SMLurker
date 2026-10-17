@@ -1,6 +1,22 @@
-const { ipcMain, BrowserWindow, shell } = require('electron');
+const { app, ipcMain, BrowserWindow, shell } = require('electron');
 const { initialize, enable } = require('@electron/remote/main');
+const { createLocalData } = require('../helpers/localData');
 let configWindow;
+const localData = createLocalData(app);
+
+ipcMain.handle('appearance:get', (event) => {
+  if (!BrowserWindow.fromWebContents(event.sender)) throw new Error('Janela não autorizada.');
+  return localData.preferences.get().appearance;
+});
+
+ipcMain.handle('appearance:set', (event, value) => {
+  if (event.sender !== configWindow?.webContents) throw new Error('Janela não autorizada.');
+  const appearance = localData.preferences.updateAppearance(value).appearance;
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.send('appearance:changed', appearance);
+  }
+  return appearance;
+});
 
 ipcMain.on('openConfigs', () => {
   if (!configWindow) {

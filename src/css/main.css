@@ -532,6 +532,7 @@ a span:hover::after {
 }
 
 .loginBox input[type='button']:hover {
+    cursor: pointer;
     background: #2385c7;
     border-color: #56b0e9;
     box-shadow: 0 4px 16px #1471af35;

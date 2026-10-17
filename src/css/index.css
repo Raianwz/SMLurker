@@ -61,7 +61,11 @@ html {
 :not(input):not(textarea)::before {
     -webkit-user-select: none;
     user-select: none;
-    cursor: default;
+}
+
+button:not(:disabled),
+input[type='button']:not(:disabled) {
+    cursor: pointer;
 }
 
 input,

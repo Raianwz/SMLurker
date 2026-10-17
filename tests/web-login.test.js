@@ -18,6 +18,45 @@ test('requires HTTPS outside local development', () => {
     assert.throws(() => webOrigin(false, 'https://web.example.com/path'), /origem/);
 });
 
+test('development login uses localhost when available and falls back to the hosted Web when unavailable', async () => {
+    const opened = [];
+    const probes = [];
+    const createLogin = (probeImpl) => createWebLogin({
+        isPackaged: false,
+        configuredUrl: '',
+        openExternal: async (url) => opened.push(new URL(url)),
+        onResult: () => {},
+        probeImpl: async (url, options) => {
+            probes.push({ url, options });
+            return probeImpl();
+        },
+    });
+
+    await createLogin(() => ({ status: 200 })).start();
+    await createLogin(() => { throw new Error('Local Web offline'); }).start();
+
+    assert.equal(probes.length, 2);
+    assert.equal(probes[0].url, 'http://localhost:3000');
+    assert.equal(probes[0].options.method, 'HEAD');
+    assert.equal(opened[0].origin, 'http://localhost:3000');
+    assert.equal(opened[1].origin, 'https://smlurker.vercel.app');
+    assert.equal(opened[1].pathname, '/connect/apps/com.smlurker');
+});
+
+test('explicit Web origin is used without a localhost probe', async () => {
+    let openedUrl;
+    const login = createWebLogin({
+        isPackaged: false,
+        configuredUrl: 'https://example.com',
+        openExternal: async (url) => { openedUrl = new URL(url); },
+        onResult: () => {},
+        probeImpl: () => { throw new Error('Unexpected probe'); },
+    });
+
+    await login.start();
+    assert.equal(openedUrl.origin, 'https://example.com');
+});
+
 test('exchanges a one-time code only after matching the pending state', async () => {
     let openedUrl;
     let exchanges = 0;

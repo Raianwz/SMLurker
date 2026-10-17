@@ -28,5 +28,6 @@ function CreateConfigs(configPath, ini, login, inimin, mentions, subgift, tray) 
     configs.NotifyMe = mentions
     configs.NotifyGift = subgift
     configs.NotifyTray = tray
+    configs.appearance = 'modern'
     configPath !== null ? fs.writeFileSync(configPath, JSON.stringify(configs)) : console.log('[DEBUG] Caminho não encontrado');
 };

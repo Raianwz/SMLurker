@@ -14,6 +14,14 @@ const api = {
         get: () => ipcRenderer.invoke('local:preferences:get'),
         updateNotifications: (values) => ipcRenderer.invoke('local:preferences:update-notifications', values),
     },
+    appearance: {
+        get: () => ipcRenderer.invoke('appearance:get'),
+        onChanged: (callback) => {
+            const listener = (_event, appearance) => callback(appearance);
+            ipcRenderer.on('appearance:changed', listener);
+            return () => ipcRenderer.removeListener('appearance:changed', listener);
+        },
+    },
     auth: {
         startWebLogin: () => ipcRenderer.invoke('web-login:start'),
         restoreWebLogin: () => ipcRenderer.invoke('web-login:restore'),

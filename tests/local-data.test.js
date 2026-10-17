@@ -39,3 +39,16 @@ test('notification API updates only the allowed preferences', () => {
     assert.throws(() => data.preferences.updateNotifications({ NotifyMe: 'yes', NotifyGift: false }), /inválidas/);
     assert.equal(JSON.parse(files.get(filename)).NotifyMe, true);
 });
+
+test('appearance defaults to modern and preserves other preferences when changed', () => {
+    const { data, files, root } = fixture();
+    const filename = path.join(root, 'Config', 'configs.json');
+    files.set(filename, JSON.stringify({ autologin: true, appearance: 'unknown' }));
+    assert.equal(data.preferences.get().appearance, 'modern');
+
+    const updated = data.preferences.updateAppearance('classic');
+    assert.equal(updated.appearance, 'classic');
+    assert.equal(updated.autologin, true);
+    assert.equal(JSON.parse(files.get(filename)).appearance, 'classic');
+    assert.throws(() => data.preferences.updateAppearance('dark'), /Visual inválido/);
+});

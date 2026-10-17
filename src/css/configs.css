@@ -103,6 +103,7 @@ body {
 
 .config-heading,
 .settings-card,
+.appearance-settings,
 .file-actions,
 .release-link {
     flex-shrink: 0;
@@ -151,6 +152,45 @@ body {
 
 .setting-row:hover {
     background: #142a41;
+}
+
+.appearance-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.appearance-settings .section-heading h2 {
+    margin-top: 2px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.appearance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 56px;
+    padding: 9px 14px;
+    background: #0b1c2d;
+    border: 1px solid #36516b;
+    border-radius: 12px;
+}
+
+.appearance-row select {
+    min-width: 118px;
+    padding: 7px 9px;
+    color: #f3f7ff;
+    background: #192a42;
+    border: 1px solid #6986a6;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.appearance-row select:focus-visible {
+    outline: 2px solid #a970ff;
+    outline-offset: 2px;
 }
 
 .setting-copy,

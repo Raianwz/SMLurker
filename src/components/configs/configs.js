@@ -1,4 +1,5 @@
 const { app, dialog, shell: { openExternal, openPath } } = require('@electron/remote');
+const { ipcRenderer } = require('electron');
 const fs = require('fs'), path = require('path');
 const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch');
@@ -14,17 +15,31 @@ LoadConfigs()
 
 //Carregar, Alterar configurações de arquivos JSON 
 function LoadConfigs() {
+    let configs = {};
     if (fs.existsSync(configPath)) {
-        let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
+        configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }));
         getEl('#swt_ini').checked = configs.ini;
         getEl('#swt_autologin').checked = configs.autologin;
         getEl('#swt_inimin').checked = configs.inimin;
     } else createConfigs(configPath);
+    const appearance = configs.appearance === 'classic' ? 'classic' : 'modern';
+    const appearanceSelect = getEl('#appearanceSelect');
+    appearanceSelect.value = appearance;
+    document.documentElement.dataset.appearance = appearance;
     let abrirLocal = getEl('[name="abrirLocal"]'), exLista = getEl('[name="exportarLista"]'), GBChange = getEl('[name=githubChange]');
 
     getEl('#swt_ini').addEventListener('click', () => changeIni())
     getEl('#swt_autologin').addEventListener('click', () => { changeConfigs() })
     getEl('#swt_inimin').addEventListener('click', () => { changeConfigs() })
+    appearanceSelect.addEventListener('change', async () => {
+        try {
+            const selected = await ipcRenderer.invoke('appearance:set', appearanceSelect.value);
+            document.documentElement.dataset.appearance = selected;
+        } catch {
+            appearanceSelect.value = document.documentElement.dataset.appearance;
+            dialog.showMessageBoxSync({ type: 'error', message: 'Não foi possível salvar o visual.' });
+        }
+    });
     abrirLocal.addEventListener('click', () => openPath(localPath))
     exLista.addEventListener('click', () => exportarLista())
     GBChange.addEventListener('click', () => openExternal("https://github.com/Raianwz/SMLurker/releases/latest"))

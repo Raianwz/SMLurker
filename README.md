@@ -24,11 +24,13 @@ Aplicativo desktop para acompanhar vários chats da Twitch em segundo plano. O S
 
 Os arquivos do usuário (lista de canais, preferências, perfil e credenciais) ficam no diretório de dados da aplicação, dentro da pasta `Config`. O botão **Local dos Arquivos**, nas configurações, abre esse diretório.
 
+Em **Configurações → Aparência**, escolha **Moderno** ou **Clássico**. O visual escolhido é salvo em `configs.json` e aplicado às janelas abertas.
+
 > **Atenção:** o login legado ainda usa `credentials.json` sem criptografia. O login Web guarda o token separadamente em `web-session.bin`, protegido pelo armazenamento do sistema. Não compartilhe os arquivos de configuração; se um token legado for exposto, revogue-o.
 
 ## Integração com o SMLurker Web
 
-O botão **Entrar com a Twitch** abre o SMLurker Web no navegador. A URL pode ser configurada por `SMLURKER_WEB_URL`: o padrão é `http://localhost:3000` no desenvolvimento e `https://web.smlurker.rwz.app` no aplicativo empacotado.
+O botão **Entrar com a Twitch** abre o SMLurker Web no navegador. No desenvolvimento, tenta `http://localhost:3000` e, se não conseguir alcançá-lo, usa `https://smlurker.vercel.app`. No aplicativo empacotado, o padrão é `https://web.smlurker.rwz.app`. A variável `SMLURKER_WEB_URL` define uma origem explícita e dispensa essa escolha automática.
 
 O Electron abre `/connect/apps/com.smlurker` com `state`, desafio SHA-256 e URI de retorno. A Web devolve **somente um código temporário** no link; o Electron o troca por uma requisição `POST /api/apps/com.smlurker/exchange` com `code`, `codeVerifier` e `redirectUri`. O token não aparece na URL nem é salvo no `credentials.json` legado.
 

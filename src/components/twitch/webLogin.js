@@ -5,6 +5,8 @@ const PROTOCOL = 'smlurker';
 const CALLBACK_URL = `${PROTOCOL}://auth/callback`;
 const LOGIN_TIMEOUT_MS = 5 * 60 * 1000;
 const DEFAULT_WEB_ORIGIN = 'https://web.smlurker.rwz.app';
+const DEV_FALLBACK_ORIGIN = 'https://smlurker.vercel.app';
+const LOCAL_PROBE_TIMEOUT_MS = 1500;
 
 function webOrigin(isPackaged, configuredUrl = process.env.SMLURKER_WEB_URL) {
     const rawUrl = configuredUrl || (isPackaged ? DEFAULT_WEB_ORIGIN : 'http://localhost:3000');
@@ -77,12 +79,23 @@ async function exchangeCode(origin, code, verifier, fetchImpl = fetch) {
     return validateCredentials(await response.json());
 }
 
-function createWebLogin({ isPackaged, openExternal, onResult, fetchImpl = fetch, now = Date.now, configuredUrl }) {
+function createWebLogin({ isPackaged, openExternal, onResult, fetchImpl = fetch, probeImpl = fetch,
+    now = Date.now, configuredUrl = process.env.SMLURKER_WEB_URL }) {
     let pending = null;
 
     return {
         async start() {
-            const origin = webOrigin(isPackaged, configuredUrl);
+            let origin = webOrigin(isPackaged, configuredUrl);
+            if (!isPackaged && !configuredUrl && origin === 'http://localhost:3000') {
+                try {
+                    await probeImpl(origin, {
+                        method: 'HEAD',
+                        signal: AbortSignal.timeout(LOCAL_PROBE_TIMEOUT_MS),
+                    });
+                } catch {
+                    origin = DEV_FALLBACK_ORIGIN;
+                }
+            }
             const state = randomBytes(32).toString('base64url');
             const verifier = randomBytes(32).toString('base64url');
             const challenge = createHash('sha256').update(verifier).digest('base64url');

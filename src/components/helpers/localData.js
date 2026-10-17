@@ -9,6 +9,7 @@ const DEFAULT_PREFERENCES = {
     NotifyMe: false,
     NotifyGift: false,
     NotifyTray: false,
+    appearance: 'modern',
 };
 
 function normalizeChannels(values) {
@@ -44,7 +45,11 @@ function createLocalData(app, fileSystem = fs) {
         if (!stored || typeof stored !== 'object' || Array.isArray(stored)) {
             throw new Error('Arquivo de preferências inválido.');
         }
-        return { ...DEFAULT_PREFERENCES, ...stored };
+        return {
+            ...DEFAULT_PREFERENCES,
+            ...stored,
+            appearance: stored.appearance === 'classic' ? 'classic' : 'modern',
+        };
     }
 
     return {
@@ -77,6 +82,16 @@ function createLocalData(app, fileSystem = fs) {
                     NotifyMe: values.NotifyMe,
                     NotifyGift: values.NotifyGift,
                 };
+                const filePath = preferencesPath();
+                fileSystem.mkdirSync(path.dirname(filePath), { recursive: true });
+                fileSystem.writeFileSync(filePath, JSON.stringify(updated));
+                return updated;
+            },
+            updateAppearance(value) {
+                if (!['modern', 'classic'].includes(value)) {
+                    throw new TypeError('Visual inválido.');
+                }
+                const updated = { ...readPreferences(), appearance: value };
                 const filePath = preferencesPath();
                 fileSystem.mkdirSync(path.dirname(filePath), { recursive: true });
                 fileSystem.writeFileSync(filePath, JSON.stringify(updated));
