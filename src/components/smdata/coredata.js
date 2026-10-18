@@ -147,7 +147,7 @@ function renderProfile(displayName, logo, userColor) {
 
 async function createProfile(accessToken) {
     const username = document.querySelector('#username').value.toString();
-    renderProfile('Chatting', 'https://i.imgur.com/pTyMFWw.gif', '#618e54');
+    renderProfile('Chatting', 'https://i.imgur.com/pTyMFWw.gif', '#9148FF');
 
     const profileData = await getUserProfile(username, accessToken);
     let logo = safeProfileImageUrl(profileData?.profile_image_url);

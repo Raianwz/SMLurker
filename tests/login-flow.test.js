@@ -307,8 +307,16 @@ test('shows live channels beside connection status and clears them on disconnect
     assert.deepEqual(queried, ['raianwz', 'outro']);
     assert.equal(flow.element('#liveStatus').textContent, 'Ao vivo: 1');
     assert.equal(flow.element('#liveStatus').hidden, false);
+    assert.equal(flow.element('#liveStatus').disabled, false);
+    flow.element('#liveStatus').handlers.click();
+    assert.equal(flow.element('#liveChannelList').hidden, false);
+    assert.equal(flow.element('#liveChannelList').children[0].textContent, '#raianwz');
+    assert.equal(flow.element('#liveStatus').attributes['aria-expanded'], 'true');
+    assert.match(flow.element('#sessionUptime').textContent, /^Tempo conectado: \d{2}:\d{2}:\d{2}$/);
     await flow.context.sairTwitch();
     assert.equal(flow.element('#liveStatus').hidden, true);
+    assert.equal(flow.element('#liveChannelList').hidden, true);
+    assert.equal(flow.element('#sessionUptime').hidden, true);
 });
 
 test('does not show zero live channels when the joined-channel list is unavailable', async () => {
@@ -328,8 +336,10 @@ test('tray shows reconnection and recovery after an IRC interruption', async () 
     await context.entrarTwitch();
     emitClient('disconnected');
     assert.equal(element('#connectedStatus').textContent, 'Reconectando ao chat da Twitch...');
+    assert.equal(element('#sessionUptime').hidden, false);
     emitClient('connected');
     assert.equal(element('#connectedStatus').textContent, 'Canais conectados.');
+    assert.equal(element('#sessionUptime').hidden, false);
     assert.deepEqual(trayStatuses, ['connecting', 'connected', 'reconnecting', 'connected']);
 });
 

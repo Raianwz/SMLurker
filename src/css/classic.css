@@ -128,6 +128,18 @@
     border-color: var(--classic-panel-border);
 }
 
+[data-appearance="classic"] .quick-connected-dialog {
+    color: var(--classic-text);
+    background: var(--classic-settings-panel);
+    border-color: var(--classic-panel-border);
+}
+
+[data-appearance="classic"] .quick-connected-list li {
+    color: var(--classic-text);
+    background: var(--classic-profile-panel);
+    border-color: var(--classic-panel-border);
+}
+
 [data-appearance="classic"] .channel-selection-item {
     color: var(--classic-text);
     background: var(--classic-profile-panel);

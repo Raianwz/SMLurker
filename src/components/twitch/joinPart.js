@@ -3,6 +3,7 @@ let { appcore } = require('../../internal/appcore')
 let { jcPanel, jcPNReset } = require('../window/console')
 const { classifyJoinFailure } = require('./joinFailure');
 let listenersRegistered = false;
+let operationInProgress = false;
 
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
@@ -13,6 +14,7 @@ function jpManager() {
         const total = getEl('#cntotal');
         total.setAttribute('data-state', 'channels');
         total.textContent = `Canais: ${joinedChn.length}`;
+        getEl('#jc_ShowConnected').textContent = `Ver canais conectados (${joinedChn.length})`;
     }
     const waiting = () => appcore.helpers.sleep(800).then(() => waitBlock())
     let toastTimeout;
@@ -30,12 +32,53 @@ function jpManager() {
     jcPNReset()
 
     joinedChn = [...appcore.sc.tmi.channels()]
+    updateChannelCount()
+    if (getEl('#jc_ConnectedDialog').open) renderConnectedChannels()
     if (listenersRegistered) return;
     listenersRegistered = true;
     btnJoin.addEventListener('click', jpJoinChn)
     btnPart.addEventListener('click', jpPartChn)
     btnSair.addEventListener('click', () => getEl('#txtConexaoCanal').value = "")
     getEl('#jc_Help').addEventListener('click', JCInfo)
+    getEl('#jc_ShowConnected').addEventListener('click', () => {
+        joinedChn = [...appcore.sc.tmi.channels()];
+        updateChannelCount();
+        getEl('#jc_ConnectedSearch').value = '';
+        getEl('#jc_ConnectedStatus').textContent = '';
+        renderConnectedChannels();
+        getEl('#jc_ConnectedDialog').showModal();
+        getEl('#jc_ConnectedSearch').focus();
+    })
+    getEl('#jc_ConnectedSearch').addEventListener('input', renderConnectedChannels)
+    getEl('#jc_CloseConnected').addEventListener('click', () => getEl('#jc_ConnectedDialog').close())
+
+    function renderConnectedChannels() {
+        const list = getEl('#jc_ConnectedList');
+        const term = getEl('#jc_ConnectedSearch').value.trim().replace(/^#/, '').toLowerCase();
+        const matches = joinedChn.filter(channel => channel.toLowerCase().includes(term));
+        list.replaceChildren();
+        getEl('#jc_ConnectedCount').textContent = `${joinedChn.length} canais conectados · ${matches.length} exibidos`;
+        if (!matches.length) {
+            const empty = document.createElement('li');
+            empty.className = 'empty';
+            empty.textContent = joinedChn.length ? 'Nenhum canal encontrado.' : 'Nenhum canal conectado.';
+            list.appendChild(empty);
+            return;
+        }
+        for (const channel of matches) {
+            const item = document.createElement('li');
+            const name = document.createElement('span');
+            const leave = document.createElement('button');
+            name.textContent = channel;
+            leave.type = 'button';
+            leave.textContent = 'Sair';
+            leave.setAttribute('aria-label', `Sair do canal ${channel}`);
+            leave.disabled = operationInProgress;
+            leave.addEventListener('click', () => partChannel(channel, true));
+            item.append(name, leave);
+            list.appendChild(item);
+        }
+    }
 
     function checkChn(tchn) {
         if (tchn == "" || tchn == undefined) {
@@ -91,6 +134,7 @@ function jpManager() {
     }
 
     async function jpJoinChn() {
+        if (operationInProgress) return;
         txtChannel = getEl('#txtConexaoCanal').value;
         const check = joinedChn.includes(`#${txtChannel}`);
         if (checkSmDebug(txtChannel) === true) { return null }
@@ -101,6 +145,7 @@ function jpManager() {
                     panelEvent(`não entrou em #${txtChannel}: limite de 100 canais conectados.`)
                     return;
                 }
+                operationInProgress = true;
                 waitBlock(true)
                 try {
                     await appcore.sc.tmi.join(`${txtChannel}`)
@@ -109,6 +154,7 @@ function jpManager() {
                     pingArea(`🟢 Entrou em #${txtChannel}!`);
                     panelEvent(`entrou em #${txtChannel}.`)
                     updateChannelCount()
+                    if (getEl('#jc_ConnectedDialog').open) renderConnectedChannels()
                     appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
                 } catch (err) {
                     const reason = classifyJoinFailure(err);
@@ -116,6 +162,8 @@ function jpManager() {
                     panelEvent(`falha ao entrar em #${txtChannel} (${reason.label}).`)
                 } finally {
                     await waiting()
+                    operationInProgress = false;
+                    if (getEl('#jc_ConnectedDialog').open) renderConnectedChannels()
                 }
             }
             else JCtoast(`📢 Você já entrou no canal: ${txtChannel}!`);
@@ -123,34 +171,48 @@ function jpManager() {
     }
 
     async function jpPartChn() {
+        if (operationInProgress) return;
         txtChannel = getEl('#txtConexaoCanal').value;
         const check = joinedChn.includes(`#${txtChannel}`);
         if (checkSmDebug(txtChannel) === true) { return }
         if (checkChn(txtChannel)) {
             if (check) {
-                waitBlock(true)
-                try {
-                    await appcore.sc.tmi.part(`${txtChannel}`)
-                    joinedChn = joinedChn.filter(chn => chn !== `#${txtChannel}`)
-                    appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
-                    JCtoast(`⛔ Saiu de: #${txtChannel}!`);
-                    pingArea(`⛔ Saiu de:  \t#${txtChannel}!`);
-                    panelEvent(`saiu de #${txtChannel}.`)
-                    updateChannelCount()
-                } catch {
-                    JCtoast(`Não foi possível sair de #${txtChannel}`)
-                    panelEvent(`falha ao sair de #${txtChannel}.`)
-                } finally {
-                    await waiting()
-                }
-
+                await partChannel(`#${txtChannel}`)
             } else JCtoast(`📢 Você já saiu do canal: ${txtChannel}!`);
+        }
+    }
+
+    async function partChannel(channel, fromList = false) {
+        if (operationInProgress) return;
+        operationInProgress = true;
+        waitBlock(true);
+        if (getEl('#jc_ConnectedDialog').open) renderConnectedChannels();
+        try {
+            await appcore.sc.tmi.part(channel.slice(1));
+            joinedChn = joinedChn.filter(chn => chn !== channel);
+            appcore.ipc.send('sendChannelstoConsole', joinedChn.length);
+            JCtoast(`⛔ Saiu de: ${channel}!`);
+            pingArea(`⛔ Saiu de:  \t${channel}!`);
+            panelEvent(`saiu de ${channel}.`);
+            updateChannelCount();
+            if (fromList) getEl('#jc_ConnectedStatus').textContent = `Saiu de ${channel}. Sua lista salva não foi alterada.`;
+        } catch {
+            JCtoast(`Não foi possível sair de ${channel}`);
+            panelEvent(`falha ao sair de ${channel}.`);
+            if (fromList) getEl('#jc_ConnectedStatus').textContent = `Não foi possível sair de ${channel}.`;
+        } finally {
+            await waiting();
+            operationInProgress = false;
+            if (getEl('#jc_ConnectedDialog').open) {
+                renderConnectedChannels();
+                if (fromList) getEl('#jc_ConnectedSearch').focus();
+            }
         }
     }
 
     async function waitBlock(valor) {
         valor = valor ?? false;
-        let items = ['#txtConexaoCanal', '#jc_Join', '#jc_Part']
+        let items = ['#txtConexaoCanal', '#jc_Join', '#jc_Part', '#jc_ShowConnected']
         for (let i = 0; i < items.length; i++) getEl(items[i]).disabled = valor;
     }
     async function JCInfo() {

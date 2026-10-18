@@ -221,8 +221,10 @@
                 <div class="connection-summary">
                     <span id="cntotal" data-state="channels">Canais: 0</span>
                     <p id="connectedStatus" class="connected-status" role="status" aria-live="polite" aria-atomic="true"></p>
-                    <p id="liveStatus" class="live-status" role="status" aria-live="polite" hidden></p>
+                    <button id="liveStatus" class="live-status" type="button" aria-controls="liveChannelList" aria-expanded="false" aria-live="polite" disabled hidden></button>
                 </div>
+                <ul id="liveChannelList" class="live-channel-list" aria-label="Canais conectados ao vivo" hidden></ul>
+                <p id="sessionUptime" class="session-uptime" hidden></p>
                 <span id="Mtimer">🕘--:--</span>
                <div name="version">
                 <img src="https://cdn.7tv.app/emote/01HDJNCSHR000BCR3BMAP4HFH8/4x.webp" alt="pepeSit">
@@ -249,7 +251,18 @@
                         <button id="jc_Join" class="quick-button quick-button-join" type="button">Entrar<span class="material-icons" aria-hidden="true">login</span></button>
                         <button id="jc_Part" class="quick-button quick-button-part" type="button">Sair<span class="material-icons" aria-hidden="true">output</span></button>
                     </div>
+                    <button id="jc_ShowConnected" class="quick-connected-trigger" type="button">Ver canais conectados (0)</button>
                 </section>
+                <dialog id="jc_ConnectedDialog" class="quick-connected-dialog" aria-labelledby="jc_ConnectedTitle" aria-describedby="jc_ConnectedDescription">
+                    <h2 id="jc_ConnectedTitle">Canais conectados</h2>
+                    <p id="jc_ConnectedDescription">Saia de um canal para liberar uma vaga. Sua lista salva não será alterada.</p>
+                    <label for="jc_ConnectedSearch">Buscar canal</label>
+                    <input id="jc_ConnectedSearch" type="search" placeholder="Digite o nome do canal" autocomplete="off">
+                    <p id="jc_ConnectedCount" class="quick-connected-count" role="status" aria-live="polite"></p>
+                    <ul id="jc_ConnectedList" class="quick-connected-list"></ul>
+                    <p id="jc_ConnectedStatus" class="quick-connected-status" role="status" aria-live="polite"></p>
+                    <button id="jc_CloseConnected" class="quick-connected-close" type="button">Fechar</button>
+                </dialog>
                 <p id="jc_Status" class="status" role="status" aria-live="polite"></p>
                 <section class="quick-history" aria-label="Histórico da conexão rápida">
                     <div class="quick-history-heading">

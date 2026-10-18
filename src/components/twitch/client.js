@@ -18,9 +18,52 @@ let retryAction = null;
 let liveStatusTimer = null;
 let liveStatusChangeTimer = null;
 let liveStatusRun = 0;
+let sessionStartedAt = null;
+let sessionTimer = null;
 const LIVE_STATUS_REFRESH_MS = 2 * 60 * 1000;
 const MAX_CONNECTED_CHANNELS = 100;
 const CHANNEL_SELECTION_KEY = 'smlurker:selected-channels';
+
+function updateSessionUptime() {
+    if (sessionStartedAt === null) return;
+    const elapsed = Math.floor((Date.now() - sessionStartedAt) / 1000);
+    const hours = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor(elapsed % 3600 / 60)).padStart(2, '0');
+    const seconds = String(elapsed % 60).padStart(2, '0');
+    const label = document.getElementById('sessionUptime');
+    label.hidden = false;
+    label.textContent = `Tempo conectado: ${hours}:${minutes}:${seconds}`;
+    sessionTimer = setTimeout(updateSessionUptime, 1000);
+    sessionTimer?.unref?.();
+}
+
+function startSessionUptime() {
+    if (sessionStartedAt !== null) return;
+    sessionStartedAt = Date.now();
+    updateSessionUptime();
+}
+
+function stopSessionUptime() {
+    clearTimeout(sessionTimer);
+    sessionTimer = null;
+    sessionStartedAt = null;
+    const label = document.getElementById('sessionUptime');
+    label.hidden = true;
+    label.textContent = '';
+}
+
+function collapseLiveChannelList() {
+    document.getElementById('liveChannelList').hidden = true;
+    document.getElementById('liveStatus').setAttribute('aria-expanded', 'false');
+}
+
+document.getElementById('liveStatus').addEventListener('click', () => {
+    const status = document.getElementById('liveStatus');
+    if (status.disabled) return;
+    const list = document.getElementById('liveChannelList');
+    list.hidden = !list.hidden;
+    status.setAttribute('aria-expanded', String(!list.hidden));
+});
 
 async function chooseChannelsToConnect() {
     const saved = [...new Set(await api.channels.list())];
@@ -126,18 +169,24 @@ function stopLiveStatus() {
     liveStatusTimer = null;
     liveStatusChangeTimer = null;
     const status = document.getElementById('liveStatus');
+    const list = document.getElementById('liveChannelList');
     status.hidden = true;
+    status.disabled = true;
     status.textContent = '';
     status.title = '';
+    list.replaceChildren();
+    collapseLiveChannelList();
 }
 
 async function refreshLiveStatus(run) {
     if (run !== liveStatusRun || !client) return;
     const status = document.getElementById('liveStatus');
     status.hidden = false;
+    status.disabled = true;
     status.dataset.state = 'checking';
     status.textContent = 'Ao vivo: verificando...';
     status.title = '';
+    collapseLiveChannelList();
     try {
         const joined = tmi.channels();
         if (!Array.isArray(joined) || joined.length === 0) {
@@ -155,6 +204,13 @@ async function refreshLiveStatus(run) {
         status.textContent = unknown === channels.length && channels.length
             ? 'Ao vivo: indisponível'
             : `Ao vivo: ${live.length}${unknown ? '+' : ''}`;
+        const list = document.getElementById('liveChannelList');
+        list.replaceChildren(...live.map((channel) => {
+            const item = document.createElement('li');
+            item.textContent = `#${channel.login}`;
+            return item;
+        }));
+        status.disabled = live.length === 0;
         status.title = unknown
             ? `${unknown} ${unknown === 1 ? 'canal sem confirmação atual' : 'canais sem confirmação atual'}.`
             : live.length ? `Ao vivo: ${live.map((channel) => channel.login).join(', ')}` : 'Nenhum canal conectado está ao vivo.';
@@ -163,6 +219,8 @@ async function refreshLiveStatus(run) {
         status.dataset.state = 'unknown';
         status.textContent = 'Ao vivo: indisponível';
         status.title = 'Não foi possível consultar os canais ao vivo.';
+        status.disabled = true;
+        document.getElementById('liveChannelList').replaceChildren();
     } finally {
         if (run === liveStatusRun) {
             liveStatusTimer = setTimeout(() => void refreshLiveStatus(run), LIVE_STATUS_REFRESH_MS);
@@ -204,6 +262,7 @@ async function disconnectForAppAction() {
         clearTimeout(timeout);
         client = null;
         stopLiveStatus();
+        stopSessionUptime();
         updateTrayStatus('disconnected');
     }
 }
@@ -317,8 +376,13 @@ function setConnectionStatus(state, message, { retry = null, inlineMissingChanne
     const connectedStatus = document.getElementById('connectedStatus');
     connectedStatus.textContent = ['joining', 'connected', 'reconnecting'].includes(state) ? text : '';
     connectedStatus.setAttribute('data-state', state);
-    if (state === 'connected') startLiveStatus();
-    else stopLiveStatus();
+    if (state === 'connected') {
+        startSessionUptime();
+        startLiveStatus();
+    } else {
+        stopLiveStatus();
+        if (!['joining', 'reconnecting'].includes(state)) stopSessionUptime();
+    }
     retryAction = retry;
     const retryButton = document.getElementById('retryConnection');
     retryButton.hidden = !retry;

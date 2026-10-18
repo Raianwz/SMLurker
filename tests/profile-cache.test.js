@@ -113,6 +113,7 @@ test('remote profile fields are rendered as text and unsafe URLs or colors are r
     const result = await harness.createProfile();
     assert.equal(result.logo, 'https://i.imgur.com/pTyMFWw.gif');
     assert.equal(result.userColor, '#9148FF');
+    assert.equal(harness.userBox.children[0].style.color, '#9148FF');
     assert.equal(harness.userBox.children[0].title, '<img src=x onerror=alert(1)>');
     assert.equal(harness.userBox.children[1].textContent, 'Perfil de <img src=x onerror=alert(1)>');
 });
