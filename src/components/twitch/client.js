@@ -30,6 +30,9 @@ async function chooseChannelsToConnect() {
     const list = document.getElementById('channelSelectionItems');
     const count = document.getElementById('channelSelectionCount');
     const confirm = document.getElementById('channelSelectionConfirm');
+    const search = document.getElementById('channelSelectionSearch');
+    const matches = document.getElementById('channelSelectionMatches');
+    const empty = document.getElementById('channelSelectionEmpty');
     let previous = [];
     try {
         const stored = JSON.parse(localStorage.getItem(CHANNEL_SELECTION_KEY));
@@ -66,6 +69,19 @@ async function chooseChannelsToConnect() {
         return label;
     });
     list.replaceChildren(...rows);
+    search.value = '';
+    const filterRows = () => {
+        const query = search.value.trim().toLowerCase().replace(/^#/, '');
+        let visible = 0;
+        rows.forEach((row, index) => {
+            row.hidden = !saved[index].replace(/^#/, '').toLowerCase().includes(query);
+            if (!row.hidden) visible++;
+        });
+        matches.textContent = query ? `${visible} de ${saved.length} canais encontrados` : '';
+        empty.hidden = visible !== 0;
+    };
+    search.oninput = filterRows;
+    filterRows();
     updateCount();
     setConnectionStatus('info', `Sua lista tem ${saved.length} canais. Somente 100 serão conectados; escolha quais deseja entrar.`);
     return new Promise(resolve => {
@@ -85,6 +101,11 @@ async function chooseChannelsToConnect() {
             inputs.forEach((input, index) => { input.checked = index < MAX_CONNECTED_CHANNELS; });
             updateCount();
         };
+        document.getElementById('channelSelectionClear').onclick = () => {
+            selected.clear();
+            inputs.forEach(input => { input.checked = false; });
+            updateCount();
+        };
         document.getElementById('channelSelectionCancel').onclick = () => finish(null);
         confirm.onclick = () => {
             if (!selected.size) return;
@@ -94,7 +115,7 @@ async function chooseChannelsToConnect() {
             finish(channels);
         };
         dialog.showModal();
-        document.getElementById('channelSelectionCancel').focus();
+        search.focus();
     });
 }
 

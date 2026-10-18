@@ -174,8 +174,15 @@
             <dialog id="channelSelectionDialog" class="channel-selection-dialog" aria-labelledby="channelSelectionTitle" aria-describedby="channelSelectionDescription">
                 <h2 id="channelSelectionTitle">Escolha os canais para conectar</h2>
                 <p id="channelSelectionDescription">Sua lista excede o limite da Twitch. Somente 100 canais da sua lista serão conectados.</p>
-                <p id="channelSelectionCount" class="channel-selection-count" role="status" aria-live="polite"></p>
+                <div class="channel-selection-toolbar">
+                    <p id="channelSelectionCount" class="channel-selection-count" role="status" aria-live="polite"></p>
+                    <button id="channelSelectionClear" type="button">Limpar seleção</button>
+                </div>
+                <label class="channel-selection-search-label" for="channelSelectionSearch">Buscar canal</label>
+                <input id="channelSelectionSearch" class="channel-selection-search" type="search" placeholder="Digite o nome do canal" autocomplete="off">
+                <p id="channelSelectionMatches" class="channel-selection-matches" role="status" aria-live="polite"></p>
                 <div id="channelSelectionItems" class="channel-selection-items" role="group" aria-label="Canais para conectar"></div>
+                <p id="channelSelectionEmpty" class="channel-selection-empty" hidden>Nenhum canal encontrado.</p>
                 <div class="channel-selection-actions">
                     <button id="channelSelectionFirst" type="button">Marcar os primeiros 100</button>
                     <button id="channelSelectionCancel" type="button">Cancelar</button>

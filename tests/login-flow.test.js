@@ -217,6 +217,49 @@ test('cancelling channel selection does not connect to Twitch', async () => {
     assert.equal(flow.element('#channelSelectionDialog').open, false);
 });
 
+test('a 134-entry list can search and swap a channel near the end before joining', async () => {
+    const savedChannels = [
+        ...Array.from({ length: 132 }, (_, index) => `#canal${index}`),
+        '#zealryth', '#canal42',
+    ];
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, undefined, 1, savedChannels);
+    const connecting = flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+
+    const rows = flow.element('#channelSelectionItems').children;
+    assert.equal(rows.length, 133);
+    assert.equal(rows.filter(row => row.children[0].checked).length, 100);
+    const search = flow.element('#channelSelectionSearch');
+    search.value = 'zeal';
+    search.oninput();
+    assert.equal(rows.filter(row => !row.hidden).length, 1);
+    assert.equal(rows.at(-1).children[1].textContent, '#zealryth');
+    assert.match(flow.element('#channelSelectionMatches').textContent, /1 de 133/);
+
+    flow.element('#channelSelectionClear').onclick();
+    assert.equal(rows.some(row => row.children[0].checked), false);
+    assert.match(flow.element('#channelSelectionCount').textContent, /0 de 100/);
+    assert.equal(flow.element('#channelSelectionConfirm').disabled, true);
+    flow.element('#channelSelectionFirst').onclick();
+    assert.equal(rows.filter(row => row.children[0].checked).length, 100);
+    assert.equal(flow.element('#channelSelectionConfirm').disabled, false);
+
+    rows.at(-1).children[0].checked = true;
+    rows.at(-1).children[0].handlers.change();
+    assert.equal(rows.at(-1).children[0].checked, false);
+    assert.match(flow.element('#channelSelectionCount').textContent, /Desmarque um/);
+    rows[0].children[0].checked = false;
+    rows[0].children[0].handlers.change();
+    rows.at(-1).children[0].checked = true;
+    rows.at(-1).children[0].handlers.change();
+    flow.element('#channelSelectionConfirm').onclick();
+    await connecting;
+
+    assert.equal(flow.joinedSelections[0].length, 100);
+    assert.equal(flow.joinedSelections[0].includes('#canal0'), false);
+    assert.equal(flow.joinedSelections[0].includes('#zealryth'), true);
+});
+
 test('shows live channels beside connection status and clears them on disconnect', async () => {
     const flow = createLoginFlow();
     const queried = [];
