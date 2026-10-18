@@ -10,6 +10,7 @@ const smcore = {
     tmi: {
         ini: (options) => createClient(options),
         client: () => localClient,
+        channels: () => localClient?.getChannels() ?? [],
         cn: async () => localClient.connect(),
         dc: async () => localClient.disconnect(),
         rds: async () => localClient.readyState(),
@@ -27,9 +28,9 @@ const smcore = {
         let { jc } = require('../components/twitch/joinchannels')
         jc();
     },
-    jcnc: async () => {
+    jcnc: async (channels) => {
         let { jc } = require('../components/twitch/joinchannels')
-        return jc()
+        return jc(channels)
     },
     jp: async () => {
         let { joinpart } = require('../components/twitch/joinPart')

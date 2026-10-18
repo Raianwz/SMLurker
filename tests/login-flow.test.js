@@ -6,35 +6,47 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/client.js'), 'utf8');
 
-function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1) {
+function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro']) {
     const calls = [];
     const profileTokens = [];
     const trayStatuses = [];
+    const joinedSelections = [];
+    const storedValues = new Map();
     const clientHandlers = new Map();
     let onWebLoginResult;
     let onAppActionRequested;
     const elements = new Map();
-    const element = (selector) => {
-        if (!elements.has(selector)) {
+    const createNode = () => {
             const classes = new Set();
             const handlers = {};
-            elements.set(selector, {
+            return {
                 value: '',
                 textContent: '',
                 hidden: false,
+                open: false,
                 dataset: {},
                 handlers,
                 attributes: {},
+                children: [],
                 classList: {
                     add: (...names) => names.forEach((name) => classes.add(name)),
                     remove: (...names) => names.forEach((name) => classes.delete(name)),
                     contains: (name) => classes.has(name),
                 },
                 addEventListener(name, listener) { handlers[name] = listener; },
+                removeEventListener(name) { delete handlers[name]; },
                 setAttribute(name, value) { this.attributes[name] = value; },
                 replaceChildren(...children) { this.children = children; },
+                append(...children) { this.children.push(...children); },
+                showModal() { this.open = true; },
+                close() { this.open = false; this.handlers.close?.(); },
+                focus() {},
                 blur() {},
-            });
+            };
+    };
+    const element = (selector) => {
+        if (!elements.has(selector)) {
+            elements.set(selector, createNode());
         }
         return elements.get(selector);
     };
@@ -43,12 +55,13 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
     element('section#user_box').textContent = 'profile';
 
     const api = {
+        channels: { list: async () => savedChannels },
         tw: {
             tmi: {
                 ini: () => ({
                     on: (name, listener) => clientHandlers.set(name, listener),
-                    getChannels: () => ['#raianwz', '#outro'],
                 }),
+                channels: () => ['#raianwz', '#outro'],
                 cn: async () => {
                     calls.push('connect');
                     const failure = typeof connectError === 'function' ? connectError() : connectError;
@@ -71,8 +84,9 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
                 },
                 saveUserData: async () => { calls.push('save'); },
             },
-            jcnc: async () => {
+            jcnc: async (channels) => {
                 calls.push('join');
+                joinedSelections.push(channels);
                 if (joinError) throw joinError;
             },
             jp: () => { calls.push('join-manager'); },
@@ -101,14 +115,16 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             perform: (action) => { calls.push(`perform:${action}`); },
         },
     };
-    const context = vm.createContext({ api, setTimeout, clearTimeout, document: {
+    const context = vm.createContext({ api, setTimeout, clearTimeout,
+        localStorage: { getItem: (key) => storedValues.get(key) ?? null, setItem: (key, value) => storedValues.set(key, value) },
+        document: {
         getElementById: (id) => element(`#${id}`),
         querySelector: element,
-        createElement: (tagName) => ({ tagName, style: {} }),
+        createElement: (tagName) => Object.assign(createNode(), { tagName, style: {} }),
     } });
     vm.runInContext(source, context);
     return {
-        context, element, calls, trayStatuses, profileTokens,
+        context, element, calls, trayStatuses, profileTokens, joinedSelections, storedValues,
         emitClient: (name) => clientHandlers.get(name)?.(),
         webLoginResult: (result) => onWebLoginResult(result),
         requestAppAction: (action) => onAppActionRequested(action),
@@ -165,6 +181,42 @@ test('legacy Entrar connects, joins and only then saves credentials', async () =
     assert.deepEqual(profileTokens, ['oauth:legacy-token']);
 });
 
+test('more than 100 saved channels require a selection before connecting', async () => {
+    const savedChannels = Array.from({ length: 102 }, (_, index) => `#canal${index}`);
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, undefined, 1, savedChannels);
+    const connecting = flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+
+    assert.equal(flow.element('#channelSelectionDialog').open, true);
+    assert.equal(flow.calls.includes('connect'), false);
+    assert.match(flow.element('#channelSelectionCount').textContent, /100 de 100/);
+    const items = flow.element('#channelSelectionItems').children;
+    assert.equal(items.length, 102);
+    assert.equal(items.filter(item => item.children[0].checked).length, 100);
+    items[0].children[0].checked = false;
+    items[0].children[0].handlers.change();
+    items[100].children[0].checked = true;
+    items[100].children[0].handlers.change();
+    flow.element('#channelSelectionConfirm').onclick();
+    await connecting;
+
+    assert.equal(flow.joinedSelections[0].length, 100);
+    assert.equal(flow.joinedSelections[0].includes('#canal0'), false);
+    assert.equal(flow.joinedSelections[0].includes('#canal100'), true);
+    assert.equal(JSON.parse(flow.storedValues.get('smlurker:selected-channels')).length, 100);
+});
+
+test('cancelling channel selection does not connect to Twitch', async () => {
+    const savedChannels = Array.from({ length: 101 }, (_, index) => `#canal${index}`);
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, undefined, 1, savedChannels);
+    const connecting = flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+    flow.element('#channelSelectionCancel').onclick();
+    await connecting;
+    assert.equal(flow.calls.includes('connect'), false);
+    assert.equal(flow.element('#channelSelectionDialog').open, false);
+});
+
 test('shows live channels beside connection status and clears them on disconnect', async () => {
     const flow = createLoginFlow();
     const queried = [];
@@ -184,6 +236,18 @@ test('shows live channels beside connection status and clears them on disconnect
     assert.equal(flow.element('#liveStatus').hidden, false);
     await flow.context.sairTwitch();
     assert.equal(flow.element('#liveStatus').hidden, true);
+});
+
+test('does not show zero live channels when the joined-channel list is unavailable', async () => {
+    const flow = createLoginFlow();
+    let queried = false;
+    flow.context.api.tw.tmi.channels = () => [];
+    flow.context.api.streams = { status: async () => { queried = true; return []; } };
+    await flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+    assert.equal(queried, false);
+    assert.equal(flow.element('#liveStatus').textContent, 'Ao vivo: indisponível');
+    await flow.context.sairTwitch();
 });
 
 test('tray shows reconnection and recovery after an IRC interruption', async () => {
@@ -221,7 +285,7 @@ test('a failed IRC connection shows an error and retry connects with the same cr
     const flow = createLoginFlow(undefined, true, false, { type: 'none' }, () =>
         ++attempts === 1 ? new Error('Falha de rede') : null);
     const connecting = flow.context.entrarTwitch();
-    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'connecting');
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'info');
     await connecting;
     assert.equal(flow.element('#msgStatus').attributes['data-state'], 'error');
     assert.equal(flow.element('#msgStatus').textContent, 'Falha de rede');

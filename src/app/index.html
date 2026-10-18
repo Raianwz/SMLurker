@@ -171,6 +171,17 @@
                     </div>
                 </dialog>
             </div>
+            <dialog id="channelSelectionDialog" class="channel-selection-dialog" aria-labelledby="channelSelectionTitle" aria-describedby="channelSelectionDescription">
+                <h2 id="channelSelectionTitle">Escolha os canais para conectar</h2>
+                <p id="channelSelectionDescription">Sua lista excede o limite da Twitch. Somente 100 canais da sua lista serão conectados.</p>
+                <p id="channelSelectionCount" class="channel-selection-count" role="status" aria-live="polite"></p>
+                <div id="channelSelectionItems" class="channel-selection-items" role="group" aria-label="Canais para conectar"></div>
+                <div class="channel-selection-actions">
+                    <button id="channelSelectionFirst" type="button">Marcar os primeiros 100</button>
+                    <button id="channelSelectionCancel" type="button">Cancelar</button>
+                    <button id="channelSelectionConfirm" type="button">Conectar selecionados</button>
+                </div>
+            </dialog>
             <div class="UserWrapper none">
                 <div class="NotifyWrapper">
                     <p class="title">Notificações</p>
@@ -201,7 +212,7 @@
                 </div>
                 <div class="hline"></div>
                 <div class="connection-summary">
-                    <span id="cntotal">&#x1F7E3; Canais: 0</span>
+                    <span id="cntotal" data-state="channels">Canais: 0</span>
                     <p id="connectedStatus" class="connected-status" role="status" aria-live="polite" aria-atomic="true"></p>
                     <p id="liveStatus" class="live-status" role="status" aria-live="polite" hidden></p>
                 </div>

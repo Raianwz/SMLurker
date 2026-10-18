@@ -13,11 +13,90 @@ let webCredentials = null;
 let autoConnectEnabled = false;
 let useLegacyLogin = false;
 let appActionInProgress = false;
+let connectionPreparationInProgress = false;
 let retryAction = null;
 let liveStatusTimer = null;
 let liveStatusChangeTimer = null;
 let liveStatusRun = 0;
 const LIVE_STATUS_REFRESH_MS = 2 * 60 * 1000;
+const MAX_CONNECTED_CHANNELS = 100;
+const CHANNEL_SELECTION_KEY = 'smlurker:selected-channels';
+
+async function chooseChannelsToConnect() {
+    const saved = [...new Set(await api.channels.list())];
+    if (saved.length <= MAX_CONNECTED_CHANNELS) return saved;
+
+    const dialog = document.getElementById('channelSelectionDialog');
+    const list = document.getElementById('channelSelectionItems');
+    const count = document.getElementById('channelSelectionCount');
+    const confirm = document.getElementById('channelSelectionConfirm');
+    let previous = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem(CHANNEL_SELECTION_KEY));
+        if (Array.isArray(stored)) previous = stored;
+    } catch { /* Use os primeiros canais da lista se a preferência não puder ser lida. */ }
+    const selected = new Set(previous.length ? previous.filter(channel => saved.includes(channel)).slice(0, MAX_CONNECTED_CHANNELS)
+        : saved.slice(0, MAX_CONNECTED_CHANNELS));
+    const inputs = [];
+    const updateCount = () => {
+        count.textContent = `${selected.size} de ${MAX_CONNECTED_CHANNELS} canais selecionados · ${saved.length} na lista`;
+        confirm.disabled = selected.size === 0;
+    };
+    const rows = saved.map(channel => {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        const name = document.createElement('span');
+        label.className = 'channel-selection-item';
+        checkbox.type = 'checkbox';
+        checkbox.checked = selected.has(channel);
+        checkbox.setAttribute('aria-label', `Conectar ${channel}`);
+        name.textContent = channel;
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked && selected.size >= MAX_CONNECTED_CHANNELS) {
+                checkbox.checked = false;
+                count.textContent = `O limite é de ${MAX_CONNECTED_CHANNELS} canais. Desmarque um para escolher ${channel}.`;
+                return;
+            }
+            if (checkbox.checked) selected.add(channel);
+            else selected.delete(channel);
+            updateCount();
+        });
+        inputs.push(checkbox);
+        label.append(checkbox, name);
+        return label;
+    });
+    list.replaceChildren(...rows);
+    updateCount();
+    setConnectionStatus('info', `Sua lista tem ${saved.length} canais. Somente 100 serão conectados; escolha quais deseja entrar.`);
+    return new Promise(resolve => {
+        let finished = false;
+        const finish = (channels) => {
+            if (finished) return;
+            finished = true;
+            dialog.removeEventListener('close', onClose);
+            if (dialog.open) dialog.close();
+            resolve(channels);
+        };
+        const onClose = () => finish(null);
+        dialog.addEventListener('close', onClose);
+        document.getElementById('channelSelectionFirst').onclick = () => {
+            selected.clear();
+            saved.slice(0, MAX_CONNECTED_CHANNELS).forEach(channel => selected.add(channel));
+            inputs.forEach((input, index) => { input.checked = index < MAX_CONNECTED_CHANNELS; });
+            updateCount();
+        };
+        document.getElementById('channelSelectionCancel').onclick = () => finish(null);
+        confirm.onclick = () => {
+            if (!selected.size) return;
+            const channels = saved.filter(channel => selected.has(channel));
+            try { localStorage.setItem(CHANNEL_SELECTION_KEY, JSON.stringify(channels)); }
+            catch { /* A escolha ainda vale para esta conexão. */ }
+            finish(channels);
+        };
+        dialog.showModal();
+        document.getElementById('channelSelectionCancel').focus();
+    });
+}
 
 function stopLiveStatus() {
     liveStatusRun++;
@@ -34,16 +113,20 @@ function stopLiveStatus() {
 async function refreshLiveStatus(run) {
     if (run !== liveStatusRun || !client) return;
     const status = document.getElementById('liveStatus');
-    const logins = typeof client.getChannels === 'function'
-        ? client.getChannels().map((channel) => channel.replace(/^#/, '')).filter(Boolean)
-        : [];
     status.hidden = false;
     status.dataset.state = 'checking';
     status.textContent = 'Ao vivo: verificando...';
     status.title = '';
     try {
+        const joined = tmi.channels();
+        if (!Array.isArray(joined) || joined.length === 0) {
+            throw new Error('Lista de canais conectados indisponível.');
+        }
+        const logins = joined.map((channel) => channel.replace(/^#/, '')).filter(Boolean);
+        if (logins.length !== joined.length) throw new Error('Lista de canais conectados incompleta.');
         const channels = await api.streams.status(logins);
         if (run !== liveStatusRun) return;
+        if (channels.length !== logins.length) throw new Error('Resposta incompleta dos canais.');
         const confirmed = channels.filter((channel) => !channel.stale);
         const live = confirmed.filter((channel) => channel.is_live === true);
         const unknown = channels.length - confirmed.filter((channel) => typeof channel.is_live === 'boolean').length;
@@ -243,7 +326,24 @@ function resetLoginButton() {
 }
 
 async function conectarCanais({ username, pass, fromWeb }) {
+    if (connectionPreparationInProgress || client) return;
+    connectionPreparationInProgress = true;
     const btnEntrar = document.getElementById(fromWeb ? 'btnConnectChannels' : 'btnEntrar');
+    let selectedChannels;
+    try {
+        selectedChannels = await chooseChannelsToConnect();
+    } catch {
+        setConnectionStatus('error', 'Não foi possível ler sua lista de canais.', {
+            retry: fromWeb ? conectarCanaisWeb : entrarTwitch,
+        });
+        return;
+    } finally {
+        connectionPreparationInProgress = false;
+    }
+    if (selectedChannels === null) {
+        showLoginStatus('Conexão cancelada. Escolha os canais quando quiser entrar.');
+        return;
+    }
     BlockLogin(true);
     updateTrayStatus('connecting');
     btnEntrar.value = '';
@@ -293,7 +393,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         if (!fromWeb) {
             try { await createProfile(); } catch { /* A foto não deve impedir a conexão. */ }
         }
-        await api.tw.jcnc();
+        await api.tw.jcnc(selectedChannels);
         channelsJoined = true;
 
         if (!fromWeb) await saveUserData(username, pass);

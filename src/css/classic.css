@@ -122,6 +122,23 @@
     outline-offset: 2px;
 }
 
+[data-appearance="classic"] .channel-selection-dialog {
+    color: var(--classic-text);
+    background: var(--classic-settings-panel);
+    border-color: var(--classic-panel-border);
+}
+
+[data-appearance="classic"] .channel-selection-item {
+    color: var(--classic-text);
+    background: var(--classic-profile-panel);
+    border-color: var(--classic-panel-border);
+}
+
+[data-appearance="classic"] .channel-selection-actions #channelSelectionConfirm {
+    background: var(--classic-blue-deep);
+    border-color: var(--classic-blue);
+}
+
 /* Log quase preto, como o painel amplo das versões clássicas. */
 [data-appearance="classic"] .classic-event-log {
     color: var(--classic-text);

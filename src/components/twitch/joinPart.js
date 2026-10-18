@@ -1,12 +1,18 @@
-let joinedChn = [], check, error;
+let joinedChn = [];
 let { appcore } = require('../../internal/appcore')
 let { jcPanel, jcPNReset } = require('../window/console')
+const { classifyJoinFailure } = require('./joinFailure');
 
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
-    const channelPath = appcore.channels.path();
     const pingArea = (txt) => { let time = new Date(); jcPanel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
-    const inText = (el, txt) => el.innerText = txt
+    const panelEvent = (message) => appcore.ipc.send('sendtoConsole',
+        `\n${new Date().toLocaleString('pt-BR')} · Conexão rápida: ${message}\n`)
+    const updateChannelCount = () => {
+        const total = getEl('#cntotal');
+        total.setAttribute('data-state', 'channels');
+        total.textContent = `Canais: ${joinedChn.length}`;
+    }
     const waiting = () => appcore.helpers.sleep(800).then(() => waitBlock())
     let toastTimeout;
     const JCtoast = (txt) => {
@@ -22,7 +28,7 @@ function jpManager() {
     let btnJoin = getEl('#jc_Join'), btnPart = getEl('#jc_Part'), btnSair = getEl('#btnEntrar'), txtChannel;
     jcPNReset()
 
-    joinedChn = appcore.fs.exist(channelPath) ? appcore.channels.read() : []
+    joinedChn = [...appcore.sc.tmi.channels()]
     btnJoin.addEventListener('click', jpJoinChn)
     btnPart.addEventListener('click', jpPartChn)
     btnSair.addEventListener('click', () => getEl('#txtConexaoCanal').value = "")
@@ -83,23 +89,31 @@ function jpManager() {
 
     async function jpJoinChn() {
         txtChannel = getEl('#txtConexaoCanal').value;
-        check = joinedChn.includes(`#${txtChannel}`);
-        error = false;
+        const check = joinedChn.includes(`#${txtChannel}`);
         if (checkSmDebug(txtChannel) === true) { return null }
         if (checkChn(txtChannel)) {
             if (!check) {
+                if (joinedChn.length >= 100) {
+                    JCtoast('Limite de 100 canais conectados. Saia de um canal antes de entrar em outro.');
+                    panelEvent(`não entrou em #${txtChannel}: limite de 100 canais conectados.`)
+                    return;
+                }
                 waitBlock(true)
-                await appcore.sc.tmi.join(`${txtChannel}`)
-                    .catch(err => { if (err === 'msg_channel_suspended') error = true; })
-                    .then(() => waiting())
-                if (!error) {
+                try {
+                    await appcore.sc.tmi.join(`${txtChannel}`)
                     joinedChn.push(`#${txtChannel}`)
                     JCtoast(`🟢 Entrou em #${txtChannel}`);
                     pingArea(`🟢 Entrou em #${txtChannel}!`);
-                    inText(getEl('#cntotal'), `🟣 Canais: ${joinedChn.length}`)
+                    panelEvent(`entrou em #${txtChannel}.`)
+                    updateChannelCount()
                     appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
+                } catch (err) {
+                    const reason = classifyJoinFailure(err);
+                    JCtoast(`Não foi possível entrar em #${txtChannel}: ${reason.label}`)
+                    panelEvent(`falha ao entrar em #${txtChannel} (${reason.label}).`)
+                } finally {
+                    await waiting()
                 }
-                else JCtoast(`😕 #${txtChannel} Inexistente/Suspenso`)
             }
             else JCtoast(`📢 Você já entrou no canal: ${txtChannel}!`);
         }
@@ -107,19 +121,25 @@ function jpManager() {
 
     async function jpPartChn() {
         txtChannel = getEl('#txtConexaoCanal').value;
-        check = joinedChn.includes(`#${txtChannel}`);
+        const check = joinedChn.includes(`#${txtChannel}`);
         if (checkSmDebug(txtChannel) === true) { return }
         if (checkChn(txtChannel)) {
             if (check) {
                 waitBlock(true)
-                await appcore.sc.tmi.part(`${txtChannel}`)
-                    .catch(err => console.log(`[DEBUG] - Erro: ${err}`))
-                    .then(() => waiting())
-                joinedChn = joinedChn.filter(chn => chn !== `#${txtChannel}`)
-                appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
-                JCtoast(`⛔ Saiu de: #${txtChannel}!`);
-                pingArea(`⛔ Saiu de:  \t#${txtChannel}!`);
-                inText(getEl('#cntotal'), `🟣 Canais: ${joinedChn.length}`)
+                try {
+                    await appcore.sc.tmi.part(`${txtChannel}`)
+                    joinedChn = joinedChn.filter(chn => chn !== `#${txtChannel}`)
+                    appcore.ipc.send('sendChannelstoConsole', joinedChn.length)
+                    JCtoast(`⛔ Saiu de: #${txtChannel}!`);
+                    pingArea(`⛔ Saiu de:  \t#${txtChannel}!`);
+                    panelEvent(`saiu de #${txtChannel}.`)
+                    updateChannelCount()
+                } catch {
+                    JCtoast(`Não foi possível sair de #${txtChannel}`)
+                    panelEvent(`falha ao sair de #${txtChannel}.`)
+                } finally {
+                    await waiting()
+                }
 
             } else JCtoast(`📢 Você já saiu do canal: ${txtChannel}!`);
         }
