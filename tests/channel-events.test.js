@@ -12,13 +12,14 @@ function createQuickConnection(initialChannels = ['#existing']) {
     let joinError = null;
     let partError = null;
     let joinCalls = 0;
+    let listenerCount = 0;
     const element = (selector) => {
         if (!elements.has(selector)) elements.set(selector, {
             value: '', textContent: '', disabled: false,
             handlers: {},
             classList: { add() {}, remove() {} },
             setAttribute() {},
-            addEventListener(name, listener) { this.handlers[name] = listener; },
+            addEventListener(name, listener) { this.handlers[name] = listener; listenerCount++; },
             focus() {},
         });
         return elements.get(selector);
@@ -51,8 +52,21 @@ function createQuickConnection(initialChannels = ['#existing']) {
         failJoin: (error) => { joinError = error; },
         failPart: (error) => { partError = error; },
         getJoinCalls: () => joinCalls,
+        reconnect: (channels) => { initialChannels = channels; context.module.exports.joinpart(); },
+        getListenerCount: () => listenerCount,
     };
 }
+
+test('quick connection reuses its buttons and refreshes the channel count on reconnect', async () => {
+    const flow = createQuickConnection(['#old']);
+    const initialListeners = flow.getListenerCount();
+    flow.reconnect(['#new', '#other']);
+    assert.equal(flow.getListenerCount(), initialListeners);
+    flow.element('#txtConexaoCanal').value = 'third';
+    await flow.element('#jc_Join').handlers.click();
+    assert.equal(flow.element('#cntotal').textContent, 'Canais: 3');
+    assert.equal(flow.getJoinCalls(), 1);
+});
 
 test('quick connection logs successful joins and parts in the event panel', async () => {
     const flow = createQuickConnection();

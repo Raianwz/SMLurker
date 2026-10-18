@@ -26,6 +26,7 @@ function profileHarness(initialProfile, fetchImpl) {
         module: { exports: {} },
         require: (id) => {
             if (id === '../../internal/appcore') return { appcore };
+            if (id === 'electron') return { ipcRenderer: { invoke: async () => ({ credentials: null }) } };
             if (id === './userProfileSource') {
                 return { fetchUserProfile: async (name) => {
                     const response = await fetchImpl(`https://api.chat.raianwz.com.br/smlurker/${name}/`);

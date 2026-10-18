@@ -53,7 +53,7 @@ const smcore = {
         },
         saveUserData: async (user, pass) => {
             let { saveUserData } = require('../components/smdata/coredata')
-            saveUserData(user, pass)
+            return saveUserData(user, pass)
         }
     }
 }

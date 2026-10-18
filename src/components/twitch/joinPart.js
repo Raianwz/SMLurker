@@ -2,6 +2,7 @@ let joinedChn = [];
 let { appcore } = require('../../internal/appcore')
 let { jcPanel, jcPNReset } = require('../window/console')
 const { classifyJoinFailure } = require('./joinFailure');
+let listenersRegistered = false;
 
 function jpManager() {
     const getEl = (el) => document.querySelector(el)
@@ -29,6 +30,8 @@ function jpManager() {
     jcPNReset()
 
     joinedChn = [...appcore.sc.tmi.channels()]
+    if (listenersRegistered) return;
+    listenersRegistered = true;
     btnJoin.addEventListener('click', jpJoinChn)
     btnPart.addEventListener('click', jpPartChn)
     btnSair.addEventListener('click', () => getEl('#txtConexaoCanal').value = "")

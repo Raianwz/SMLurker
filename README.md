@@ -26,13 +26,13 @@ Os arquivos do usuário (lista de canais, preferências, perfil e credenciais) f
 
 Em **Configurações → Aparência**, escolha **Moderno** ou **Clássico**. O visual escolhido é salvo em `configs.json` e aplicado às janelas abertas.
 
-> **Atenção:** o login legado ainda usa `credentials.json` sem criptografia. O login Web guarda o token separadamente em `web-session.bin`, protegido pelo armazenamento do sistema. Não compartilhe os arquivos de configuração; se um token legado for exposto, revogue-o.
+O login clássico guarda o OAuth em `Config/UserOAuth.bin`, protegido pelo `safeStorage` do Electron. Na primeira leitura, o aplicativo migra o antigo `credentials.json` e o remove após confirmar a gravação protegida. Se a proteção do sistema estiver indisponível, o login antigo continua funcionando e a migração fica pendente; novas credenciais não são gravadas em texto puro. O login Web guarda sua sessão separadamente em `web-session.bin`.
 
 ## Integração com o SMLurker Web
 
 O botão **Entrar com a Twitch** abre o SMLurker Web no navegador. No desenvolvimento, tenta `http://localhost:3000` e, se não conseguir alcançá-lo, usa `https://smlurker.vercel.app`. No aplicativo empacotado, o padrão é `https://web.smlurker.rwz.app`. A variável `SMLURKER_WEB_URL` define uma origem explícita e dispensa essa escolha automática.
 
-O Electron abre `/connect/apps/com.smlurker` com `state`, desafio SHA-256 e URI de retorno. A Web devolve **somente um código temporário** no link; o Electron o troca por uma requisição `POST /api/apps/com.smlurker/exchange` com `code`, `codeVerifier` e `redirectUri`. O token não aparece na URL nem é salvo no `credentials.json` legado.
+O Electron abre `/connect/apps/com.smlurker` com `state`, desafio SHA-256 e URI de retorno. A Web devolve **somente um código temporário** no link; o Electron o troca por uma requisição `POST /api/apps/com.smlurker/exchange` com `code`, `codeVerifier` e `redirectUri`. O token não aparece na URL nem é salvo no arquivo do login clássico.
 
 A sessão Web é restaurada após reiniciar ou recarregar o aplicativo enquanto o token for válido. O Electron verifica o token com a Twitch; se ele expirar ou for revogado, solicita novo login. A renovação automática ainda não foi implementada.
 

@@ -8,9 +8,15 @@ const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
 const audio = new Audio(new URL('../assets/audio/Chaos.ogg', document.baseURI).href);
 let jcConsolePanel = getEl('#jcConsole');
 const jcConsoleReset = () => { jcConsolePanel.value = "" }
+let controlsRegistered = false;
+let activeClient = null;
+let messageListener = null;
+let subgiftListener = null;
+let managerRequest = 0;
 
 
 async function consoleManager() {
+    const request = ++managerRequest;
     let userdata = {};
     try {
         if (appcore.fs.exist(profilePath)) userdata = JSON.parse(appcore.fs.rd(profilePath));
@@ -19,30 +25,34 @@ async function consoleManager() {
             userdata.display_name = profile?.displayName;
         }
     } catch { /* A conexão aos canais não depende da foto do perfil. */ }
+    if (request !== managerRequest) return;
     let userDisplayName = userdata.display_name ?? getEl('#username').value.toLowerCase()
     let userName = userdata.login ?? getEl('#username').value.toLowerCase()
     let volBar = getEl('#volBar');
 
-    volBar.addEventListener('input', changeBar);
-    volBar.addEventListener('click', changeBar);
-    volBar.click()
+    if (!controlsRegistered) {
+        controlsRegistered = true;
+        volBar.addEventListener('input', changeBar);
+        volBar.addEventListener('click', changeBar);
+        volBar.click()
 
-    const testSound = getEl('span.sgSom');
-    testSound.addEventListener('click', () => {
-        if (localStorage.getItem('volume') !== null) {
-            if (localStorage.getItem('volume') < 10) audio.volume = `0.0${localStorage.getItem('volume')}`
-            else if (localStorage.getItem('volume') >= 10 && localStorage.getItem('volume') < 100) audio.volume = `0.${localStorage.getItem('volume')}`
-            else audio.volume = 1;
-        }
-        audio.play()
-    })
-    testSound.addEventListener('keydown', (event) => {
-        if (!['Enter', ' '].includes(event.key)) return;
-        event.preventDefault();
-        testSound.click();
-    });
+        const testSound = getEl('span.sgSom');
+        testSound.addEventListener('click', () => {
+            if (localStorage.getItem('volume') !== null) {
+                if (localStorage.getItem('volume') < 10) audio.volume = `0.0${localStorage.getItem('volume')}`
+                else if (localStorage.getItem('volume') >= 10 && localStorage.getItem('volume') < 100) audio.volume = `0.${localStorage.getItem('volume')}`
+                else audio.volume = 1;
+            }
+            audio.play()
+        })
+        testSound.addEventListener('keydown', (event) => {
+            if (!['Enter', ' '].includes(event.key)) return;
+            event.preventDefault();
+            testSound.click();
+        });
 
-    getEl('button[name=jc_clean]').addEventListener('click', jcConsoleReset)
+        getEl('button[name=jc_clean]').addEventListener('click', jcConsoleReset)
+    }
 
     function changeBar() {
         const value = this.value;
@@ -52,16 +62,25 @@ async function consoleManager() {
 
     if (localStorage.getItem('showGifts') === null) localStorage.setItem('showGifts', false)
 
-    appcore.sc.tmi.on('message', async (channel, tags, message) => {
+    const client = appcore.sc.tmi.client();
+    if (client === activeClient) return;
+    if (activeClient) {
+        activeClient.removeListener('message', messageListener);
+        activeClient.removeListener('subgift', subgiftListener);
+    }
+    activeClient = client;
+
+    messageListener = async (channel, tags, message) => {
         let time = new Date();
         let checkUserName = (message.toLowerCase()).includes(`${userName}`)
         if (checkUserName || message.includes(`${userDisplayName}`)) {
             ipcRenderer.send('sendMentionstoConsole', `\n🔴 Canal: ${channel}\t\t${time.toLocaleTimeString()}\t\t${time.toLocaleDateString()}\n💬 ${tags.username}: ${message}\n`)
             checkNotifyMe(channel, tags, message)
         }
-    })
+    };
+    client.on('message', messageListener);
 
-    appcore.sc.tmi.on('subgift', (channel, username, streakMonths, recipient, methods, userstate) => {
+    subgiftListener = (channel, username, streakMonths, recipient, methods, userstate) => {
         const recipientLogin = userstate?.['msg-param-recipient-user-name'];
         const matchesUser = [recipientLogin, recipient].some((name) =>
             typeof name === 'string' &&
@@ -74,7 +93,8 @@ async function consoleManager() {
             ipcRenderer.send('sendtoConsole', `\n${time.toLocaleDateString()} ${time.toLocaleTimeString()} 🔎[DEBUG]: 🎁 @${username} presentou  @${recipient} em ${channel}`)
             console.log('%c🔎[DEBUG]', 'color:green', ` @${username} presentou  @${recipient} em ${channel}`);
         }
-    })
+    };
+    client.on('subgift', subgiftListener);
 
 
 }

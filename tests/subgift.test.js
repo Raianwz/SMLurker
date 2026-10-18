@@ -8,13 +8,14 @@ const source = fs.readFileSync(path.join(__dirname, '../src/components/window/co
 
 test('SubGift notifies only the exact recipient from the tmi.js event', async () => {
     const listeners = new Map();
+    const bindings = [];
     const notifications = [];
     const messages = [];
     const elements = {
         '#username': { value: 'raianwz' },
-        '#volBar': { addEventListener() {}, click() {}, style: {} },
-        'span.sgSom': { addEventListener() {} },
-        'button[name=jc_clean]': { addEventListener() {} },
+        '#volBar': { addEventListener(event) { bindings.push(`volume:${event}`); }, click() {}, style: {} },
+        'span.sgSom': { addEventListener(event) { bindings.push(`sound:${event}`); } },
+        'button[name=jc_clean]': { addEventListener(event) { bindings.push(`clear:${event}`); } },
         '#jcConsole': { value: '' },
     };
     class Notification {
@@ -22,13 +23,17 @@ test('SubGift notifies only the exact recipient from the tmi.js event', async ()
         addListener() {}
         show() {}
     }
+    const client = {
+        on: (event, listener) => { listeners.set(event, listener); bindings.push(`chat:${event}`); },
+        removeListener: (event) => listeners.delete(event),
+    };
     const appcore = {
         appr: { getPath: () => 'userData' },
         fs: {
             exist: (filename) => filename.endsWith('configs.json'),
             rd: () => JSON.stringify({ NotifyGift: true }),
         },
-        sc: { tmi: { on: (event, listener) => listeners.set(event, listener) } },
+        sc: { tmi: { client: () => client } },
         eshell: { openExternal() {} },
     };
     const context = {
@@ -51,6 +56,9 @@ test('SubGift notifies only the exact recipient from the tmi.js event', async ()
     };
     vm.runInNewContext(source, context);
     await context.module.exports.consoleMng();
+    await context.module.exports.consoleMng();
+    assert.equal(bindings.filter((binding) => binding === 'chat:subgift').length, 1);
+    assert.equal(bindings.filter((binding) => binding === 'sound:click').length, 1);
     const subgift = listeners.get('subgift');
     subgift('#channel', 'sender', 3, 'otheruser', {}, { 'msg-param-recipient-user-name': 'otheruser' });
     assert.equal(notifications.length, 0);

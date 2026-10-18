@@ -298,7 +298,9 @@ async function restoreLoginState() {
         } else if (legacy.status === 'rejected') {
             setConnectionStatus('error', 'Não foi possível carregar as credenciais salvas. Entre com a Twitch.', { retry: restoreLoginState });
         }
-        else if (!legacyAvailable || !autoConnectEnabled) showLoginStatus('');
+        else if (legacy.status === 'fulfilled' && legacy.value.protectionPending) {
+            showLoginStatus('O OAuth antigo continua disponível, mas a proteção do sistema ainda não permitiu migrá-lo.');
+        } else if (!legacyAvailable || !autoConnectEnabled) showLoginStatus('');
     }
 }
 
@@ -427,12 +429,18 @@ async function conectarCanais({ username, pass, fromWeb }) {
         }
         channelsJoined = true;
 
-        if (!fromWeb) await saveUserData(username, pass);
+        let credentialsSaved = true;
+        if (!fromWeb) {
+            try { credentialsSaved = await saveUserData(username, pass) !== false; }
+            catch { credentialsSaved = false; }
+        }
         if (fromWeb) document.getElementById('pass').value = '';
         api.console.manager();
         api.tw.jp();
         changeAppSide(1);
-        setConnectionStatus('connected', 'Canais conectados.');
+        setConnectionStatus('connected', credentialsSaved
+            ? 'Canais conectados.'
+            : 'Canais conectados. O OAuth não pôde ser salvo com proteção neste sistema.');
         btnEntrar.value = 'Desconectar';
         btnEntrar.classList.remove('loading');
         btnEntrar.classList.add('conectado');

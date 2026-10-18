@@ -30,7 +30,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [ ] Avaliar mover **Sair da conta** da tela de login para o menu do perfil e oferecer uma ação separada e confirmada para esquecer o OAuth legado.
 - [x] Melhorar navegação por teclado, foco visível e textos dos tooltips em todas as telas.
 - [x] Oferecer desfazer a última remoção de canal durante a sessão.
-- [ ] Evitar registrar novamente os mesmos listeners da interface a cada reconexão.
+- [x] Evitar registrar novamente os mesmos listeners da interface a cada reconexão.
 - [x] Mostrar o estado de espera pela abertura do IRC em `joinchannels.js` enquanto a conexão ainda não está pronta.
 - [ ] Testar manualmente login, Ctrl+R, reconexão, expiração de token e notificações no Windows instalado e portátil.
 
@@ -40,7 +40,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Usar a Dank API como fonte principal de perfil, com endereço reserva e a API legada Vercel como último fallback.
 - [ ] Avaliar importação da lista de canais do SMLurker Web para o Electron e envio da lista do Electron para o Web, com deduplicação e confirmação antes de substituir dados.
 - [ ] Planejar renovação do token Web com o projeto Web; hoje a sessão precisa de novo login quando o token expira.
-- [ ] Migrar as credenciais legadas em texto puro para armazenamento protegido, sem quebrar usuários atuais.
+- [x] Migrar as credenciais legadas em texto puro para armazenamento protegido, sem quebrar usuários atuais.
 - [ ] Reduzir o acesso do renderer a Node.js/`@electron/remote` e avaliar mover a conexão IRC para o processo principal.
 - [ ] Revisar desempenho com listas grandes de canais e o comportamento de reconexão após perda de rede.
 - [ ] Fechar a matriz de testes e empacotamento da versão 0.1.15, prevista como última com suporte a Windows 32 bits.

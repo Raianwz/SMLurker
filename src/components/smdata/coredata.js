@@ -1,21 +1,16 @@
 const { appcore } = require('../../internal/appcore')
 const { fetchUserProfile } = require('./userProfileSource')
+const { ipcRenderer } = require('electron')
 /*============================================(GERENCIAMENTO DE DADOS)=========================================*/
 //Salvando dados
 async function saveUserData(user, pass) {
-    let dataPath = `${appcore.appr.getPath('userData')}\\Config\\credentials.json`
-    let data = {};
-    data.username = user
-    data.pass = pass
-    appcore.fs.write(dataPath, `${JSON.stringify(data)}`)
+    return ipcRenderer.invoke('legacy-credentials:save', { username: user, pass })
 }
 
 //Carregando dados salvos
 async function loadUserData() {
     const getEl = (el) => document.querySelector(el);
     const configPath = `${appcore.appr.getPath('userData')}\\Config\\configs.json`;
-    const dataPath = `${appcore.appr.getPath('userData')}\\Config\\credentials.json`
-    let data = {};
     let autoConnect = false;
 
     if (appcore.fs.exist(configPath)) {
@@ -25,14 +20,11 @@ async function loadUserData() {
         autoConnect = config.autologin === true;
     }
 
-    if (appcore.fs.exist(dataPath)) {
-        data = JSON.parse(appcore.fs.read(dataPath, { encoding: 'utf8' }))
-        if (typeof data.username !== 'string' || typeof data.pass !== 'string' || !data.username.trim() || !data.pass.trim()) return { hasCredentials: false, autoConnect };
-        getEl('#username').value = data.username
-        getEl('#pass').value = data.pass
-        return { hasCredentials: true, autoConnect };
-    }
-    return { hasCredentials: false, autoConnect };
+    const { credentials, protectionPending } = await ipcRenderer.invoke('legacy-credentials:load');
+    if (!credentials) return { hasCredentials: false, autoConnect };
+    getEl('#username').value = credentials.username;
+    getEl('#pass').value = credentials.pass;
+    return { hasCredentials: true, autoConnect, protectionPending };
 }
 
 //Gerenciando dados de Configurações de Notificações
