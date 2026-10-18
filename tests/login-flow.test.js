@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/client.js'), 'utf8');
 
-function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro']) {
+function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro'], joinResult) {
     const calls = [];
     const profileTokens = [];
     const trayStatuses = [];
@@ -87,7 +87,8 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             jcnc: async (channels) => {
                 calls.push('join');
                 joinedSelections.push(channels);
-                if (joinError) throw joinError;
+                if (joinError) throw typeof joinError === 'function' ? joinError(savedChannels) : joinError;
+                return joinResult;
             },
             jp: () => { calls.push('join-manager'); },
         },
@@ -204,6 +205,35 @@ test('more than 100 saved channels require a selection before connecting', async
     assert.equal(flow.joinedSelections[0].includes('#canal0'), false);
     assert.equal(flow.joinedSelections[0].includes('#canal100'), true);
     assert.equal(JSON.parse(flow.storedValues.get('smlurker:selected-channels')).length, 100);
+});
+
+test('removed channels leave the saved connection selection after joining', async () => {
+    const savedChannels = Array.from({ length: 101 }, (_, index) => `#canal${index}`);
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, undefined, 1,
+        savedChannels, { removed: ['#canal0'] });
+    const connecting = flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+    flow.element('#channelSelectionConfirm').onclick();
+    await connecting;
+    const selected = JSON.parse(flow.storedValues.get('smlurker:selected-channels'));
+    assert.equal(selected.length, 99);
+    assert.equal(selected.includes('#canal0'), false);
+    assert.equal(selected.includes('#canal1'), true);
+});
+
+test('selection is pruned when all joins fail after a channel was removed', async () => {
+    const savedChannels = Array.from({ length: 101 }, (_, index) => `#canal${index}`);
+    const flow = createLoginFlow((channels) => {
+        channels.shift();
+        return new Error('Nenhum canal pôde ser conectado.');
+    }, true, false, { type: 'none' }, undefined, 1, savedChannels);
+    const connecting = flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+    flow.element('#channelSelectionConfirm').onclick();
+    await connecting;
+    const selected = JSON.parse(flow.storedValues.get('smlurker:selected-channels'));
+    assert.equal(selected.length, 99);
+    assert.equal(selected.includes('#canal0'), false);
 });
 
 test('cancelling channel selection does not connect to Twitch', async () => {

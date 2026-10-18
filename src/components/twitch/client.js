@@ -414,7 +414,17 @@ async function conectarCanais({ username, pass, fromWeb }) {
         if (!fromWeb) {
             try { await createProfile(); } catch { /* A foto não deve impedir a conexão. */ }
         }
-        await api.tw.jcnc(selectedChannels);
+        const joinResult = await api.tw.jcnc(selectedChannels);
+        if (Array.isArray(joinResult?.removed) && joinResult.removed.length) {
+            const removed = new Set(joinResult.removed);
+            selectedChannels = selectedChannels.filter(channel => !removed.has(channel));
+            try {
+                const stored = JSON.parse(localStorage.getItem(CHANNEL_SELECTION_KEY));
+                if (Array.isArray(stored)) {
+                    localStorage.setItem(CHANNEL_SELECTION_KEY, JSON.stringify(stored.filter(channel => !removed.has(channel))));
+                }
+            } catch { /* A lista salva já foi atualizada; a seleção vale para esta sessão. */ }
+        }
         channelsJoined = true;
 
         if (!fromWeb) await saveUserData(username, pass);
@@ -430,6 +440,13 @@ async function conectarCanais({ username, pass, fromWeb }) {
         updateTrayStatus('connected');
     } catch (error) {
         const invalidWebToken = fromWeb && isWebAuthError(error);
+        try {
+            const stored = JSON.parse(localStorage.getItem(CHANNEL_SELECTION_KEY));
+            if (Array.isArray(stored)) {
+                const saved = new Set(await api.channels.list());
+                localStorage.setItem(CHANNEL_SELECTION_KEY, JSON.stringify(stored.filter(channel => saved.has(channel))));
+            }
+        } catch { /* Uma falha ao ler a seleção não deve ocultar o erro de conexão. */ }
         BlockLogin(false);
         if (fromWeb) document.getElementById('pass').value = '';
         const errorMessage = typeof error?.message === 'string' ? error.message : String(error);

@@ -81,7 +81,7 @@ test('quick connection logs failures without changing the connected-channel coun
     flow.failJoin(new Error('msg_channel_suspended'));
     flow.element('#txtConexaoCanal').value = 'falhou';
     await flow.element('#jc_Join').handlers.click();
-    assert.match(flow.sent.at(-1)[1], /falha ao entrar em #falhou \(canal suspenso\)/);
+    assert.match(flow.sent.at(-1)[1], /falha ao entrar em #falhou \(canal suspenso ou removido\)/);
     assert.equal(flow.sent.some(([name]) => name === 'sendChannelstoConsole'), false);
 
     flow.failPart(new Error('offline'));

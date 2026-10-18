@@ -1,5 +1,7 @@
 const tmijs = require('tmi.js')
+const { ipcRenderer } = require('electron')
 const { createConfigs } = require('../components/helpers/setupConfigs')
+const { observeIrcNotices } = require('../components/twitch/ircNoticeDiagnostics')
 let localClient = null
 let n = 0
 
@@ -57,7 +59,11 @@ const smcore = {
 }
 
 function createClient(options) {
-    return localClient = new tmijs.Client(options)
+    localClient = new tmijs.Client(options)
+    observeIrcNotices(localClient, (notice) => {
+        ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · ${notice}\n`)
+    })
+    return localClient
 }
 
 module.exports = { smcore };

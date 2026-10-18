@@ -59,6 +59,8 @@ test('waiting for IRC readiness is shown below login and cleared when channels s
             if (id === './joinEstimate') return require('../src/components/twitch/joinEstimate');
             if (id === './joinFailure') return require('../src/components/twitch/joinFailure');
             if (id === './channelFailureCleanup') return require('../src/components/twitch/channelFailureCleanup');
+            if (id === './liveStatusSource') return { fetchLiveStatus: async () => [] };
+            if (id === './resolveJoinFailures') return require('../src/components/twitch/resolveJoinFailures');
             throw new Error(`Unexpected module: ${id}`);
         },
     };
@@ -127,6 +129,8 @@ test('join countdown catches up with elapsed time when the window regains focus'
             if (id === './joinEstimate') return require('../src/components/twitch/joinEstimate');
             if (id === './joinFailure') return require('../src/components/twitch/joinFailure');
             if (id === './channelFailureCleanup') return require('../src/components/twitch/channelFailureCleanup');
+            if (id === './liveStatusSource') return { fetchLiveStatus: async () => [] };
+            if (id === './resolveJoinFailures') return require('../src/components/twitch/resolveJoinFailures');
             throw new Error(`Unexpected module: ${id}`);
         },
     };
@@ -171,7 +175,7 @@ test('join countdown catches up with elapsed time when the window regains focus'
     assert.equal(element('#conection_box').attributes.has('disabled'), false);
 });
 
-test('a rejected join does not count as a connected channel', async () => {
+test('a missing login is backed up and removed from the connected total', async () => {
     const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/joinchannels.js'), 'utf8');
     const elements = new Map();
     const sent = [];
@@ -194,12 +198,14 @@ test('a rejected join does not count as a connected channel', async () => {
         clearTimeout,
         require(id) {
             if (id === '../../internal/smcore') return { smcore: {
-                tmi: { rds: async () => 'OPEN', join: async () => { throw new Error('join failed'); } },
+                tmi: { rds: async () => 'OPEN', join: async (channel) => {
+                    if (channel === '#bast_50') throw new Error('No response from Twitch.');
+                } },
                 lv: { get: () => 0, add() {} },
             } };
             if (id === '../../internal/appcore') return { appcore: {
                 tr: { changeside() {} },
-                channels: { path: () => 'channels.json', read: () => ['channel'] },
+                channels: { path: () => 'channels.json', read: () => ['#a', '#b', '#bast_50'] },
                 fs: { exist: () => true, write: (file, contents) => writes.push({ file, contents }) },
                 appr: { getPath: () => 'desktop' },
                 dg: { showMB: (options) => dialogs.push(options) },
@@ -209,20 +215,27 @@ test('a rejected join does not count as a connected channel', async () => {
             if (id === './joinEstimate') return require('../src/components/twitch/joinEstimate');
             if (id === './joinFailure') return require('../src/components/twitch/joinFailure');
             if (id === './channelFailureCleanup') return require('../src/components/twitch/channelFailureCleanup');
+            if (id === './liveStatusSource') return { fetchLiveStatus: async () => [
+                { login: 'bast_50', status: 'not_found', stale: false },
+            ] };
+            if (id === './resolveJoinFailures') return require('../src/components/twitch/resolveJoinFailures');
             throw new Error(`Unexpected module: ${id}`);
         },
     };
     vm.runInNewContext(source, context);
-    await assert.rejects(context.module.exports.jc(), /Não foi possível entrar em nenhum canal/);
-    assert.equal(element('#cntotal').textContent, 'Canais: 0 (1 falharam)');
-    assert.equal(element('#cntotal').attributes['data-state'], 'partial');
-    assert.deepEqual(sent.filter(([name]) => name === 'sendChannelstoConsole'), [['sendChannelstoConsole', 0]]);
-    assert.match(sent[0][1], /Falharam: channel \(erro ao conectar\)/);
-    assert.match(sent.at(-1)[1], /0 conectados, 1 falha/);
-    assert.equal(writes.length, 2);
-    assert.match(writes[0].file, /smlurker_backup-channels_/);
-    assert.deepEqual(JSON.parse(writes[0].contents), ['channel']);
-    assert.equal(writes[1].file, 'channels.json');
-    assert.deepEqual(JSON.parse(writes[1].contents), []);
-    assert.match(dialogs[0].detail, /Algumas falhas podem ser temporárias/);
+    const result = await context.module.exports.jc();
+    assert.deepEqual(Array.from(result.removed), ['#bast_50']);
+    assert.equal(element('#cntotal').textContent, 'Canais: 2/2');
+    assert.equal(element('#cntotal').attributes['data-state'], 'channels');
+    assert.deepEqual(sent.filter(([name]) => name === 'sendChannelstoConsole'), [['sendChannelstoConsole', 2]]);
+    assert.match(sent[0][1], /Falharam: #bast_50 \(sem resposta da Twitch\)/);
+    assert.match(sent.filter(([name]) => name === 'sendtoConsole').map(([, message]) => message).join(''),
+        /Dank API não encontrou estes logins: #bast_50/);
+    assert.match(sent.at(-1)[1], /2 conectados, 1 falha/);
+    assert.equal(writes.length, 3);
+    assert.deepEqual(JSON.parse(writes[0].contents), ['#a', '#b', '#bast_50']);
+    assert.equal(writes[1].contents, '#a\n#b\n#bast_50\n');
+    assert.equal(writes[2].file, 'channels.json');
+    assert.deepEqual(JSON.parse(writes[2].contents), ['#a', '#b']);
+    assert.match(dialogs[0].detail, /smlurker_backup-channels_/);
 });

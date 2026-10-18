@@ -16,8 +16,10 @@ test('failed channels are removed only after a full JSON backup is written', () 
     assert.match(result.backupPath, /smlurker_backup-channels_2026-10-17_21-34-17-123\.json$/);
     assert.equal(writes[0].file, result.backupPath);
     assert.deepEqual(JSON.parse(writes[0].contents), original);
-    assert.equal(writes[1].file, 'channels.json');
-    assert.deepEqual(JSON.parse(writes[1].contents), ['#ok', '#outro']);
+    assert.equal(writes[1].file, result.textBackupPath);
+    assert.equal(writes[1].contents, '#ok\n#falhou\n#outro\n');
+    assert.equal(writes[2].file, 'channels.json');
+    assert.deepEqual(JSON.parse(writes[2].contents), ['#ok', '#outro']);
 });
 
 test('a failed backup leaves the channel list untouched', () => {
@@ -30,4 +32,19 @@ test('a failed backup leaves the channel list untouched', () => {
     assert.throws(() => backupAndRemoveFailedChannels(appcore, ['#falhou']), /disk full/);
     assert.equal(writes.length, 1);
     assert.match(writes[0], /smlurker_backup-channels_/);
+});
+
+test('a failed TXT backup does not update the channel list', () => {
+    const writes = [];
+    const appcore = {
+        channels: { read: () => ['#falhou'], path: () => 'channels.json' },
+        appr: { getPath: () => 'desktop' },
+        fs: { write: (file) => {
+            writes.push(file);
+            if (file.endsWith('.txt')) throw new Error('disk full');
+        } },
+    };
+    assert.throws(() => backupAndRemoveFailedChannels(appcore, ['#falhou']), /disk full/);
+    assert.equal(writes.length, 2);
+    assert.equal(writes.includes('channels.json'), false);
 });

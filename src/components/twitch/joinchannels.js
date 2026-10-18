@@ -5,6 +5,8 @@ const { setTimeout: sleep } = require('node:timers/promises');
 const { BATCH_SIZE, BATCH_DELAY_MS, CHANNEL_DELAY_MS, remainingJoinMs, formatRemainingMs } = require('./joinEstimate');
 const { classifyJoinFailure } = require('./joinFailure');
 const { backupAndRemoveFailedChannels } = require('./channelFailureCleanup');
+const { fetchLiveStatus } = require('./liveStatusSource');
+const { resolveJoinFailures } = require('./resolveJoinFailures');
 const tmi = smcore.tmi;
 const IRC_READY_TIMEOUT_MS = 15_000;
 const JOIN_TIMEOUT_MS = 10_000;
@@ -53,7 +55,7 @@ async function joinChannels(selectedChannels) {
     let batchCount = 0;
     let batchJoined = [];
     let batchFailed = [];
-    const failedChannels = [];
+    const failures = [];
     const reportBatch = () => {
         if (!batchJoined.length && !batchFailed.length) return;
         const lines = [];
@@ -132,7 +134,7 @@ async function joinChannels(selectedChannels) {
                 failed++;
                 const reason = classifyJoinFailure(error);
                 batchFailed.push(`${channels[x]} (${reason.label})`);
-                failedChannels.push(channels[x]);
+                failures.push({ channel: channels[x], reason });
             }
             batchCount++;
             setChannelCount('entering', `Entrou: ${joined}/${channels.length}`)
@@ -153,10 +155,24 @@ async function joinChannels(selectedChannels) {
             waitLogin(false);
         }
     }
-    if (failedChannels.length) {
+    let removed = [];
+    if (failures.length) {
+        let decision;
+        try {
+            decision = await resolveJoinFailures(failures, fetchLiveStatus);
+        } catch {
+            decision = await resolveJoinFailures(failures, async () => []);
+        }
+        if (decision.missingLogin.length) ipcRenderer.send('sendtoConsole',
+            `\n${new Date().toLocaleString('pt-BR')} · A Dank API não encontrou estes logins: ${decision.missingLogin.join(', ')}. Podem ter sido renomeados; serão removidos da lista após o backup.\n`);
+        if (decision.existing.length) ipcRenderer.send('sendtoConsole',
+            `\n${new Date().toLocaleString('pt-BR')} · Canais existentes sem confirmação do IRC, mantidos na lista: ${decision.existing.join(', ')}.\n`);
+        const unconfirmed = decision.unknown.filter(channel => !decision.missingLogin.includes(channel));
+        if (unconfirmed.length) ipcRenderer.send('sendtoConsole',
+            `\n${new Date().toLocaleString('pt-BR')} · Não foi possível confirmar estes canais sem resposta do IRC; mantidos na lista: ${unconfirmed.join(', ')}.\n`);
         let cleanup;
         try {
-            cleanup = backupAndRemoveFailedChannels(appcore, failedChannels);
+            if (decision.remove.length) cleanup = backupAndRemoveFailedChannels(appcore, decision.remove);
         } catch {
             ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Não foi possível concluir o backup ou a atualização da lista. Confira o arquivo de canais antes de tentar novamente.\n`);
             try {
@@ -169,13 +185,14 @@ async function joinChannels(selectedChannels) {
             } catch { /* A falha também foi registrada no painel de eventos. */ }
         }
         if (cleanup) {
-            ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Canais removidos da lista: ${cleanup.removed.join(', ')}. Backup: ${cleanup.backupPath}\n`);
+            removed = cleanup.removed;
+            ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Canais removidos da lista: ${cleanup.removed.join(', ')}. Backups: ${cleanup.backupPath} e ${cleanup.textBackupPath}\n`);
             try {
                 appcore.dg.showMB({
                     type: 'info',
                     title: 'Lista de canais atualizada — SMLurker',
                     message: `${cleanup.removed.length} ${cleanup.removed.length === 1 ? 'canal foi removido' : 'canais foram removidos'} da lista.`,
-                    detail: `Algumas falhas podem ser temporárias. A lista anterior completa, incluindo esses canais, foi salva em:\n${cleanup.backupPath}`,
+                    detail: `Algumas falhas podem ser temporárias. A lista anterior completa, incluindo esses canais, foi salva em:\n${cleanup.backupPath}\n${cleanup.textBackupPath}`,
                 });
             } catch { /* O painel já informa a remoção e o caminho do backup. */ }
         }
@@ -183,10 +200,12 @@ async function joinChannels(selectedChannels) {
     ipcRenderer.send('sendChannelstoConsole', joined)
     ipcRenderer.send('sendtoConsole',
         `\n${new Date().toLocaleString('pt-BR')} · Entrada concluída: ${joined} conectado${joined === 1 ? '' : 's'}, ${failed} falha${failed === 1 ? '' : 's'}.\n`);
-    setChannelCount(failed ? 'partial' : 'channels',
-        failed ? `Canais: ${joined} (${failed} falharam)` : `Canais: ${joined}`);
+    const remainingTotal = channels.length - removed.length;
+    const remainingFailures = failed - removed.length;
+    setChannelCount(remainingFailures ? 'partial' : 'channels',
+        failed ? `Canais: ${joined}/${remainingTotal}` : `Canais: ${joined}`);
     if (joined === 0) throw new Error('Não foi possível entrar em nenhum canal.');
-
+    return { removed };
 }
 
 module.exports.jc = joinChannels;
