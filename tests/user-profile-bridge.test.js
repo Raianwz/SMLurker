@@ -49,6 +49,11 @@ test('preload exposes userprofile.get through the existing api bridge', async ()
     menu[0].click();
     menu[2].click();
     assert.deepEqual(sent, [['app-reload:request'], ['app-restart:request']]);
+    exposed.value.desktop.showMenu('readonly');
+    assert.deepEqual(Array.from(menu, (item) => item.label), ['Copiar', 'Selecionar tudo']);
+    exposed.value.desktop.showMenu('input');
+    assert.deepEqual(Array.from(menu.filter((item) => item.label), (item) => item.label),
+        ['Desfazer', 'Refazer', 'Recortar', 'Copiar', 'Colar', 'Selecionar tudo']);
     assert.deepEqual(invocations, [
         ['local:channels:add', ['#raianwz']],
         ['local:preferences:update-notifications', { NotifyMe: true, NotifyGift: false }],

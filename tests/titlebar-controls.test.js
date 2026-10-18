@@ -21,6 +21,7 @@ function setupControls(answer) {
     };
     let menu;
     let domReady;
+    let contextMenu;
     const api = {
         reload: {
             request: () => calls.push('request-reload'),
@@ -48,7 +49,7 @@ function setupControls(answer) {
     const browser = vm.createContext({
         api,
         document: { querySelector: element },
-        window: { addEventListener() {} },
+        window: { addEventListener: (name, listener) => { if (name === 'contextmenu') contextMenu = listener; } },
     });
     const win = {
         getTitle: () => 'SM Lurker',
@@ -61,7 +62,7 @@ function setupControls(answer) {
     vm.runInNewContext(controlsSource, controls);
     controls.module.exports.WControls(() => win);
     domReady();
-    return { calls, element, getMenu: () => menu };
+    return { calls, element, getMenu: () => menu, contextMenu: (event) => contextMenu(event) };
 }
 
 test('main titlebar has accessible buttons for tray, minimize and exit', () => {
@@ -83,4 +84,15 @@ test('reload and restart menu items request the guarded actions', () => {
     const controls = setupControls(0);
     controls.element('#refresh').click();
     assert.equal(controls.getMenu(), 'refresh');
+});
+
+test('read-only event history uses the Portuguese copy menu', () => {
+    const controls = setupControls(0);
+    let prevented = false;
+    controls.contextMenu({
+        target: { type: 'textarea', readOnly: true },
+        preventDefault: () => { prevented = true; },
+    });
+    assert.equal(prevented, true);
+    assert.equal(controls.getMenu(), 'readonly');
 });

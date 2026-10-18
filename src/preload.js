@@ -106,14 +106,27 @@ const api = {
     desktop: {
         showMenu: (kind) => {
             const { Menu, getCurrentWindow } = require('@electron/remote');
-            const input = ['undo', 'redo', 'cut', 'copy', 'paste', 'selectAll'];
+            const editItems = [
+                { role: 'undo', label: 'Desfazer' },
+                { role: 'redo', label: 'Refazer' },
+                { type: 'separator' },
+                { role: 'cut', label: 'Recortar' },
+                { role: 'copy', label: 'Copiar' },
+                { role: 'paste', label: 'Colar' },
+                { type: 'separator' },
+                { role: 'selectAll', label: 'Selecionar tudo' },
+            ];
             const template = kind === 'refresh'
                 ? [
                     { label: 'Recarregar', click: () => ipcRenderer.send('app-reload:request') },
                     { type: 'separator' },
                     { label: 'Reiniciar', click: () => ipcRenderer.send('app-restart:request') },
                 ]
-                : kind === 'input' ? input.map(role => ({ role })) : null;
+                : kind === 'input' ? editItems
+                    : kind === 'readonly' ? [
+                        { role: 'copy', label: 'Copiar' },
+                        { role: 'selectAll', label: 'Selecionar tudo' },
+                    ] : null;
             if (template) Menu.buildFromTemplate(template).popup(getCurrentWindow());
         },
     },

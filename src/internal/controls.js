@@ -23,7 +23,7 @@ function windowButtonsControls(app) {
             e.preventDefault();
             let ele = e.target
             if (ele.type === "text" || ele.type === "textarea" || ele.type === "password") {
-                api.desktop.showMenu('input');
+                api.desktop.showMenu(ele.readOnly ? 'readonly' : 'input');
 
             }
         })`;
