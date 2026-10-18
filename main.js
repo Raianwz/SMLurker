@@ -1,5 +1,5 @@
 const { initialize, enable } = require('@electron/remote/main'); initialize();
-const { app, BrowserWindow, shell, Notification, ipcMain, safeStorage } = require('electron');
+const { app, BrowserWindow, shell, Notification, ipcMain, safeStorage, dialog } = require('electron');
 const { autoUpdater } = require("electron-updater");
 const isWin = process.platform === "win32";
 const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
@@ -11,6 +11,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 const { PROTOCOL, callbackFromArgs } = require('./src/components/twitch/webLogin');
 const { createWebLoginController } = require('./src/components/ipc/webLogin');
 const { registerLocalDataIpc } = require('./src/components/ipc/localData');
+const { registerChannelFilesIpc } = require('./src/components/ipc/channelFiles');
 const { registerLegacyCredentialsIpc } = require('./src/components/ipc/legacyCredentials');
 const { registerReloadIpc, attachReloadShortcut } = require('./src/components/ipc/reload');
 
@@ -23,6 +24,7 @@ function fromMainWindow(event) {
     if (event.sender !== mainWindow?.webContents) throw new Error('Janela não autorizada.');
 }
 registerLocalDataIpc({ app, ipcMain, fromMainWindow });
+registerChannelFilesIpc({ app, ipcMain, dialog, getMainWindow: () => mainWindow, fromMainWindow });
 registerLegacyCredentialsIpc({ app, ipcMain, safeStorage, fromMainWindow });
 registerReloadIpc({ app, ipcMain, getMainWindow: () => mainWindow });
 const webLogin = createWebLoginController({
@@ -56,8 +58,8 @@ function CreateWindow() {
         show: false,
         maximizable: false,
         webPreferences: {
-            nodeIntegration: true,
-            enableRemoteModule: true,
+            nodeIntegration: false,
+            sandbox: false,
             webSecurity: true,
             preload: path.join(__dirname, "./src/preload.js"),
         }

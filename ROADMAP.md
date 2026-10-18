@@ -41,6 +41,7 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [ ] Avaliar importação da lista de canais do SMLurker Web para o Electron e envio da lista do Electron para o Web, com deduplicação e confirmação antes de substituir dados.
 - [ ] Planejar renovação do token Web com o projeto Web; hoje a sessão precisa de novo login quando o token expira.
 - [x] Migrar as credenciais legadas em texto puro para armazenamento protegido, sem quebrar usuários atuais.
-- [ ] Reduzir o acesso do renderer a Node.js/`@electron/remote` e avaliar mover a conexão IRC para o processo principal.
+- [x] Desabilitar Node.js nas páginas, restringir a API exposta pelo preload e avaliar a mudança do IRC para outro processo. O IRC permanece no preload por enquanto; colocá-lo no processo principal adicionaria tráfego de mensagens e trabalho ao processo das janelas.
+- [ ] Substituir o uso restante de `@electron/remote` e Node.js nos preloads por IPC específico, para permitir ativar o sandbox das janelas.
 - [ ] Revisar desempenho com listas grandes de canais e o comportamento de reconexão após perda de rede.
 - [ ] Fechar a matriz de testes e empacotamento da versão 0.1.15, prevista como última com suporte a Windows 32 bits.

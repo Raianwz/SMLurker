@@ -40,7 +40,7 @@ function createConfigWindow() {
         writeFileSync: (target, data) => { saved = JSON.parse(data); },
     };
     const context = {
-        __dirname: path.join(__dirname, '../src/app'),
+        __dirname: path.join(__dirname, '../src/components/configs'),
         document: { querySelector: element, documentElement },
         require(id) {
             if (id === '@electron/remote') return remote;
@@ -54,8 +54,14 @@ function createConfigWindow() {
             if (id === 'fs') return fakeFs;
             if (id === 'path') return path;
             if (id === 'auto-launch') return class AutoLaunch {};
-            if (id.endsWith('setupConfigs')) return { createConfigs() {} };
-            if (id.endsWith('channelFile')) return { getChannelsFilePath() {}, readChannelsFile() {} };
+            if (id.endsWith('setupConfigs')) {
+                require.resolve(id, { paths: [context.__dirname] });
+                return { createConfigs() {} };
+            }
+            if (id.endsWith('channelFile')) {
+                require.resolve(id, { paths: [context.__dirname] });
+                return { getChannelsFilePath() {}, readChannelsFile() {} };
+            }
             throw new Error(`Unexpected module: ${id}`);
         },
     };

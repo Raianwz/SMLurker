@@ -193,17 +193,16 @@ function btnsListener() {
 async function loadChannelsFromFile() {
     if (!dialogOpen) {
         dialogOpen = true;
-        let file = api.cr.dg.showODS({
-            properties: ['openFile'],
-            filters: [{ name: 'Listas de canais', extensions: ['txt', 'json'] }],
-        })
+        let file;
+        try { file = await api.channelFiles.import(); }
+        catch { dialogOpen = false; Clog('Não foi possível ler o arquivo da lista.'); return; }
         if (!file) {
             dialogOpen = false;
             return
         }
-        let data = api.cr.fs.rd(file[0])
+        let data = file.data
         let channels
-        if (file[0].toLowerCase().endsWith('.json')) {
+        if (file.extension === '.json') {
             let parsed
             try {
                 parsed = JSON.parse(data)
@@ -216,7 +215,7 @@ async function loadChannelsFromFile() {
                 })
                 return
             }
-            channels = Array.isArray(parsed) ? parsed : parsed.channels
+            channels = Array.isArray(parsed) ? parsed : parsed?.channels
             if (!Array.isArray(channels)) {
                 dialogOpen = false
                 api.cr.dg.showMB({
@@ -247,31 +246,10 @@ async function loadChannelsFromFile() {
 }
 
 async function exportListChannels() {
-    let channels;
-    try { channels = await api.channels.list(); }
-    catch { Clog('Não foi possível ler a lista de canais.'); return; }
-    if (channels.length) {
-        channels.sort()
-        let dt = new Date().toLocaleDateString().replaceAll("/",'.')
-
-        const listaDialog = api.cr.dg.showSD({
-            properties: ['dontAddToRecent'],
-            filters: [
-                { name: 'Lista em texto', extensions: ['txt'] },
-                { name: 'Lista em JSON', extensions: ['json'] },
-            ],
-            defaultPath: `*/minha_lista.${dt}`,
-            title: 'Exportar Lista',
-        })
-        const lista = await listaDialog
-
-        if (!lista.canceled) {
-            const asJson = lista.filePath.toLowerCase().endsWith('.json')
-            const contents = asJson ? JSON.stringify(channels, null, 2) : channels.join(',')
-            api.cr.fs.write(lista.filePath, contents);
-        }
-
-    } else {
+    let result;
+    try { result = await api.channelFiles.export('both'); }
+    catch { Clog('Não foi possível exportar a lista.'); return; }
+    if (result.empty) {
         api.cr.dg.showMB({
             type: 'warning',
             title: 'Configurações — SM Lurker ',

@@ -1,6 +1,7 @@
 const { app, ipcMain, BrowserWindow, shell } = require('electron');
 const { initialize, enable } = require('@electron/remote/main');
 const { createLocalData } = require('../helpers/localData');
+const path = require('node:path');
 let configWindow;
 const localData = createLocalData(app);
 
@@ -32,10 +33,11 @@ ipcMain.on('openConfigs', () => {
       show: false,
       fullscreenable: false,
       webPreferences: {
-        contextIsolation: false,
-        nodeIntegration: true,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
         webSecurity: true,
-        enableRemoteModule: true
+        preload: path.join(__dirname, '../../preloadConfigs.js'),
       },
     });
     enable(configWindow.webContents);

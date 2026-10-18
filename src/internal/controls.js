@@ -8,15 +8,6 @@ function windowButtonsControls(app) {
         if (app().getTitle() == 'SM Lurker') {
             wbt = `let el = (e) => document.querySelector(e)
             let wButton = (btn) => el(\`button[name=\${btn}]\`)
-            let ShortMenu = [{
-                label: 'Recarregar',
-                click: () => api.reload.request(),
-            }, {
-                type: 'separator',
-            }, {
-                label: 'Reiniciar',
-                click: () => api.reload.requestRestart(),
-            }]
             el('p.version').innerText += \`V\t\${api.cr.appr.getVersion()}\tbeta\`;
             el('p.version').addEventListener('click', () => api.cr.eshell.openExternal(\`https://github.com/Raianwz/SMLurker/releases/tag/v\${api.cr.appr.getVersion()}\`))
         
@@ -25,40 +16,14 @@ function windowButtonsControls(app) {
             wButton('hideWindow').addEventListener('click', () => {api.cr.wb.hide(); api.tray.export()});
             wButton('minWindow').addEventListener('click', () => api.cr.wb.minimize());
             el('#gearConfig').addEventListener('click', () => api.cr.ipc.emit('openConfigs') )
-            el('#refresh').addEventListener('click', () => api.cr.clipmenu.show(ShortMenu));`;
+            el('#refresh').addEventListener('click', () => api.desktop.showMenu('refresh'));`;
         }
 
-        let clipeMenu = `const InputMenu = [{label: 'Desfazer', role: 'undo',accelerator: 'CmdOrCtrl+Z',},
-        {
-            label: 'Refazer',
-            role: 'redo',
-            accelerator: 'CmdOrCtrl+Y',
-        }, {
-            type: 'separator',
-        }, {
-            label: 'Recortar',
-            role: 'cut',
-            accelerator: 'CmdOrCtrl+X',
-        }, {
-            label: 'Copiar',
-            role: 'copy',
-            accelerator: 'CmdOrCtrl+C',
-        }, {
-            label: 'Colar',
-            role: 'paste',
-            accelerator: 'CmdOrCtrl+V',
-        }, {
-            type: 'separator',
-        }, {
-            label: 'Selecionar Tudo',
-            role: 'selectall',
-            accelerator: "CmdOrCtrl+A",
-        },];
-        window.addEventListener('contextmenu', (e) => {
+        let clipeMenu = `window.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             let ele = e.target
             if (ele.type === "text" || ele.type === "textarea" || ele.type === "password") {
-                api.cr.clipmenu.show(InputMenu);
+                api.desktop.showMenu('input');
 
             }
         })`;

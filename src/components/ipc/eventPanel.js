@@ -40,9 +40,9 @@ function createConsoleWindow() {
       show: false,
       fullscreenable: true,
       webPreferences: {
-        nodeIntegration: true,
+        nodeIntegration: false,
+        sandbox: false,
         webSecurity: true,
-        enableRemoteModule: true,
         preload: path.join(__dirname, "../../preload.js"),
       },
     });

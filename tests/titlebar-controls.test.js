@@ -42,6 +42,7 @@ function setupControls(answer) {
             ipc: { send() {}, emit() {} },
             eshell: { openExternal() {} },
         },
+        desktop: { showMenu: (kind) => { menu = kind; } },
         tray: { export: () => calls.push('tray-notice') },
     };
     const browser = vm.createContext({
@@ -81,10 +82,5 @@ test('main titlebar has accessible buttons for tray, minimize and exit', () => {
 test('reload and restart menu items request the guarded actions', () => {
     const controls = setupControls(0);
     controls.element('#refresh').click();
-    const reload = controls.getMenu().find((item) => item.label === 'Recarregar');
-    const restart = controls.getMenu().find((item) => item.label === 'Reiniciar');
-    assert.equal(reload.role, undefined);
-    reload.click();
-    restart.click();
-    assert.deepEqual(controls.calls, ['request-reload', 'request-restart']);
+    assert.equal(controls.getMenu(), 'refresh');
 });

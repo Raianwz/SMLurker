@@ -28,6 +28,8 @@ Em **Configurações → Aparência**, escolha **Moderno** ou **Clássico**. O v
 
 O login clássico guarda o OAuth em `Config/UserOAuth.bin`, protegido pelo `safeStorage` do Electron. Na primeira leitura, o aplicativo migra o antigo `credentials.json` e o remove após confirmar a gravação protegida. Se a proteção do sistema estiver indisponível, o login antigo continua funcionando e a migração fica pendente; novas credenciais não são gravadas em texto puro. O login Web guarda sua sessão separadamente em `web-session.bin`.
 
+As páginas das três janelas não têm integração direta com Node.js. As funções locais ficam nos preloads isolados e a interface principal recebe apenas operações específicas; a importação e exportação de listas passa pelo processo principal. Os preloads ainda usam Node.js e `@electron/remote`, então o sandbox do renderer continua desativado. Após avaliar a mudança, mantivemos a conexão IRC no preload por enquanto; uma separação futura exigirá tratar a passagem dos eventos e a reconexão entre processos.
+
 ## Integração com o SMLurker Web
 
 O botão **Entrar com a Twitch** abre o SMLurker Web no navegador. No desenvolvimento, tenta `http://localhost:3000` e, se não conseguir alcançá-lo, usa `https://smlurker.vercel.app`. No aplicativo empacotado, o padrão é `https://web.smlurker.rwz.app`. A variável `SMLURKER_WEB_URL` define uma origem explícita e dispensa essa escolha automática.

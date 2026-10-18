@@ -39,7 +39,9 @@ test('only settings can change the visual and open windows receive the update', 
         shell: {},
     };
     vm.runInNewContext(source, {
+        __dirname: path.join(__dirname, '../src/components/ipc'),
         require(id) {
+            if (id === 'node:path') return path;
             if (id === 'electron') return fakeElectron;
             if (id === '@electron/remote/main') return { initialize() {}, enable() {} };
             if (id === '../helpers/localData') return {

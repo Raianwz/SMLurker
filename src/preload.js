@@ -10,6 +10,10 @@ const api = {
         remove: (channels) => ipcRenderer.invoke('local:channels:remove', channels),
         replace: (channels) => ipcRenderer.invoke('local:channels:replace', channels),
     },
+    channelFiles: {
+        import: () => ipcRenderer.invoke('channel-files:import'),
+        export: (format) => ipcRenderer.invoke('channel-files:export', format),
+    },
     preferences: {
         get: () => ipcRenderer.invoke('local:preferences:get'),
         updateNotifications: (values) => ipcRenderer.invoke('local:preferences:update-notifications', values),
@@ -55,8 +59,64 @@ const api = {
             return fetchLiveStatus(logins);
         },
     },
-    tw: smcore,
-    cr: appcore,
+    tw: {
+        tmi: {
+            ini: (options) => {
+                const client = smcore.tmi.ini(options);
+                return { on: (event, callback) => {
+                    if (['connected', 'disconnected', 'join', 'part'].includes(event)) client.on(event, callback);
+                } };
+            },
+            channels: () => smcore.tmi.channels(),
+            cn: () => smcore.tmi.cn(),
+            dc: () => smcore.tmi.dc(),
+        },
+        data: {
+            createProfile: (accessToken) => smcore.data.createProfile(accessToken),
+            loadUserData: () => smcore.data.loadUserData(),
+            saveUserData: (username, token) => smcore.data.saveUserData(username, token),
+        },
+        jcnc: (channels) => smcore.jcnc(channels),
+        jp: () => smcore.jp(),
+    },
+    cr: {
+        appr: { getVersion: () => appcore.appr.getVersion() },
+        eshell: { openExternal: (url) => {
+            if (/^https:\/\/github\.com\/Raianwz\/SMLurker\/releases\//.test(url)) {
+                return appcore.eshell.openExternal(url);
+            }
+        } },
+        ipc: {
+            emit: (name) => {
+                if (['openConsole', 'openConfigs'].includes(name)) ipcRenderer.send(name);
+            },
+            send: (name, value) => {
+                if (['tray:connection-status', 'sendtoCleanConsole'].includes(name)) ipcRenderer.send(name, value);
+            },
+        },
+        wb: {
+            close: () => appcore.wb.close(),
+            hide: () => appcore.wb.hide(),
+            minimize: () => appcore.wb.minimize(),
+        },
+        dg: { showMB: (options) => appcore.dg.showMB(options) },
+        helpers: { sleep: (ms) => appcore.helpers.sleep(ms) },
+        tr: appcore.tr,
+    },
+    desktop: {
+        showMenu: (kind) => {
+            const { Menu, getCurrentWindow } = require('@electron/remote');
+            const input = ['undo', 'redo', 'cut', 'copy', 'paste', 'selectAll'];
+            const template = kind === 'refresh'
+                ? [
+                    { label: 'Recarregar', click: () => ipcRenderer.send('app-reload:request') },
+                    { type: 'separator' },
+                    { label: 'Reiniciar', click: () => ipcRenderer.send('app-restart:request') },
+                ]
+                : kind === 'input' ? input.map(role => ({ role })) : null;
+            if (template) Menu.buildFromTemplate(template).popup(getCurrentWindow());
+        },
+    },
     console: {
         manager: () => {
             let { consoleMng } = require('./components/window/console')

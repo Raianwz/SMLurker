@@ -1,12 +1,12 @@
 const { app, dialog, shell: { openExternal, openPath } } = require('@electron/remote');
 const { ipcRenderer } = require('electron');
-const fs = require('fs'), path = require('path');
+const fs = require('fs');
 const getEl = (el) => document.querySelector(el)
 const AutoLaunch = require('auto-launch');
 const localPath = `${app.getPath('userData')}\\Config`, configPath = `${localPath}\\configs.json`;
 const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
-const { createConfigs } = require(path.resolve(__dirname, '../components/helpers/setupConfigs'));
-const { getChannelsFilePath, readChannelsFile } = require(path.resolve(__dirname, '../components/helpers/channelFile'));
+const { createConfigs } = require('../helpers/setupConfigs');
+const { getChannelsFilePath, readChannelsFile } = require('../helpers/channelFile');
 const sleep = async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 const loading = getEl('div[name="loading"]');
 let checkIniMin = false;
