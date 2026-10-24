@@ -58,7 +58,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                 if (ircIsActive()) {
                     queuedResult = { type: 'error', message: 'Desconecte-se dos canais antes de trocar de conta.' };
                     flushResult();
-                    return;
+                    return false;
                 }
                 forceShowLogin = false;
                 let remembered = false;
@@ -72,6 +72,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
             }
             queuedResult = result;
             flushResult();
+            return result.type === 'success';
         },
     });
 

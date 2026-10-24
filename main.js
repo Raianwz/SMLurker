@@ -108,10 +108,12 @@ else {
 
 app.on('open-url', (event, url) => {
     event.preventDefault();
+    if (!gotTheLock) return;
     if (callbackFromArgs([url])) void webLogin.handleCallback(url);
 });
 
 app.on('ready', () => {
+    if (!gotTheLock) return;
     initConfigs();
     CreateWindow();
     if (initialWebLoginUrl) void webLogin.handleCallback(initialWebLoginUrl);

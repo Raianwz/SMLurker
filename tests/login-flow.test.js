@@ -6,12 +6,11 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/client.js'), 'utf8');
 
-function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro'], joinResult) {
+function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro'], joinResult, storedValues = new Map()) {
     const calls = [];
     const profileTokens = [];
     const trayStatuses = [];
     const joinedSelections = [];
-    const storedValues = new Map();
     const clientHandlers = new Map();
     let onWebLoginResult;
     let onAppActionRequested;
@@ -361,6 +360,26 @@ test('session verification has a visible state and a temporary failure can be re
     assert.equal(restoreAttempts, 2);
     assert.equal(flow.element('#msgStatus').attributes['data-state'], 'ready');
     assert.equal(flow.element('#retryConnection').hidden, true);
+});
+
+test('restored session notice appears only once for each Web account', async () => {
+    const storedValues = new Map();
+    const restore = (username) => createLoginFlow(undefined, false, false,
+        { type: 'success', username, accessToken: 'restored-token' },
+        undefined, 1, ['#raianwz'], undefined, storedValues);
+
+    const first = restore('raianwz');
+    await new Promise(setImmediate);
+    assert.match(first.element('#msgStatus').textContent, /Sessão restaurada/);
+
+    const reopened = restore('raianwz');
+    await new Promise(setImmediate);
+    assert.equal(reopened.element('#msgStatus').textContent, '');
+    assert.equal(reopened.element('#webReadyPanel').classList.contains('none'), false);
+
+    const otherAccount = restore('outraconta');
+    await new Promise(setImmediate);
+    assert.match(otherAccount.element('#msgStatus').textContent, /Sessão restaurada/);
 });
 
 test('a failed IRC connection shows an error and retry connects with the same credentials', async () => {

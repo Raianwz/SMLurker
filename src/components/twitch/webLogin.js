@@ -4,6 +4,7 @@ const APP_ID = 'com.smlurker';
 const PROTOCOL = 'smlurker';
 const CALLBACK_URL = `${PROTOCOL}://auth/callback`;
 const LOGIN_TIMEOUT_MS = 5 * 60 * 1000;
+const COMPLETION_TIMEOUT_MS = 3000;
 const DEFAULT_WEB_ORIGIN = 'https://web.smlurker.rwz.app';
 const DEV_FALLBACK_ORIGIN = 'https://smlurker.vercel.app';
 const LOCAL_PROBE_TIMEOUT_MS = 1500;
@@ -76,7 +77,24 @@ async function exchangeCode(origin, code, verifier, fetchImpl = fetch) {
     });
     if (response.status === 501) throw new Error('A vinculação com o SMLurker Web ainda não está disponível.');
     if (!response.ok) throw new Error('Não foi possível validar o login no SMLurker Web.');
-    return validateCredentials(await response.json());
+    const payload = await response.json();
+    return {
+        credentials: validateCredentials(payload),
+        completionToken: typeof payload.completionToken === 'string' &&
+            /^[A-Za-z0-9_-]{43,128}$/.test(payload.completionToken)
+            ? payload.completionToken : null,
+    };
+}
+
+async function confirmLogin(origin, completionToken, fetchImpl) {
+    try {
+        await fetchImpl(`${origin}/api/apps/${APP_ID}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ completionToken }),
+            signal: AbortSignal.timeout(COMPLETION_TIMEOUT_MS),
+        });
+    } catch { /* A confirmação visual da aba não impede o login no aplicativo. */ }
 }
 
 function createWebLogin({ isPackaged, openExternal, onResult, fetchImpl = fetch, probeImpl = fetch,
@@ -118,7 +136,7 @@ function createWebLogin({ isPackaged, openExternal, onResult, fetchImpl = fetch,
             const callback = callbackFromUrl(rawUrl);
             if (!callback) return false;
             if (!pending) {
-                onResult({ type: 'error', message: 'Nenhum login pelo navegador foi iniciado neste aplicativo.' });
+                onResult({ type: 'error', message: 'Este link de login já foi usado ou pertence a uma tentativa anterior. Para entrar novamente, inicie o login pelo aplicativo.' });
                 return true;
             }
             if (now() > pending.expiresAt) {
@@ -143,8 +161,11 @@ function createWebLogin({ isPackaged, openExternal, onResult, fetchImpl = fetch,
             }
 
             try {
-                const credentials = await exchangeCode(current.origin, callback.code, current.verifier, fetchImpl);
-                onResult({ type: 'success', ...credentials });
+                const { credentials, completionToken } = await exchangeCode(current.origin, callback.code, current.verifier, fetchImpl);
+                const accepted = onResult({ type: 'success', ...credentials });
+                if (accepted === true && completionToken) {
+                    await confirmLogin(current.origin, completionToken, fetchImpl);
+                }
             } catch (error) {
                 const message = error instanceof Error && error.message.startsWith('A vinculação')
                     ? error.message

@@ -93,6 +93,43 @@ test('exchanges a one-time code only after matching the pending state', async ()
     await login.handleCallback(`smlurker://auth/callback?code=${'A'.repeat(32)}&state=${state}`);
     assert.equal(exchanges, 1);
     assert.equal(results.at(-1).type, 'error');
+    assert.match(results.at(-1).message, /link de login já foi usado|tentativa anterior/);
+});
+
+test('confirms a Web login only after the application accepts it', async () => {
+    const receipt = 'R'.repeat(43);
+    const requests = [];
+    let openedUrl;
+    let acceptLogin = true;
+    const login = createWebLogin({
+        isPackaged: true,
+        configuredUrl: 'https://web.example.com',
+        openExternal: async (url) => { openedUrl = new URL(url); },
+        onResult: () => acceptLogin,
+        fetchImpl: async (url, options) => {
+            requests.push({ url, options });
+            if (url.endsWith('/exchange')) {
+                return { ok: true, json: async () => ({
+                    user: { login: 'raianwz' }, accessToken: 'valid_access_token', completionToken: receipt,
+                }) };
+            }
+            return { ok: true, status: 204 };
+        },
+    });
+    const callback = async () => {
+        await login.start();
+        await login.handleCallback(`smlurker://auth/callback?code=${'A'.repeat(32)}&state=${openedUrl.searchParams.get('state')}`);
+    };
+
+    await callback();
+    assert.equal(requests[1].url, 'https://web.example.com/api/apps/com.smlurker/complete');
+    assert.equal(requests[1].options.method, 'POST');
+    assert.deepEqual(JSON.parse(requests[1].options.body), { completionToken: receipt });
+    assert.equal(requests[1].options.body.includes('valid_access_token'), false);
+
+    acceptLogin = false;
+    await callback();
+    assert.equal(requests.length, 3);
 });
 
 test('rejects expired handoffs and reports the Web standby response', async () => {

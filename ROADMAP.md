@@ -23,6 +23,9 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Confirmar a remoção individual de canais e exigir duas confirmações para limpar a lista inteira.
 - [x] Limitar o tempo de espera pela abertura do IRC e pela entrada em cada canal.
 - [x] Oferecer os visuais **Moderno** e **Clássico** nas configurações, persistindo a escolha e aplicando-a às janelas abertas.
+- [x] Mostrar os canais conectados ao vivo, uma lista consultável desses canais e o tempo da sessão no perfil.
+- [x] Respeitar o limite de 100 canais IRC com seleção dos canais a conectar e permitir sair de um canal conectado pela Conexão rápida sem alterar a lista salva.
+- [x] Registrar entradas, saídas e falhas no painel de eventos; remover canais com falha confirmada da lista após criar backups para o usuário.
 
 ## Próximos polimentos
 
@@ -39,9 +42,11 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Consultar o perfil diretamente na Twitch quando houver credenciais válidas, mantendo o cache atual e a Dank API como fallback.
 - [x] Usar a Dank API como fonte principal de perfil, com endereço reserva e a API legada Vercel como último fallback.
 - [ ] Avaliar importação da lista de canais do SMLurker Web para o Electron e envio da lista do Electron para o Web, com deduplicação e confirmação antes de substituir dados.
+- [ ] Validar no Electron empacotado a troca do código temporário após a Web usar PostgreSQL compartilhado (ELE-WEB-001). Neon Free é uma opção inicial de hospedagem a avaliar no projeto Web; o Electron continuará acessando apenas a API Web.
 - [ ] Planejar renovação do token Web com o projeto Web; hoje a sessão precisa de novo login quando o token expira.
+- [ ] Revalidar com a Twitch, ao menos a cada hora, os tokens OAuth mantidos pelo Electron (login Web e clássico) durante sessões longas; na reconexão do IRC, distinguir token revogado ou expirado de falha temporária de rede.
 - [x] Migrar as credenciais legadas em texto puro para armazenamento protegido, sem quebrar usuários atuais.
 - [x] Desabilitar Node.js nas páginas, restringir a API exposta pelo preload e avaliar a mudança do IRC para outro processo. O IRC permanece no preload por enquanto; colocá-lo no processo principal adicionaria tráfego de mensagens e trabalho ao processo das janelas.
-- [ ] Substituir o uso restante de `@electron/remote` e Node.js nos preloads por IPC específico, para permitir ativar o sandbox das janelas.
-- [ ] Revisar desempenho com listas grandes de canais e o comportamento de reconexão após perda de rede.
+- [ ] Substituir o uso restante de `@electron/remote` e das dependências Node.js nos preloads por IPC específico; mover o IRC/`tmi.js` para fora do preload e então ativar e testar o sandbox das três janelas.
+- [ ] Validar o tempo de entrada, a responsividade da interface e a reconexão após perda de rede com até 100 canais selecionados, inclusive quando a lista salva tiver mais de 100.
 - [ ] Fechar a matriz de testes e empacotamento da versão 0.1.15, prevista como última com suporte a Windows 32 bits.

@@ -23,6 +23,7 @@ let sessionTimer = null;
 const LIVE_STATUS_REFRESH_MS = 2 * 60 * 1000;
 const MAX_CONNECTED_CHANNELS = 100;
 const CHANNEL_SELECTION_KEY = 'smlurker:selected-channels';
+const RESTORED_SESSION_NOTICE_KEY = 'smlurker:restored-session-notice:';
 
 function updateSessionUptime() {
     if (sessionStartedAt === null) return;
@@ -642,11 +643,23 @@ function applyWebLogin(result, restored = false) {
     document.getElementById('username').value = result.username;
     document.getElementById('pass').value = '';
     renderLoginMode();
-    setConnectionStatus('ready', restored
-        ? 'Sessão restaurada. Clique em Entrar nos canais quando quiser iniciar.'
-        : result.remembered === false
+    let showRestoredNotice = restored;
+    if (restored) {
+        try {
+            const noticeKey = `${RESTORED_SESSION_NOTICE_KEY}${result.username.toLowerCase()}`;
+            showRestoredNotice = localStorage.getItem(noticeKey) !== 'seen';
+            if (showRestoredNotice) localStorage.setItem(noticeKey, 'seen');
+        } catch { /* A sessão continua utilizável mesmo sem armazenamento local. */ }
+    }
+    let message = '';
+    if (restored && showRestoredNotice) {
+        message = 'Sessão restaurada. Clique em Entrar nos canais quando quiser iniciar.';
+    } else if (!restored) {
+        message = result.remembered === false
             ? 'Login concluído, mas não foi possível salvar a sessão. Um novo login será necessário após reiniciar.'
-            : 'Login concluído. Clique em Entrar nos canais quando quiser iniciar.');
+            : 'Login concluído. Clique em Entrar nos canais quando quiser iniciar.';
+    }
+    setConnectionStatus('ready', message);
     void showWebProfile(result.username);
 }
 
