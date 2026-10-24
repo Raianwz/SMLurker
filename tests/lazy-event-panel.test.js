@@ -26,8 +26,9 @@ function createApp() {
         show() { this.visible = true; }
         hide() { this.visible = false; }
         close() {
-            const event = { preventDefault() {} };
+            const event = { defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
             this.emit('close', event);
+            if (!event.defaultPrevented) this.destroy();
         }
         destroy() { this.destroyed = true; this.emit('closed'); }
     }
@@ -64,20 +65,26 @@ test('event panel is created on demand and replays events received while closed'
     ]);
     assert.equal(app.windows[0].visible, true);
     app.windows[0].close();
-    assert.equal(app.windows[0].visible, false);
-    app.ipcMain.emit('openConsole');
-    assert.equal(app.windows.length, 1);
-    assert.equal(app.windows[0].visible, true);
-
-    app.ipcMain.emit('closeConsole');
     assert.equal(app.windows[0].destroyed, true);
-    app.ipcMain.emit('sendtoConsole', null, 'Reconnected');
+    app.ipcMain.emit('sendtoConsole', null, 'While closed');
     app.ipcMain.emit('openConsole');
     assert.equal(app.windows.length, 2);
     app.windows[1].webContents.emit('did-finish-load');
     await new Promise(setImmediate);
+    assert.equal(app.windows[1].visible, true);
     assert.deepEqual(Array.from(app.windows[1].sent, ([event]) => event), [
         'updateChannelsConsole', 'updateConsole', 'updateMentionsConsole', 'updateConsole',
+    ]);
+
+    app.ipcMain.emit('closeConsole');
+    assert.equal(app.windows[1].destroyed, true);
+    app.ipcMain.emit('sendtoConsole', null, 'Reconnected');
+    app.ipcMain.emit('openConsole');
+    assert.equal(app.windows.length, 3);
+    app.windows[2].webContents.emit('did-finish-load');
+    await new Promise(setImmediate);
+    assert.deepEqual(Array.from(app.windows[2].sent, ([event]) => event), [
+        'updateChannelsConsole', 'updateConsole', 'updateMentionsConsole', 'updateConsole', 'updateConsole',
     ]);
 });
 

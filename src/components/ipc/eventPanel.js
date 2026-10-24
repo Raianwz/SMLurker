@@ -81,11 +81,6 @@ function createConsoleWindow() {
     });
 
     consoleWindow.on('closed', () => { consoleWindow = null; consoleReady = false; });
-
-    consoleWindow.on('close', (event) => {
-      event.preventDefault();
-      consoleWindow.hide();
-    });
   }
   
 }

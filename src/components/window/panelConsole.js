@@ -35,10 +35,13 @@ const renderHistory = (resetScroll = false) => {
     consoleText.value = events.filter(matchesFilter).map(event => event.text).join('');
     if (resetScroll) consoleText.scrollTop = 0;
     else if (followLatest) consoleText.scrollTop = consoleText.scrollHeight;
+    updateCounters();
+    updateEmptyState();
+};
+const updateCounters = () => {
     barText(msgTotal, `Caracteres: ${historyLength}/${MAX_EVENT_CHARS}`);
     barText(metionTotal, `Menções: ${mentionCount}`);
     barText(subgiftTotal, `SubGifts: ${subgiftCount}`);
-    updateEmptyState();
 };
 const cnPnReset = (reason) => {
     events.length = 0;
@@ -115,7 +118,16 @@ function cnPanelChange(text, category = 'logs') {
     historyLength += eventText.length;
     if (category === 'mentions') mentionCount++;
     if (category === 'subgifts') subgiftCount++;
-    renderHistory();
+    updateCounters();
+    if (activeFilter === 'all' || activeFilter === category) {
+        const previousScrollTop = consoleText.scrollTop;
+        const followLatest = consoleText.scrollHeight - consoleText.clientHeight - previousScrollTop <= 24;
+        consoleText.value += eventText;
+        consoleText.scrollTop = followLatest ? consoleText.scrollHeight : previousScrollTop;
+        panelEmpty.hidden = true;
+    } else if (events.length === 1) {
+        updateEmptyState();
+    }
 }
 
 module.exports.consolePnListiner = consoleListener;
