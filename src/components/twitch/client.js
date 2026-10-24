@@ -14,6 +14,8 @@ let autoConnectEnabled = false;
 let useLegacyLogin = false;
 let appActionInProgress = false;
 let connectionPreparationInProgress = false;
+let initialConnectionInProgress = false;
+let disconnectInProgress = false;
 let retryAction = null;
 let liveStatusTimer = null;
 let liveStatusChangeTimer = null;
@@ -375,8 +377,11 @@ function setConnectionStatus(state, message, { retry = null, inlineMissingChanne
     status.textContent = inlineMissingChannels ? '' : text;
     status.setAttribute('data-state', state);
     const connectedStatus = document.getElementById('connectedStatus');
-    connectedStatus.textContent = ['joining', 'connected', 'reconnecting'].includes(state) ? text : '';
+    connectedStatus.textContent = ['joining', 'connected', 'reconnecting', 'disconnecting'].includes(state) ? text : '';
     connectedStatus.setAttribute('data-state', state);
+    const disconnectAction = document.getElementById('app_exit');
+    if (client && ['connected', 'reconnecting'].includes(state)) disconnectAction.classList.remove('none');
+    else disconnectAction.classList.add('none');
     if (state === 'connected') {
         startSessionUptime();
         startLiveStatus();
@@ -433,6 +438,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         return;
     }
     BlockLogin(true);
+    initialConnectionInProgress = true;
     updateTrayStatus('connecting');
     btnEntrar.value = '';
     btnEntrar.classList.add('loading');
@@ -458,13 +464,13 @@ async function conectarCanais({ username, pass, fromWeb }) {
         let channelsJoined = false;
         if (typeof activeClient.on === 'function') {
             activeClient.on('disconnected', () => {
-                if (channelsJoined && client === activeClient) {
+                if (channelsJoined && client === activeClient && !disconnectInProgress) {
                     updateTrayStatus('reconnecting');
                     setConnectionStatus('reconnecting', 'Reconectando ao chat da Twitch...');
                 }
             });
             activeClient.on('connected', () => {
-                if (channelsJoined && client === activeClient) {
+                if (channelsJoined && client === activeClient && !disconnectInProgress) {
                     updateTrayStatus('connected');
                     setConnectionStatus('connected', 'Canais conectados.');
                 }
@@ -503,6 +509,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         api.console.manager();
         api.tw.jp();
         changeAppSide(1);
+        initialConnectionInProgress = false;
         setConnectionStatus('connected', credentialsSaved
             ? 'Canais conectados.'
             : 'Canais conectados. O OAuth não pôde ser salvo com proteção neste sistema.');
@@ -512,6 +519,7 @@ async function conectarCanais({ username, pass, fromWeb }) {
         btnEntrar.onclick = sairTwitch;
         updateTrayStatus('connected');
     } catch (error) {
+        initialConnectionInProgress = false;
         const invalidWebToken = fromWeb && isWebAuthError(error);
         try {
             const stored = JSON.parse(localStorage.getItem(CHANNEL_SELECTION_KEY));
@@ -679,7 +687,10 @@ api.auth.onWebLoginResult(async (result) => {
 });
 
 async function sairTwitch() {
-    await tmi.dc()
+    if (!client || initialConnectionInProgress || disconnectInProgress) return;
+    disconnectInProgress = true;
+    setConnectionStatus('disconnecting', 'Saindo dos canais...');
+    try { await tmi.dc(); } catch { /* A conexão pode já ter caído. */ }
     const getInner = (e, txt) => document.getElementById(e).innerHTML = txt
     const btnEntrar = document.getElementById('btnEntrar');
     const btnConnectChannels = document.getElementById('btnConnectChannels');
@@ -701,4 +712,5 @@ async function sairTwitch() {
     renderLoginMode();
     setConnectionStatus('ready', 'Desconectado dos canais. Você pode entrar novamente quando quiser.');
     api.cr.ipc.send('sendtoCleanConsole')
+    disconnectInProgress = false;
 }

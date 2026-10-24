@@ -191,7 +191,7 @@ test('undo restores only channels removed by the latest removal', async () => {
     assert.deepEqual(JSON.parse(saved.at(-1)).sort(), ['#felps', '#patopapao', '#raianwz']);
 });
 
-test('channel editing is disabled while connecting, while export and clear remain available', () => {
+test('channel editing and clearing are disabled while connecting, while export remains available', () => {
     const source = fs.readFileSync(path.join(__dirname, '../src/components/window/transitions.js'), 'utf8');
     const inputs = [{ disabled: false }, { disabled: false }, { disabled: false }];
     const buttons = Array.from({ length: 7 }, () => ({ disabled: false }));
@@ -204,6 +204,7 @@ test('channel editing is disabled while connecting, while export and clear remai
         ['.channelsManager button.channel-list-remove', [buttons[2]]],
         ['.channelsManager #channelRemoveConfirm', [buttons[3]]],
         ['.channelsManager button[name="loadChannelsFromFile"]', [buttons[4]]],
+        ['.channelsManager button[name="clearChannelList"]', [buttons[5]]],
     ]);
     const context = vm.createContext({
         require: () => ({ appcore: {} }),
@@ -213,8 +214,8 @@ test('channel editing is disabled while connecting, while export and clear remai
     vm.runInContext(source, context);
 
     context.module.exports.blockInputs(true);
-    assert.equal([...inputs, ...buttons.slice(0, 5)].every((item) => item.disabled), true);
-    assert.equal(buttons.slice(5).every((item) => !item.disabled), true);
+    assert.equal([...inputs, ...buttons.slice(0, 6)].every((item) => item.disabled), true);
+    assert.equal(buttons.slice(6).every((item) => !item.disabled), true);
     context.module.exports.blockInputs(false);
     assert.equal([...inputs, ...buttons].every((item) => !item.disabled), true);
 });

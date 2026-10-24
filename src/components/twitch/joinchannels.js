@@ -119,6 +119,9 @@ async function joinChannels(selectedChannels) {
     let failed = 0;
     try {
         for (let x = 0; x < channels.length; x++) {
+            if (await tmi.rds() !== 'OPEN') {
+                throw new Error('A conexão com o chat da Twitch caiu durante a entrada nos canais. Tente novamente.');
+            }
             if (!started) {
                 changeAppSide(1);
                 waitLogin(true);
@@ -131,8 +134,11 @@ async function joinChannels(selectedChannels) {
                 joined++;
                 batchJoined.push(channels[x]);
             } catch (error) {
-                failed++;
                 const reason = classifyJoinFailure(error);
+                if (reason.code === 'disconnected' || await tmi.rds() !== 'OPEN') {
+                    throw new Error('A conexão com o chat da Twitch caiu durante a entrada nos canais. Tente novamente.');
+                }
+                failed++;
                 batchFailed.push(`${channels[x]} (${reason.label})`);
                 failures.push({ channel: channels[x], reason });
             }
@@ -169,7 +175,7 @@ async function joinChannels(selectedChannels) {
             `\n${new Date().toLocaleString('pt-BR')} · Canais existentes sem confirmação do IRC, mantidos na lista: ${decision.existing.join(', ')}.\n`);
         const unconfirmed = decision.unknown.filter(channel => !decision.missingLogin.includes(channel));
         if (unconfirmed.length) ipcRenderer.send('sendtoConsole',
-            `\n${new Date().toLocaleString('pt-BR')} · Não foi possível confirmar estes canais sem resposta do IRC; mantidos na lista: ${unconfirmed.join(', ')}.\n`);
+            `\n${new Date().toLocaleString('pt-BR')} · Estes canais tiveram falha de entrada, mas foram mantidos na lista: ${unconfirmed.join(', ')}.\n`);
         let cleanup;
         try {
             if (decision.remove.length) cleanup = backupAndRemoveFailedChannels(appcore, decision.remove);

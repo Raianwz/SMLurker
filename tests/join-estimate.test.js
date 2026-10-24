@@ -33,6 +33,7 @@ test('waiting for IRC readiness is shown below login and cleared when channels s
         return elements.get(selector);
     };
     let resolveReady;
+    let ready = false;
     const context = {
         module: { exports: {} },
         document: { querySelector: element, addEventListener() {}, removeEventListener() {} },
@@ -44,7 +45,9 @@ test('waiting for IRC readiness is shown below login and cleared when channels s
         require(id) {
             if (id === '../../internal/smcore') return { smcore: {
                 tmi: {
-                    rds: () => new Promise((resolve) => { resolveReady = resolve; }),
+                    rds: () => ready ? Promise.resolve('OPEN') : new Promise((resolve) => {
+                        resolveReady = (state) => { ready = state === 'OPEN'; resolve(state); };
+                    }),
                     join: async () => {},
                 },
                 lv: { get: () => 0, add() {} },
@@ -137,7 +140,7 @@ test('join countdown catches up with elapsed time when the window regains focus'
     vm.runInNewContext(source, context);
     let finished = false;
     const joining = context.module.exports.jc().then(() => { finished = true; });
-    for (let i = 0; i < 10 && !focusListeners.has('focus'); i++) await Promise.resolve();
+    for (let i = 0; i < 100 && !focusListeners.has('focus'); i++) await Promise.resolve();
 
     assert.equal(element('#Mtimer').textContent, 'Tempo Estimado 🕘 00m 15s');
     assert.equal(element('#conection_box').attributes.has('disabled'), true);
@@ -238,4 +241,61 @@ test('a missing login is backed up and removed from the connected total', async 
     assert.equal(writes[2].file, 'channels.json');
     assert.deepEqual(JSON.parse(writes[2].contents), ['#a', '#b']);
     assert.match(dialogs[0].detail, /smlurker_backup-channels_/);
+});
+
+test('losing IRC after two of eight joins stops entry without removing saved channels', async () => {
+    const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/joinchannels.js'), 'utf8');
+    const channels = Array.from({ length: 8 }, (_, index) => `#canal${index}`);
+    const writes = [];
+    const sent = [];
+    const elements = new Map();
+    const element = (selector) => {
+        if (!elements.has(selector)) elements.set(selector, {
+            textContent: '', style: {}, tabIndex: 0,
+            setAttribute() {}, removeAttribute() {},
+        });
+        return elements.get(selector);
+    };
+    let attempts = 0;
+    let ready = 'OPEN';
+    const context = {
+        module: { exports: {} },
+        document: { querySelector: element, addEventListener() {}, removeEventListener() {} },
+        window: { addEventListener() {}, removeEventListener() {} },
+        setInterval: () => 1,
+        clearInterval() {},
+        setTimeout,
+        clearTimeout,
+        require(id) {
+            if (id === '../../internal/smcore') return { smcore: { tmi: {
+                rds: async () => ready,
+                join: async () => {
+                    attempts++;
+                    if (attempts === 3) {
+                        ready = 'CLOSED';
+                        throw new Error('Not connected to server.');
+                    }
+                },
+            } } };
+            if (id === '../../internal/appcore') return { appcore: {
+                tr: { changeside() {} },
+                channels: { path: () => 'channels.json', read: () => channels },
+                fs: { exist: () => true, write: (...args) => writes.push(args) },
+            } };
+            if (id === 'electron') return { ipcRenderer: { send: (...args) => sent.push(args) } };
+            if (id === 'node:timers/promises') return { setTimeout: async () => {} };
+            if (id === './joinEstimate') return require('../src/components/twitch/joinEstimate');
+            if (id === './joinFailure') return require('../src/components/twitch/joinFailure');
+            if (id === './channelFailureCleanup') return require('../src/components/twitch/channelFailureCleanup');
+            if (id === './liveStatusSource') return { fetchLiveStatus: async () => [] };
+            if (id === './resolveJoinFailures') return require('../src/components/twitch/resolveJoinFailures');
+            throw new Error(`Unexpected module: ${id}`);
+        },
+    };
+    vm.runInNewContext(source, context);
+
+    await assert.rejects(context.module.exports.jc(), /conexão com o chat da Twitch caiu/);
+    assert.equal(attempts, 3);
+    assert.deepEqual(writes, []);
+    assert.equal(sent.some(([name, message]) => name === 'sendtoConsole' && message.includes('Canais removidos')), false);
 });

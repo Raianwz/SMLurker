@@ -10,6 +10,7 @@ function BlockLogin(valor) {
         '.channelsManager #channelRemoveConfirm',
         '.channelsManager #channelUndoButton',
         '.channelsManager button[name="loadChannelsFromFile"]',
+        '.channelsManager button[name="clearChannelList"]',
     ];
     for (const selector of items) {
         document.querySelectorAll(selector).forEach(item => { item.disabled = valor; });
@@ -25,7 +26,6 @@ function changeButtonSide(destino) {
     Notify()
     if (destino == 1) {
         rmClass('#user_box','none');
-        rmClass('#app_exit','none');
         rmClass('#conection_box','none');
         rmClass('#console_open','none');
         addClass('.JoinLeave','none');

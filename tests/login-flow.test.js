@@ -87,7 +87,7 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
                 calls.push('join');
                 joinedSelections.push(channels);
                 if (joinError) throw typeof joinError === 'function' ? joinError(savedChannels) : joinError;
-                return joinResult;
+                return typeof joinResult === 'function' ? joinResult(channels) : joinResult;
             },
             jp: () => { calls.push('join-manager'); },
         },
@@ -179,6 +179,50 @@ test('legacy Entrar connects, joins and only then saves credentials', async () =
     assert.equal(element('#msgStatus').attributes['data-state'], 'connected');
     assert.deepEqual(trayStatuses, ['connecting', 'connected']);
     assert.deepEqual(profileTokens, ['oauth:legacy-token']);
+});
+
+test('disconnect stays unavailable until the initial channel entry finishes', async () => {
+    let finishJoining;
+    const joining = new Promise(resolve => { finishJoining = resolve; });
+    const flow = createLoginFlow(undefined, true, false, { type: 'none' }, undefined, 1,
+        ['#raianwz', '#outro'], () => joining);
+    const connecting = flow.context.entrarTwitch();
+    await new Promise(setImmediate);
+
+    assert.equal(flow.calls.includes('join'), true);
+    assert.equal(flow.element('#app_exit').classList.contains('none'), true);
+    await flow.context.sairTwitch();
+    assert.equal(flow.calls.includes('disconnect'), false);
+
+    finishJoining({ removed: [] });
+    await connecting;
+    assert.equal(flow.element('#app_exit').classList.contains('none'), false);
+    await flow.context.sairTwitch();
+    assert.equal(flow.calls.includes('disconnect'), true);
+    assert.equal(flow.element('#app_exit').classList.contains('none'), true);
+});
+
+test('repeated disconnect clicks close IRC once and do not show reconnection', async () => {
+    const flow = createLoginFlow();
+    await flow.context.entrarTwitch();
+    let finishDisconnect;
+    let disconnectCalls = 0;
+    flow.context.api.tw.tmi.dc = () => {
+        disconnectCalls++;
+        return new Promise(resolve => { finishDisconnect = resolve; });
+    };
+
+    const first = flow.context.sairTwitch();
+    const second = flow.context.sairTwitch();
+    flow.emitClient('disconnected');
+    assert.equal(disconnectCalls, 1);
+    assert.equal(flow.element('#connectedStatus').textContent, 'Saindo dos canais...');
+    assert.equal(flow.element('#app_exit').classList.contains('none'), true);
+    assert.equal(flow.trayStatuses.includes('reconnecting'), false);
+
+    finishDisconnect();
+    await Promise.all([first, second]);
+    assert.equal(flow.element('#msgStatus').textContent, 'Desconectado dos canais. Você pode entrar novamente quando quiser.');
 });
 
 test('more than 100 saved channels require a selection before connecting', async () => {

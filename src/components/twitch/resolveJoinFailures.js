@@ -8,8 +8,12 @@ async function resolveJoinFailures(failures, lookup) {
     const missingLogin = [];
 
     for (const { channel, reason } of failures) {
-        if (reason.code !== 'no_response' && reason.label !== 'tempo esgotado') {
+        if (['suspended', 'not_found', 'tos_ban', 'invalid_user'].includes(reason.code)) {
             remove.push(channel);
+            continue;
+        }
+        if (reason.code !== 'no_response' && reason.label !== 'tempo esgotado') {
+            unknown.push(channel);
             continue;
         }
         const status = byLogin.get(channel.replace(/^#/, '').toLowerCase());

@@ -49,4 +49,4 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Desabilitar Node.js nas páginas, restringir a API exposta pelo preload e avaliar a mudança do IRC para outro processo. O IRC permanece no preload por enquanto; colocá-lo no processo principal adicionaria tráfego de mensagens e trabalho ao processo das janelas.
 - [ ] Substituir o uso restante de `@electron/remote` e das dependências Node.js nos preloads por IPC específico; mover o IRC/`tmi.js` para fora do preload e então ativar e testar o sandbox das três janelas.
 - [ ] Validar o tempo de entrada, a responsividade da interface e a reconexão após perda de rede com até 100 canais selecionados, inclusive quando a lista salva tiver mais de 100.
-- [ ] Fechar a matriz de testes e empacotamento da versão 0.1.15, prevista como última com suporte a Windows 32 bits.
+- [ ] Fechar a matriz de testes e empacotamento da versão 0.1.15 para Windows 32 bits.

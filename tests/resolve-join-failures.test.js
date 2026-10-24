@@ -29,3 +29,13 @@ test('a failed lookup keeps timeout channels for later retry', async () => {
     assert.deepEqual(result.remove, []);
     assert.deepEqual(result.unknown, ['#timeout']);
 });
+
+test('a lost IRC connection does not remove saved channels', async () => {
+    const result = await resolveJoinFailures([
+        { channel: '#one', reason: { code: 'disconnected', label: 'IRC desconectado' } },
+        { channel: '#two', reason: { code: 'other', label: 'erro ao conectar' } },
+        { channel: '#three', reason: { code: 'banned', label: 'sua conta foi banida do chat' } },
+    ], async () => { throw new Error('Transient errors should not be looked up.'); });
+    assert.deepEqual(result.remove, []);
+    assert.deepEqual(result.unknown, ['#one', '#two', '#three']);
+});
