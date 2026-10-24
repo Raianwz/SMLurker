@@ -37,6 +37,7 @@ function createApp() {
             if (id === 'electron') return { ipcMain, BrowserWindow: FakeWindow, shell: { openExternal() {} } };
             if (id === '@electron/remote/main') return { initialize() {}, enable() {} };
             if (id === 'path') return path;
+            if (id === '../helpers/eventHistoryLimit') return require('../src/components/helpers/eventHistoryLimit');
             throw new Error(`Unexpected import: ${id}`);
         },
         __dirname: path.join(__dirname, '../src/components/ipc'),
@@ -80,6 +81,26 @@ test('event panel is created on demand and replays events received while closed'
     ]);
 });
 
+test('reaching 6000 characters clears both the visible panel and replay history', async () => {
+    const app = createApp();
+    app.ipcMain.emit('sendtoConsole', null, 'A'.repeat(5999));
+    app.ipcMain.emit('openConsole');
+    app.windows[0].webContents.emit('did-finish-load');
+    await new Promise(setImmediate);
+    assert.deepEqual(Array.from(app.windows[0].sent, ([event]) => event),
+        ['updateChannelsConsole', 'updateConsole']);
+
+    app.ipcMain.emit('sendtoConsole', null, 'B');
+    assert.deepEqual(Array.from(app.windows[0].sent.at(-1)), ['updateCleanConsole', 'limit']);
+    app.ipcMain.emit('closeConsole');
+    app.ipcMain.emit('openConsole');
+    app.windows[1].webContents.emit('did-finish-load');
+    await new Promise(setImmediate);
+    assert.deepEqual(JSON.parse(JSON.stringify(app.windows[1].sent)), [
+        ['updateChannelsConsole', 0], ['updateCleanConsole', 'limit'],
+    ]);
+});
+
 test('clearing events also clears the history replayed on first open', async () => {
     const app = createApp();
     app.ipcMain.emit('sendtoConsole', null, 'Old event');
@@ -88,4 +109,18 @@ test('clearing events also clears the history replayed on first open', async () 
     app.windows[0].webContents.emit('did-finish-load');
     await new Promise(setImmediate);
     assert.deepEqual(JSON.parse(JSON.stringify(app.windows[0].sent)), [['updateChannelsConsole', 0]]);
+});
+
+test('category metadata and SubGifts survive reopening the event panel', async () => {
+    const app = createApp();
+    app.ipcMain.emit('sendtoConsole', null, 'Joined #channel', 'connections');
+    app.ipcMain.emit('sendSubGiftstoConsole', null, 'Gift received');
+    app.ipcMain.emit('openConsole');
+    app.windows[0].webContents.emit('did-finish-load');
+    await new Promise(setImmediate);
+    assert.deepEqual(JSON.parse(JSON.stringify(app.windows[0].sent)), [
+        ['updateChannelsConsole', 0],
+        ['updateConsole', 'Joined #channel', 'connections'],
+        ['updateSubGiftsConsole', 'Gift received'],
+    ]);
 });

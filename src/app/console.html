@@ -65,14 +65,23 @@
                         <span class="panel-eyebrow">ATIVIDADE</span>
                         <h2>Histórico da sessão</h2>
                     </div>
-                    <span class="panel-hint">Eventos recentes aparecem abaixo</span>
+                    <div class="panel-heading-tools">
+                        <span class="panel-hint">Eventos recentes aparecem abaixo</span>
+                        <div class="event-filters" role="group" aria-label="Filtrar histórico de eventos">
+                            <button type="button" data-event-filter="all" aria-pressed="true">Todos</button>
+                            <button type="button" data-event-filter="mentions" aria-pressed="false">Menções</button>
+                            <button type="button" data-event-filter="subgifts" aria-pressed="false">SubGifts</button>
+                            <button type="button" data-event-filter="connections" aria-pressed="false">Conexões</button>
+                            <button type="button" data-event-filter="logs" aria-pressed="false">Logs e eventos</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="painel">
                     <textarea id="txtPanel" readonly aria-label="Histórico de eventos da sessão"></textarea>
                     <div id="panelEmpty" class="panel-empty">
                         <span class="material-icons" aria-hidden="true">notifications_none</span>
-                        <strong>Nenhum evento por enquanto</strong>
-                        <span>Menções, conexões e outros eventos aparecerão aqui.</span>
+                        <strong id="panelEmptyTitle">Nenhum evento por enquanto</strong>
+                        <span id="panelEmptyDescription">Menções, conexões e outros eventos aparecerão aqui.</span>
                     </div>
                 </div>
             </main>
@@ -102,6 +111,10 @@
                     <span id="mnTotal">Menções: 0</span>
                 </span>
                 <span class="span-space svg-box">
+                    <span class="material-icons" aria-hidden="true">redeem</span>
+                    <span id="sgTotal">SubGifts: 0</span>
+                </span>
+                <span class="span-space svg-box">
                     <svg width="25" height="25" viewBox="0 0 303 303">
                         <g fill="#fff" stroke="rgba(7, 7, 7, 1)" stroke-linejoin="round"
                             style="transform-origin: 85px 79.6875px; transform: translateX(66.5px) translateY(71.5px) scale(1.5) rotate(0deg);"
@@ -111,7 +124,7 @@
                                 viewBox="0 0 170 160"></path>
                         </g>
                     </svg>
-                    <span id="txtTotal">Texto: 0</span>
+                    <span id="txtTotal" title="Total de caracteres do histórico em todos os filtros">Caracteres: 0/6000</span>
                 </span>
                 <button name="cn_clear" class="delete span-space" type="button">Limpar<span
                         class="material-icons" aria-hidden="true">delete_sweep</span></button>

@@ -61,7 +61,7 @@ async function joinChannels(selectedChannels) {
         const lines = [];
         if (batchJoined.length) lines.push(`Entraram: ${batchJoined.join(', ')}`);
         if (batchFailed.length) lines.push(`Falharam: ${batchFailed.join(', ')}`);
-        ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Entrada nos canais\n${lines.join('\n')}\n`);
+        ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Entrada nos canais\n${lines.join('\n')}\n`, 'connections');
         batchJoined = [];
         batchFailed = [];
     };
@@ -170,17 +170,17 @@ async function joinChannels(selectedChannels) {
             decision = await resolveJoinFailures(failures, async () => []);
         }
         if (decision.missingLogin.length) ipcRenderer.send('sendtoConsole',
-            `\n${new Date().toLocaleString('pt-BR')} · A Dank API não encontrou estes logins: ${decision.missingLogin.join(', ')}. Podem ter sido renomeados; serão removidos da lista após o backup.\n`);
+            `\n${new Date().toLocaleString('pt-BR')} · A Dank API não encontrou estes logins: ${decision.missingLogin.join(', ')}. Podem ter sido renomeados; serão removidos da lista após o backup.\n`, 'connections');
         if (decision.existing.length) ipcRenderer.send('sendtoConsole',
-            `\n${new Date().toLocaleString('pt-BR')} · Canais existentes sem confirmação do IRC, mantidos na lista: ${decision.existing.join(', ')}.\n`);
+            `\n${new Date().toLocaleString('pt-BR')} · Canais existentes sem confirmação do IRC, mantidos na lista: ${decision.existing.join(', ')}.\n`, 'connections');
         const unconfirmed = decision.unknown.filter(channel => !decision.missingLogin.includes(channel));
         if (unconfirmed.length) ipcRenderer.send('sendtoConsole',
-            `\n${new Date().toLocaleString('pt-BR')} · Estes canais tiveram falha de entrada, mas foram mantidos na lista: ${unconfirmed.join(', ')}.\n`);
+            `\n${new Date().toLocaleString('pt-BR')} · Estes canais tiveram falha de entrada, mas foram mantidos na lista: ${unconfirmed.join(', ')}.\n`, 'connections');
         let cleanup;
         try {
             if (decision.remove.length) cleanup = backupAndRemoveFailedChannels(appcore, decision.remove);
         } catch {
-            ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Não foi possível concluir o backup ou a atualização da lista. Confira o arquivo de canais antes de tentar novamente.\n`);
+            ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Não foi possível concluir o backup ou a atualização da lista. Confira o arquivo de canais antes de tentar novamente.\n`, 'connections');
             try {
                 appcore.dg.showMB({
                     type: 'warning',
@@ -192,7 +192,7 @@ async function joinChannels(selectedChannels) {
         }
         if (cleanup) {
             removed = cleanup.removed;
-            ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Canais removidos da lista: ${cleanup.removed.join(', ')}. Backups: ${cleanup.backupPath} e ${cleanup.textBackupPath}\n`);
+            ipcRenderer.send('sendtoConsole', `\n${new Date().toLocaleString('pt-BR')} · Canais removidos da lista: ${cleanup.removed.join(', ')}. Backups: ${cleanup.backupPath} e ${cleanup.textBackupPath}\n`, 'connections');
             try {
                 appcore.dg.showMB({
                     type: 'info',
@@ -205,7 +205,7 @@ async function joinChannels(selectedChannels) {
     }
     ipcRenderer.send('sendChannelstoConsole', joined)
     ipcRenderer.send('sendtoConsole',
-        `\n${new Date().toLocaleString('pt-BR')} · Entrada concluída: ${joined} conectado${joined === 1 ? '' : 's'}, ${failed} falha${failed === 1 ? '' : 's'}.\n`);
+        `\n${new Date().toLocaleString('pt-BR')} · Entrada concluída: ${joined} conectado${joined === 1 ? '' : 's'}, ${failed} falha${failed === 1 ? '' : 's'}.\n`, 'connections');
     const remainingTotal = channels.length - removed.length;
     const remainingFailures = failed - removed.length;
     setChannelCount(remainingFailures ? 'partial' : 'channels',

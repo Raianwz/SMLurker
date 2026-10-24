@@ -136,6 +136,7 @@ test('quick connection logs failures without changing the connected-channel coun
     flow.element('#txtConexaoCanal').value = 'falhou';
     await flow.element('#jc_Join').handlers.click();
     assert.match(flow.sent.at(-1)[1], /falha ao entrar em #falhou \(canal suspenso ou removido\)/);
+    assert.equal(flow.sent.at(-1)[2], 'connections');
     assert.equal(flow.sent.some(([name]) => name === 'sendChannelstoConsole'), false);
 
     flow.failPart(new Error('offline'));

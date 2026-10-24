@@ -170,6 +170,7 @@ test('join countdown catches up with elapsed time when the window regains focus'
     assert.equal(eventEntries.filter((text) => text.includes('Entraram:')).length, 2);
     assert.match(eventEntries.join(''), /channel0/);
     assert.match(eventEntries.join(''), /channel18/);
+    assert.equal(sent.find(([name, message]) => name === 'sendtoConsole' && message.includes('Entraram:'))[2], 'connections');
     assert.match(eventEntries.at(-1), /19 conectados, 0 falhas/);
     assert.equal(scheduledWaits.filter((ms) => ms === 10_500).length, 1);
     assert.equal(scheduledWaits.filter((ms) => ms === 200).length, 19);

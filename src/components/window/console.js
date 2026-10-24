@@ -86,6 +86,8 @@ async function consoleManager() {
             typeof name === 'string' &&
             [userName, userDisplayName].some((ownName) => name.toLowerCase() === ownName.toLowerCase()));
         if (matchesUser) {
+            ipcRenderer.send('sendSubGiftstoConsole',
+                `\n${new Date().toLocaleString('pt-BR')} · SubGift recebido\n@${username} presenteou @${recipient} em ${channel}.\n`)
             checkNotifySub(channel, username, recipient)
         }
         if (localStorage.getItem('showGifts') === 'true') {

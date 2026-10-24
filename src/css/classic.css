@@ -686,6 +686,22 @@
     color: var(--classic-text);
 }
 
+[data-appearance="classic"] .panel-heading {
+    border-color: var(--classic-divider);
+}
+
+[data-appearance="classic"] .event-filters button {
+    color: var(--classic-muted);
+    background: #242424;
+    border-color: #55575b;
+}
+
+[data-appearance="classic"] .event-filters button[aria-pressed="true"] {
+    color: var(--classic-text);
+    background: #49316e;
+    border-color: var(--classic-purple);
+}
+
 [data-appearance="classic"] .svg-box {
     background: transparent;
     border-color: transparent;

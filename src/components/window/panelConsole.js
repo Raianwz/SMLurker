@@ -1,15 +1,65 @@
 const { ipcRenderer } = require('electron');
 const { getCurrentWindow } = require('@electron/remote');
-const {appcore } = require('../../internal/appcore')
+const { MAX_EVENT_CHARS } = require('../helpers/eventHistoryLimit');
 const getEl = (el) => document.querySelector(el)
 let consoleText = getEl('#txtPanel'), msgTotal = getEl('#txtTotal'), metionTotal = getEl('#mnTotal'), cnTotal = getEl('#cnTotal');
+const subgiftTotal = getEl('#sgTotal');
 const panelEmpty = getEl('#panelEmpty');
-let tmpM = 0;
+const emptyTitle = getEl('#panelEmptyTitle');
+const emptyDescription = getEl('#panelEmptyDescription');
+const filters = ['all', 'mentions', 'subgifts', 'connections', 'logs'];
+const events = [];
+let activeFilter = 'all';
+let historyLength = 0;
+let mentionCount = 0;
+let subgiftCount = 0;
+let emptyReason = null;
 const barText = (el, txt) => el.innerText = txt;
-const updateEmptyState = () => { panelEmpty.hidden = consoleText.value.length > 0; }
-const cnPnReset = () => { consoleText.value = ""; barText(msgTotal, 'Texto: 0/6000'); barText(metionTotal, 'Menções: 0'); tmpM=0; updateEmptyState(); }
+const matchesFilter = (event) => activeFilter === 'all' || event.category === activeFilter;
+const updateEmptyState = () => {
+    const hasVisibleEvents = events.some(matchesFilter);
+    panelEmpty.hidden = hasVisibleEvents;
+    if (hasVisibleEvents) return;
+    if (events.length) {
+        emptyTitle.textContent = 'Nada nesta categoria ainda';
+        emptyDescription.textContent = 'Os eventos deste filtro aparecerão aqui quando acontecerem.';
+    } else {
+        emptyTitle.textContent = emptyReason === 'limit' ? 'Histórico limpo automaticamente' : 'Nenhum evento por enquanto';
+        emptyDescription.textContent = emptyReason === 'limit'
+            ? 'O painel atingiu 6.000 caracteres. Novos eventos aparecerão aqui.'
+            : 'Menções, conexões e outros eventos aparecerão aqui.';
+    }
+};
+const renderHistory = (resetScroll = false) => {
+    const followLatest = consoleText.scrollHeight - consoleText.clientHeight - consoleText.scrollTop <= 24;
+    consoleText.value = events.filter(matchesFilter).map(event => event.text).join('');
+    if (resetScroll) consoleText.scrollTop = 0;
+    else if (followLatest) consoleText.scrollTop = consoleText.scrollHeight;
+    barText(msgTotal, `Caracteres: ${historyLength}/${MAX_EVENT_CHARS}`);
+    barText(metionTotal, `Menções: ${mentionCount}`);
+    barText(subgiftTotal, `SubGifts: ${subgiftCount}`);
+    updateEmptyState();
+};
+const cnPnReset = (reason) => {
+    events.length = 0;
+    historyLength = 0;
+    mentionCount = 0;
+    subgiftCount = 0;
+    emptyReason = reason;
+    renderHistory(true);
+}
 
 function consoleListener() {
+    for (const filter of filters) {
+        const button = getEl(`[data-event-filter="${filter}"]`);
+        button.addEventListener('click', () => {
+            activeFilter = filter;
+            for (const name of filters) {
+                getEl(`[data-event-filter="${name}"]`).setAttribute('aria-pressed', String(name === filter));
+            }
+            renderHistory(true);
+        });
+    }
     getEl('button[name=cn_clear]').addEventListener('click', () => {
         cnPnReset();
         ipcRenderer.send('sendtoCleanConsole');
@@ -32,27 +82,22 @@ function consoleListener() {
     panelWindow.on('unmaximize', updateMaximizeButton);
     updateMaximizeButton();
     updateEmptyState()
-    window.addEventListener('beforeunload', (e)=>{
-        appcore.dg.showMB({
-            type: 'warning',
-            title: 'Painel de Eventos — SMLurker',
-            message: "Evite recarregar o painel de eventos.\nSe necessário utilize o recurso \"Limpar\"",
-        })
-    })
 }
 
-ipcRenderer.on('updateConsole', (event, data) => {
-    cnPanelChange(data);
+ipcRenderer.on('updateConsole', (event, data, category) => {
+    cnPanelChange(data, category === 'connections' ? 'connections' : 'logs');
 });
 
-ipcRenderer.on('updateCleanConsole', (event, data) => {
-    cnPnReset();
+ipcRenderer.on('updateCleanConsole', (event, reason) => {
+    cnPnReset(reason);
 });
 
 ipcRenderer.on('updateMentionsConsole', (event, data) => {
-    tmpM+=1;
-    cnPanelChange(data);
-    barText(metionTotal, `Menções: ${tmpM}`)
+    cnPanelChange(data, 'mentions');
+});
+
+ipcRenderer.on('updateSubGiftsConsole', (event, data) => {
+    cnPanelChange(data, 'subgifts');
 });
 
 ipcRenderer.on('updateChannelsConsole', (event, channels) =>{
@@ -60,17 +105,17 @@ ipcRenderer.on('updateChannelsConsole', (event, channels) =>{
 })
 
 
-function cnPanelChange(text) {
-    consoleText.value += text
-    let tmpText = consoleText.value
-    tmpText = tmpText.replace(new RegExp(/([🟢,⛔,🔴,💬,—,\s*,\t*]|\b(Canal)|\b(\[DEBUG\])|\b([0-9]+)|((\/)|(:)))/gm), '')
-    consoleText.scrollTop = consoleText.scrollHeight
-    if (tmpText.length >= 6000) {
-        cnPnReset()
+function cnPanelChange(text, category = 'logs') {
+    const eventText = String(text);
+    if (historyLength + eventText.length >= MAX_EVENT_CHARS) {
+        cnPnReset('limit')
         return
     }
-    barText(msgTotal, `Texto: ${tmpText.length}/6000`)
-    updateEmptyState()
+    events.push({ text: eventText, category });
+    historyLength += eventText.length;
+    if (category === 'mentions') mentionCount++;
+    if (category === 'subgifts') subgiftCount++;
+    renderHistory();
 }
 
 module.exports.consolePnListiner = consoleListener;

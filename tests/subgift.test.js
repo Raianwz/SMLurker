@@ -65,5 +65,6 @@ test('SubGift notifies only the exact recipient from the tmi.js event', async ()
     subgift('#channel', 'sender', 3, 'RaianWZ', {}, { 'msg-param-recipient-user-name': 'raianwz' });
     assert.equal(notifications.length, 1);
     assert.match(notifications[0].body, /RaianWZ/);
+    assert.match(messages.find(([name]) => name === 'sendSubGiftstoConsole')[1], /@RaianWZ/);
     assert.match(messages.at(-1)[1], /@RaianWZ/);
 });

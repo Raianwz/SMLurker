@@ -9,7 +9,7 @@ function jpManager() {
     const getEl = (el) => document.querySelector(el)
     const pingArea = (txt) => { let time = new Date(); jcPanel(`\n${time.toLocaleDateString()}\n${time.toLocaleTimeString()}\t${txt}\n`) }
     const panelEvent = (message) => appcore.ipc.send('sendtoConsole',
-        `\n${new Date().toLocaleString('pt-BR')} · Conexão rápida: ${message}\n`)
+        `\n${new Date().toLocaleString('pt-BR')} · Conexão rápida: ${message}\n`, 'connections')
     const updateChannelCount = () => {
         const total = getEl('#cntotal');
         total.setAttribute('data-state', 'channels');

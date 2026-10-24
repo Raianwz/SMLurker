@@ -1,25 +1,32 @@
 const { ipcMain, BrowserWindow, shell } = require('electron');
 const { initialize, enable } = require('@electron/remote/main');
 const path = require('path');
+const { MAX_EVENT_CHARS } = require('../helpers/eventHistoryLimit');
 let consoleWindow;
 let consoleReady = false;
 let channelCount = 0;
 const history = [];
 let historyLength = 0;
-const MAX_HISTORY_LENGTH = 5500;
+let emptyReason = null;
 
-function rememberEvent(type, data) {
-  const entry = { type, data: String(data) };
+function rememberEvent(type, data, category) {
+  const entry = { type, data: String(data), category };
+  if (historyLength + entry.data.length >= MAX_EVENT_CHARS) {
+    history.length = 0;
+    historyLength = 0;
+    emptyReason = 'limit';
+    sendToPanel('updateCleanConsole', 'limit');
+    return false;
+  }
   history.push(entry);
   historyLength += entry.data.length;
-  while (historyLength > MAX_HISTORY_LENGTH && history.length > 1) {
-    historyLength -= history.shift().data.length;
-  }
+  return true;
 }
 
-function sendToPanel(type, data) {
+function sendToPanel(type, data, category) {
   if (consoleWindow && consoleReady && !consoleWindow.isDestroyed()) {
-    consoleWindow.webContents.send(type, data);
+    if (category) consoleWindow.webContents.send(type, data, category);
+    else consoleWindow.webContents.send(type, data);
   }
 }
 
@@ -61,7 +68,11 @@ function createConsoleWindow() {
         await panel.webContents.executeJavaScript(`api.console.panelListiner()`);
         if (panel !== consoleWindow || panel.isDestroyed()) return;
         panel.webContents.send('updateChannelsConsole', channelCount);
-        for (const entry of history) panel.webContents.send(entry.type, entry.data);
+        if (emptyReason) panel.webContents.send('updateCleanConsole', emptyReason);
+        for (const entry of history) {
+          if (entry.category) panel.webContents.send(entry.type, entry.data, entry.category);
+          else panel.webContents.send(entry.type, entry.data);
+        }
         consoleReady = true;
         panel.show();
       } catch (error) {
@@ -89,20 +100,24 @@ ipcMain.on('closeConsole', () => {
   if (consoleWindow && !consoleWindow.isDestroyed()) consoleWindow.destroy();
 })
 
-ipcMain.on('sendtoConsole', (event, data) => {
-  rememberEvent('updateConsole', data);
-  sendToPanel('updateConsole', data);
+ipcMain.on('sendtoConsole', (event, data, category) => {
+  const eventCategory = category === 'connections' ? 'connections' : undefined;
+  if (rememberEvent('updateConsole', data, eventCategory)) sendToPanel('updateConsole', data, eventCategory);
  })
  
 ipcMain.on('sendtoCleanConsole', (event, data) => {
   history.length = 0;
   historyLength = 0;
+  emptyReason = null;
   sendToPanel('updateCleanConsole');
  })
 
  ipcMain.on('sendMentionstoConsole', (event, data) => {
-  rememberEvent('updateMentionsConsole', data);
-  sendToPanel('updateMentionsConsole', data);
+  if (rememberEvent('updateMentionsConsole', data)) sendToPanel('updateMentionsConsole', data);
+ })
+
+ ipcMain.on('sendSubGiftstoConsole', (event, data) => {
+  if (rememberEvent('updateSubGiftsConsole', data)) sendToPanel('updateSubGiftsConsole', data);
  })
 
  ipcMain.on('sendChannelstoConsole', (event, channels) => {
