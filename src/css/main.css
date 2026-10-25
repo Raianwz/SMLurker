@@ -149,6 +149,46 @@ div.menu-bar {
     width: 100%;
 }
 
+.loginBox:not(.none) {
+    view-transition-name: login-screen;
+}
+
+.UserWrapper:not(.none) {
+    view-transition-name: profile-screen;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+}
+
+::view-transition-old(login-screen),
+::view-transition-old(profile-screen) {
+    animation: account-screen-out .12s ease-in both;
+}
+
+::view-transition-new(login-screen),
+::view-transition-new(profile-screen) {
+    animation: account-screen-in .18s ease-out both;
+}
+
+@keyframes account-screen-out {
+    to { opacity: 0; transform: translateY(-5px); }
+}
+
+@keyframes account-screen-in {
+    from { opacity: 0; transform: translateY(7px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(login-screen),
+    ::view-transition-old(profile-screen),
+    ::view-transition-new(login-screen),
+    ::view-transition-new(profile-screen) {
+        animation: none;
+    }
+}
+
 .UserWrapper .hline {
     margin-left: auto;
     margin-right: auto;
