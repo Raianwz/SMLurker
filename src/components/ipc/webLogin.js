@@ -7,6 +7,9 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
     let queuedResult = null;
     let forceShowLogin = false;
     let ircConnectionStatus = 'disconnected';
+    let loginNotificationShown = false;
+    let notificationLoginStarted = false;
+    let loginNoticeGeneration = 0;
     const ircIsActive = () => ircConnectionStatus !== 'disconnected';
 
     ipcMain.on('tray:connection-status', (event, status) => {
@@ -23,29 +26,52 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
         queuedResult = null;
     }
 
-    function requestLoginAgain() {
-        forceShowLogin = true;
+    function focusMainWindow() {
         const window = getMainWindow();
         if (window && !window.isDestroyed()) {
             if (window.isMinimized()) window.restore();
             window.show();
             window.focus();
         }
-        if (Notification.isSupported()) {
+    }
+
+    async function startWebLogin() {
+        if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de trocar de conta.' };
+        if (forceShowLogin) notificationLoginStarted = true;
+        try {
+            await webLogin.start();
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, message: error instanceof Error ? error.message : 'Não foi possível iniciar o login pelo navegador.' };
+        }
+    }
+
+    function requestLoginAgain() {
+        forceShowLogin = true;
+        focusMainWindow();
+        if (Notification.isSupported() && !loginNotificationShown) {
             try {
                 const notification = new Notification({
                     title: 'Login da Twitch necessário',
-                    body: 'A sessão expirou ou foi recusada. Abra o SMLurker para entrar novamente.',
+                    body: 'A sessão expirou ou foi recusada. Clique para entrar com a Twitch novamente.',
                 });
+                let clicked = false;
+                const generation = ++loginNoticeGeneration;
                 notification.on('click', () => {
-                    const currentWindow = getMainWindow();
-                    if (currentWindow && !currentWindow.isDestroyed()) {
-                        if (currentWindow.isMinimized()) currentWindow.restore();
-                        currentWindow.show();
-                        currentWindow.focus();
-                    }
+                    focusMainWindow();
+                    if (clicked || generation !== loginNoticeGeneration ||
+                        !forceShowLogin || notificationLoginStarted) return;
+                    clicked = true;
+                    notificationLoginStarted = true;
+                    void startWebLogin().then((result) => {
+                        if (!result.ok) {
+                            queuedResult = { type: 'error', message: result.message };
+                            flushResult();
+                        }
+                    });
                 });
                 notification.show();
+                loginNotificationShown = true;
             } catch { /* A janela e a mensagem de login continuam disponíveis. */ }
         }
     }
@@ -61,6 +87,9 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                     return false;
                 }
                 forceShowLogin = false;
+                loginNotificationShown = false;
+                notificationLoginStarted = false;
+                loginNoticeGeneration++;
                 let remembered = false;
                 try {
                     remembered = webSession.save(result);
@@ -76,15 +105,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
         },
     });
 
-    ipcMain.handle('web-login:start', async () => {
-        if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de trocar de conta.' };
-        try {
-            await webLogin.start();
-            return { ok: true };
-        } catch (error) {
-            return { ok: false, message: error instanceof Error ? error.message : 'Não foi possível iniciar o login pelo navegador.' };
-        }
-    });
+    ipcMain.handle('web-login:start', startWebLogin);
 
     ipcMain.handle('web-login:restore', async () => {
         const result = await webSession.restore();
@@ -105,6 +126,9 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
             webSession.clear();
             queuedResult = null;
             forceShowLogin = false;
+            loginNotificationShown = false;
+            notificationLoginStarted = false;
+            loginNoticeGeneration++;
             return { ok: true };
         } catch {
             return { ok: false, message: 'Não foi possível apagar a sessão Web salva.' };
