@@ -171,11 +171,14 @@ div.menu-bar>section#app_exit {
 div.menu-bar>section {
     font-size: 30px;
     color: #a8c5df;
+    background-color: transparent;
+    border-radius: 9px;
     padding-inline: 5px;
     margin: 10px 4px 0;
     cursor: pointer;
     padding-bottom: 3px;
     padding-top: 3px;
+    transition: color .18s ease, background-color .18s ease, box-shadow .18s ease;
 }
 
 
@@ -209,14 +212,12 @@ div.menu-bar>section#gearConfig:hover,
 div.menu-bar>section#refresh:hover {
     color: var(--text);
     -webkit-text-fill-color: var(--text);
-    transition: text ease-in-out 0.5s;
     background: #9146ff2e;
 }
 
 div.menu-bar>section#app_exit:hover {
     color: var(--text);
     background-color: var(--red);
-    background: var(--red);
 }
 
 div.menu-bar .avatar {
@@ -226,15 +227,13 @@ div.menu-bar .avatar {
 
 div.menu-bar>section:hover {
     color: #FFF;
-    background: #9146ff2e;
+    background-color: #9146ff2e;
     cursor: pointer;
-    border-radius: 9px;
 }
 
 div.menu-bar>section.selected {
     color: var(--text);
-    background: #9146ff30;
-    border-radius: 9px;
+    background-color: #9146ff30;
     box-shadow: inset 3px 0 #a970ff;
 }
 
@@ -392,7 +391,7 @@ a span:hover::after {
     height: 30px;
     vertical-align: middle;
     cursor: pointer;
-    transition: .5s ease 0s;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
 }
 
 .UserWrapper input[type="button"] {
@@ -412,7 +411,6 @@ a span:hover::after {
     background-color: #0184db;
     border: 1px solid #42b3ff;
     cursor: pointer;
-    transition: .5s ease 0s;
 }
 
 /* Login: mesma estrutura para OAuth clássico, entrada Web e conta pronta. */
@@ -598,6 +596,7 @@ a span:hover::after {
     border: 1px solid transparent;
     border-radius: 8px;
     cursor: pointer;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
 }
 
 .loginBox #webReadyPanel .web-account-actions button:hover,
@@ -622,7 +621,6 @@ a span:hover::after {
     z-index: 2;
     top: calc(100% + 6px);
     right: 0;
-    display: none;
     padding: 5px 8px;
     color: #fff;
     background: #3f2864;
@@ -631,11 +629,18 @@ a span:hover::after {
     font-weight: normal;
     white-space: nowrap;
     pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity .16s ease, transform .16s ease, visibility 0s linear .16s;
 }
 
 .loginBox #webReadyPanel .web-account-actions button:hover::after,
 .loginBox #webReadyPanel .web-account-actions button:focus-visible::after {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
 }
 
 .loginBox #webReadyPanel .web-ready-actions {
@@ -917,7 +922,6 @@ a span:hover::after {
     border-radius: 5%;
     margin-left: auto;
     margin-right: auto;
-    transition: 2s ease 0s;
 }
 
 .channelsManager div[type='button'] {
@@ -967,7 +971,7 @@ a span:hover::after {
     color: #FFF;
     background-color: #0c639c;
     border: 1px #0099ff solid;
-    transition: .5s ease 0s;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
 }
 
 .UserWrapper input[type="button"].remove,
@@ -976,13 +980,12 @@ a span:hover::after {
     background-color: #d4414100;
     color: #d44141;
     border: 1px #d44141 solid;
-    transition: .5s ease 0s;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
 }
 
 .add:hover {
     color: #ffffff;
     background-color: var(--blue);
-    transition: .5s ease 0s;
 }
 
 .UserWrapper input[type="button"].remove:hover,
@@ -991,7 +994,6 @@ a span:hover::after {
     color: #ffffff;
     background-color: var(--red);
     border: 1px #d44141 solid;
-    transition: .5s ease 0s;
 }
 
 .channelsManager input[type='text']:disabled::placeholder {
@@ -1101,7 +1103,7 @@ div[type='button'].cnFile.export {
     box-shadow: 0px 0px 0px 0px;
     pointer-events: none;
     border: 2px solid;
-    transition: 1.5s ease-in-out 0s;
+    transition: border-color .18s ease;
 }
 
 .version {
@@ -1300,7 +1302,7 @@ span.sgSom:hover {
     border-radius: 60px;
     background-color: #9a9a9a;
     border: 1px solid #f1f1f1;
-    transition: all 0.4s;
+    transition: background-color .2s ease, border-color .2s ease;
 }
 
 .switch--shadow+label:after {
@@ -1308,7 +1310,7 @@ span.sgSom:hover {
     background-color: #9148ff;
     border-radius: 100%;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s;
+    transition: background-color .2s ease, transform .2s ease;
 }
 
 .switch--shadow:checked+label:before {
@@ -1799,7 +1801,6 @@ div[name="version"]:hover img {
 }
 
 .mb-tooltip {
-    display: none;
     position: absolute;
     top: auto;
     font-size: 12px;
@@ -1809,12 +1810,17 @@ div[name="version"]:hover img {
     white-space: nowrap;
     color: var(--text);
     background-color: var(--purple);
-    border-radius: 0.4em;
+    border-radius: 7px;
     padding: 5px 6px;
     user-select: none;
     pointer-events: none;
     margin-bottom: 0px;
-    transition: 2s ease .8s;
+    margin-top: -30px;
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(42px, 4px);
+    transition: opacity .16s ease, transform .16s ease, visibility 0s linear .16s;
 }
 
 #app_exit .mb-tooltip {
@@ -1823,11 +1829,17 @@ div[name="version"]:hover img {
 
 div.menu-bar section:hover>.mb-tooltip,
 div.menu-bar section:focus-visible>.mb-tooltip {
-    transform: translateX(46px);
-    display: block;
-    margin-top: -30px;
-    transition: translateX 1s ease 0.2s;
-    z-index: 1;
+    opacity: 1;
+    visibility: visible;
+    transform: translate(46px, 0);
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mb-tooltip,
+    .loginBox #webReadyPanel .web-account-actions button::after {
+        transition: none;
+    }
 }
 
 section#user_box:hover>.mb-tooltip,
