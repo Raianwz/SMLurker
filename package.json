@@ -7,8 +7,8 @@
     "dev": "electron .",
     "test": "node --test",
     "pack": "electron-builder --dir --ia32",
-    "build": "electron-builder --ia32",
-    "release": "electron-builder --ia32 --publish always",
+    "build": "node build/windows.js",
+    "release": "node build/windows.js --publish always",
     "nodemon": "nodemon --watch . --exec electron ."
   },
   "repository": {

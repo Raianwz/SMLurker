@@ -73,7 +73,7 @@ No modo de desenvolvimento, o Electron abre as ferramentas de desenvolvedor auto
 | `npm test` | Testa login, sessão Web e conexão aos canais. |
 | `npm run nodemon` | Reinicia o aplicativo quando os arquivos mudam (requer `nodemon`). |
 | `npm run pack` | Gera o diretório do aplicativo para Windows 32 bits. |
-| `npm run build` | Gera os pacotes portátil e NSIS para Windows 32 bits. |
+| `npm run build` | Gera os pacotes portátil e NSIS para Windows 32 bits, com a descrição "SMLurker Portable" no lançador portátil. |
 | `npm run release` | Gera os pacotes e publica uma release pelo `electron-builder`. |
 
 Os artefatos de build são gravados em `releases/`.
