@@ -74,6 +74,7 @@ function CreateWindow() {
     attachReloadShortcut(mainWindow);
     WControls(() => mainWindow);
     WMenubar(() => mainWindow);
+    mainWindow.webContents.on('did-start-loading', webLogin.rendererLoading);
     mainWindow.loadFile('./src/app/index.html');
     mainWindow.webContents.on('did-finish-load', webLogin.flushResult);
 

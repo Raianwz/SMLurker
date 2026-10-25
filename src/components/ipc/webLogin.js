@@ -5,6 +5,8 @@ const { createWebSession } = require('../twitch/webSession');
 function createWebLoginController({ app, ipcMain, shell, Notification, safeStorage, getMainWindow, fromMainWindow }) {
     const webSession = createWebSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage });
     let queuedResult = null;
+    let queuedResultId = 0;
+    let rendererReady = false;
     let forceShowLogin = false;
     let ircConnectionStatus = 'disconnected';
     let loginNotificationShown = false;
@@ -21,10 +23,26 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
 
     function flushResult() {
         const window = getMainWindow();
-        if (!queuedResult || !window || window.isDestroyed() || window.webContents.isLoadingMainFrame()) return;
-        window.webContents.send('web-login:result', queuedResult);
-        queuedResult = null;
+        if (!rendererReady || !queuedResult || !window || window.isDestroyed() || window.webContents.isLoadingMainFrame()) return;
+        window.webContents.send('web-login:result', queuedResult, queuedResultId);
     }
+
+    function queueResult(result) {
+        queuedResult = result;
+        queuedResultId++;
+        flushResult();
+    }
+
+    ipcMain.on('web-login:ready', (event) => {
+        if (event.sender !== getMainWindow()?.webContents) return;
+        rendererReady = true;
+        flushResult();
+    });
+
+    ipcMain.on('web-login:ack', (event, id) => {
+        if (event.sender !== getMainWindow()?.webContents || id !== queuedResultId) return;
+        queuedResult = null;
+    });
 
     function focusMainWindow() {
         const window = getMainWindow();
@@ -65,8 +83,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                     notificationLoginStarted = true;
                     void startWebLogin().then((result) => {
                         if (!result.ok) {
-                            queuedResult = { type: 'error', message: result.message };
-                            flushResult();
+                            queueResult({ type: 'error', message: result.message });
                         }
                     });
                 });
@@ -82,8 +99,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
         onResult: (result) => {
             if (result.type === 'success') {
                 if (ircIsActive()) {
-                    queuedResult = { type: 'error', message: 'Desconecte-se dos canais antes de trocar de conta.' };
-                    flushResult();
+                    queueResult({ type: 'error', message: 'Desconecte-se dos canais antes de trocar de conta.' });
                     return false;
                 }
                 forceShowLogin = false;
@@ -99,8 +115,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                 }
                 result = { ...result, remembered };
             }
-            queuedResult = result;
-            flushResult();
+            queueResult(result);
             return result.type === 'success';
         },
     });
@@ -138,6 +153,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
     return {
         handleCallback: (url) => webLogin.handleCallback(url),
         flushResult,
+        rendererLoading: () => { rendererReady = false; },
         shouldForceShowLogin: () => forceShowLogin,
     };
 }

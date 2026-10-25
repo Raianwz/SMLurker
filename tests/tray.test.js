@@ -18,6 +18,8 @@ function setupTray() {
     let visible = true;
     let minimized = false;
     let tray;
+    let imageLoads = 0;
+    const headerImage = { isEmpty: () => false };
     const win = {
         webContents: { send: (...args) => calls.push(args) },
         isDestroyed: () => false,
@@ -52,7 +54,7 @@ function setupTray() {
                 Menu: { buildFromTemplate: (items) => ({ items }) },
                 Tray: FakeTray,
                 ipcMain,
-                nativeImage: { createFromPath() {} },
+                nativeImage: { createFromPath() { imageLoads++; return headerImage; } },
             };
             throw new Error(`Unexpected import: ${id}`);
         },
@@ -63,6 +65,8 @@ function setupTray() {
         calls,
         emit,
         tray: () => tray,
+        imageLoads: () => imageLoads,
+        headerImage,
         win,
         choose: (label) => tray.menu.items.find((item) => item.label === label).click(),
     };
@@ -92,6 +96,14 @@ test('tray tooltip and menu reflect connection status and channel count', () => 
     assert.match(fixture.tray().tooltip, /Conectado · 3 canais/);
     fixture.emit('tray:connection-status', {}, 'disconnected');
     assert.match(fixture.tray().tooltip, /Desconectado/);
+});
+
+test('tray keeps its menu icon in memory across menu refreshes', () => {
+    const fixture = setupTray();
+    fixture.emit('tray:connection-status', {}, 'connecting');
+    fixture.emit('tray:connection-status', {}, 'connected');
+    assert.equal(fixture.imageLoads(), 1);
+    assert.equal(fixture.tray().menu.items[0].icon, fixture.headerImage);
 });
 
 test('restart from tray uses the guarded restart flow', () => {

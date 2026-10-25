@@ -4,7 +4,6 @@ const { assetPath } = require('./assets');
 
 let tray = null;
 let iconPath = null;
-let headerIconPath = null;
 let connectionStatus = 'disconnected';
 let channelCount = 0;
 
@@ -14,7 +13,9 @@ module.exports.ExportTray = exportTray;
 function setUpTray(app, win) {
     const configPath = `${app.getPath('userData')}\\Config\\configs.json`;
     iconPath = assetPath(app, 'tray/ppL.ico');
-    headerIconPath = assetPath(app, 'tray/miniezy.png');
+    // O portable pode remover sua pasta temporária enquanto o processo ainda está aberto.
+    // Carregue a imagem agora para que o menu não precise reler o arquivo a cada atualização.
+    const headerIcon = createFromPath(assetPath(app, 'tray/miniezy.png'));
 
     const isOpen = () => !win.isDestroyed() && win.isVisible() && !win.isMinimized();
     const toggleWindow = () => {
@@ -38,7 +39,7 @@ function setUpTray(app, win) {
         const status = statusText();
         tray.setToolTip(`SM Twitch Lurker — ${status}`);
         tray.setContextMenu(Menu.buildFromTemplate([
-            { label: 'SM Lurker', icon: headerIconPath, enabled: false },
+            { label: 'SM Lurker', icon: headerIcon.isEmpty() ? undefined : headerIcon, enabled: false },
             { label: status, enabled: false },
             { type: 'separator' },
             { label: isOpen() ? 'Ocultar na bandeja' : 'Abrir SMLurker', click: toggleWindow },

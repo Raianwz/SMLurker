@@ -42,8 +42,15 @@ const api = {
         invalidateWebLogin: () => ipcRenderer.invoke('web-login:invalid'),
         logoutWebLogin: () => ipcRenderer.invoke('web-login:logout'),
         onWebLoginResult: (callback) => {
-            const listener = (_event, result) => callback(result);
+            const listener = (_event, result, id) => {
+                Promise.resolve().then(() => callback(result)).then(() => {
+                    ipcRenderer.send('web-login:ack', id);
+                }).catch((error) => {
+                    console.error('Não foi possível aplicar o resultado do login Web:', error);
+                });
+            };
             ipcRenderer.on('web-login:result', listener);
+            ipcRenderer.send('web-login:ready');
             return () => ipcRenderer.removeListener('web-login:result', listener);
         },
     },

@@ -35,7 +35,8 @@ Este checklist descreve o estado do Electron neste repositório. `[x]` indica al
 - [x] Oferecer desfazer a última remoção de canal durante a sessão.
 - [x] Evitar registrar novamente os mesmos listeners da interface a cada reconexão.
 - [x] Mostrar o estado de espera pela abertura do IRC em `joinchannels.js` enquanto a conexão ainda não está pronta.
-- [ ] Testar manualmente login, Ctrl+R, reconexão, expiração de token e notificações no Windows instalado e portátil.
+- [x] Testar manualmente as notificações no Windows instalado, unpacked e portátil. No portátil, a notificação apareceu na terceira menção do teste.
+- [ ] Testar manualmente login, Ctrl+R, reconexão e expiração de token no Windows instalado e portátil.
 
 ## Evolução técnica
 

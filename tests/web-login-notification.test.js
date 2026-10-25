@@ -13,6 +13,7 @@ function createController() {
     ipcMain.handle = (name, handler) => handlers.set(name, handler);
     const notifications = [];
     const windowActions = [];
+    const delivered = [];
     let loginStarts = 0;
     let onResult;
     class Notification extends EventEmitter {
@@ -31,7 +32,7 @@ function createController() {
         focus: () => windowActions.push('focus'),
         webContents: {
             isLoadingMainFrame: () => false,
-            send: () => {},
+            send: (...args) => delivered.push(args),
         },
     };
     const context = {
@@ -54,7 +55,7 @@ function createController() {
         },
     };
     vm.runInNewContext(source, context);
-    context.module.exports.createWebLoginController({
+    const controller = context.module.exports.createWebLoginController({
         app: { getPath: () => 'test-config', isPackaged: false },
         ipcMain,
         shell: { openExternal: async () => {} },
@@ -63,7 +64,10 @@ function createController() {
         getMainWindow: () => window,
         fromMainWindow: () => {},
     });
-    return { handlers, notifications, windowActions, getStarts: () => loginStarts,
+    return { handlers, notifications, windowActions, delivered, controller,
+        ready: () => ipcMain.emit('web-login:ready', { sender: window.webContents }),
+        ack: (id) => ipcMain.emit('web-login:ack', { sender: window.webContents }, id),
+        getStarts: () => loginStarts,
         completeLogin: () => onResult({ type: 'success', username: 'raianwz', accessToken: 'valid-token' }) };
 }
 
@@ -95,4 +99,31 @@ test('the button and notification share login start; an old notice cannot start 
     app.notifications[1].emit('click');
     await new Promise(setImmediate);
     assert.equal(app.getStarts(), 2);
+});
+
+test('Web login result waits for renderer readiness and survives reload until acknowledged', () => {
+    const app = createController();
+    assert.equal(app.completeLogin(), true);
+    assert.equal(app.delivered.length, 0);
+
+    app.ready();
+    assert.equal(app.delivered.length, 1);
+    const [channel, result, id] = app.delivered[0];
+    assert.equal(channel, 'web-login:result');
+    assert.equal(result.username, 'raianwz');
+
+    app.controller.rendererLoading();
+    app.ready();
+    assert.equal(app.delivered.length, 2);
+    assert.equal(app.delivered[1][2], id);
+
+    app.ack(id + 1);
+    app.controller.rendererLoading();
+    app.ready();
+    assert.equal(app.delivered.length, 3);
+
+    app.ack(id);
+    app.controller.rendererLoading();
+    app.ready();
+    assert.equal(app.delivered.length, 3);
 });
