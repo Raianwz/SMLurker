@@ -43,7 +43,7 @@ if (process.defaultApp && process.argv.length >= 2) {
 function CreateWindow() {
     mainWindow = new BrowserWindow({
         title: 'SM Lurker',
-        icon: './src/assets/icon.ico',
+        icon: path.join(__dirname, 'src/assets/icon.ico'),
         width: 480,
         height: 500,
         resizable: false,
@@ -91,7 +91,7 @@ function CreateWindow() {
     })
 }
 
-isWin ? app.setAppUserModelId('com.smlurker') : false
+if (isWin) app.setAppUserModelId(app.isPackaged ? 'com.smlurker' : 'com.smlurker.dev');
 
 if (!gotTheLock) { app.quit() }
 else {

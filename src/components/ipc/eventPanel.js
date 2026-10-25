@@ -38,7 +38,7 @@ function createConsoleWindow() {
       minHeight: 400,
       minWidth: 600,
       title: 'Painel de Eventos',
-      icon: './src/assets/icon.ico',
+      icon: path.join(__dirname, '../../assets/icon.ico'),
       frame: false,
       transparent: false,
       resizable: true,

@@ -24,6 +24,8 @@ Aplicativo desktop para acompanhar vários chats da Twitch em segundo plano. O S
 
 Os arquivos do usuário (lista de canais, preferências, perfil e credenciais) ficam no diretório de dados da aplicação, dentro da pasta `Config`. O botão **Local dos Arquivos**, nas configurações, abre esse diretório.
 
+Ao desinstalar a versão instalável, os dados locais são mantidos por padrão. Para removê-los, marque **Apagar dados locais, configurações e lista de canais** no desinstalador. Essa opção apaga `%APPDATA%\SMLurker`, incluindo as credenciais salvas; o cache de atualizações em `%LOCALAPPDATA%\smlurker-updater` é removido em ambos os casos.
+
 Em **Configurações → Aparência**, escolha **Moderno** ou **Clássico**. O visual escolhido é salvo em `configs.json` e aplicado às janelas abertas.
 
 O login clássico guarda o OAuth em `Config/UserOAuth.bin`, protegido pelo `safeStorage` do Electron. Na primeira leitura, o aplicativo migra o antigo `credentials.json` e o remove após confirmar a gravação protegida. Se a proteção do sistema estiver indisponível, o login antigo continua funcionando e a migração fica pendente; novas credenciais não são gravadas em texto puro. O login Web guarda sua sessão separadamente em `web-session.bin`.

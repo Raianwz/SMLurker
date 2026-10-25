@@ -25,7 +25,7 @@ ipcMain.on('openConfigs', () => {
       width: 480,
       height: 530,
       title: 'Configurações',
-      icon: './src/assets/icon.ico',
+      icon: path.join(__dirname, '../../assets/icon.ico'),
       frame: false,
       transparent: true,
       resizable: false,
