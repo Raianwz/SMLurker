@@ -1,6 +1,7 @@
 const { app, ipcMain, BrowserWindow, shell } = require('electron');
 const { initialize, enable } = require('@electron/remote/main');
 const { createLocalData } = require('../helpers/localData');
+const { startupExecutable, getStartupState, setStartupState } = require('../helpers/startupLogin');
 const path = require('node:path');
 let configWindow;
 const localData = createLocalData(app);
@@ -17,6 +18,16 @@ ipcMain.handle('appearance:set', (event, value) => {
     if (!window.isDestroyed()) window.webContents.send('appearance:changed', appearance);
   }
   return appearance;
+});
+
+ipcMain.handle('startup:get', (event) => {
+  if (event.sender !== configWindow?.webContents) throw new Error('Janela não autorizada.');
+  return getStartupState(app, startupExecutable({ isPackaged: app.isPackaged }));
+});
+
+ipcMain.handle('startup:set', (event, enabled) => {
+  if (event.sender !== configWindow?.webContents) throw new Error('Janela não autorizada.');
+  return setStartupState(app, startupExecutable({ isPackaged: app.isPackaged }), enabled);
 });
 
 ipcMain.on('openConfigs', () => {

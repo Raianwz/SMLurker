@@ -2,12 +2,9 @@ const { app, dialog, shell: { openExternal, openPath } } = require('@electron/re
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const getEl = (el) => document.querySelector(el)
-const AutoLaunch = require('auto-launch');
 const localPath = `${app.getPath('userData')}\\Config`, configPath = `${localPath}\\configs.json`;
-const smlurkerAutoLaunch = new AutoLaunch({ name: 'SM Lurker' });
 const { createConfigs } = require('../helpers/setupConfigs');
 const { getChannelsFilePath, readChannelsFile } = require('../helpers/channelFile');
-const sleep = async (ms) => { return new Promise(resolve => setTimeout(resolve, ms)) }
 const loading = getEl('div[name="loading"]');
 let checkIniMin = false;
 Controls()
@@ -22,6 +19,14 @@ function LoadConfigs() {
         getEl('#swt_autologin').checked = configs.autologin;
         getEl('#swt_inimin').checked = configs.inimin;
     } else createConfigs(configPath);
+    const startupSwitch = getEl('#swt_ini');
+    startupSwitch.disabled = true;
+    void ipcRenderer.invoke('startup:get').then(({ available, enabled }) => {
+        startupSwitch.checked = enabled;
+        startupSwitch.disabled = !available;
+    }).catch(() => {
+        startupSwitch.disabled = true;
+    });
     const appearance = configs.appearance === 'classic' ? 'classic' : 'modern';
     const appearanceSelect = getEl('#appearanceSelect');
     appearanceSelect.value = appearance;
@@ -68,20 +73,20 @@ function changeConfigs() {
 }
 
 async function changeIni() {
-    changeConfigs()
-    if (fs.existsSync(configPath)) {
-        let configs = JSON.parse(fs.readFileSync(configPath, { encoding: 'utf8' }))
-        const ppHop = async (value) => {
-            loading.classList.add('loading');
-            await sleep(200);
-            try {
-                await (value === 1 ? smlurkerAutoLaunch.enable() : smlurkerAutoLaunch.disable())
-            } finally {
-                loading.classList.remove('loading')
-            }
-        }
-        if (configs.ini === true) ppHop(1)
-        if (configs.ini === false) ppHop(0)
+    const startupSwitch = getEl('#swt_ini');
+    const requested = startupSwitch.checked;
+    startupSwitch.disabled = true;
+    loading.classList.add('loading');
+    try {
+        const state = await ipcRenderer.invoke('startup:set', requested);
+        if (state.enabled !== requested) throw new Error('O Windows não confirmou a alteração.');
+        changeConfigs();
+    } catch {
+        startupSwitch.checked = !requested;
+        dialog.showMessageBoxSync({ type: 'error', message: 'Não foi possível alterar a inicialização com o Windows.' });
+    } finally {
+        startupSwitch.disabled = false;
+        loading.classList.remove('loading');
     }
 }
 

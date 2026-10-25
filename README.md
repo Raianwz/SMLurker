@@ -28,6 +28,8 @@ Ao desinstalar a versão instalável, os dados locais são mantidos por padrão.
 
 Em **Configurações → Aparência**, escolha **Moderno** ou **Clássico**. O visual escolhido é salvo em `configs.json` e aplicado às janelas abertas.
 
+No Windows, **Iniciar com Windows** registra o executável instalado ou, na versão portátil, o arquivo portátil original. Se mover o portátil, desative e ative essa opção novamente no novo local.
+
 O login clássico guarda o OAuth em `Config/UserOAuth.bin`, protegido pelo `safeStorage` do Electron. Na primeira leitura, o aplicativo migra o antigo `credentials.json` e o remove após confirmar a gravação protegida. Se a proteção do sistema estiver indisponível, o login antigo continua funcionando e a migração fica pendente; novas credenciais não são gravadas em texto puro. O login Web guarda sua sessão separadamente em `web-session.bin`.
 
 As páginas das três janelas não têm integração direta com Node.js. As funções locais ficam nos preloads isolados e a interface principal recebe apenas operações específicas; a importação e exportação de listas passa pelo processo principal. Os preloads ainda usam Node.js e `@electron/remote`, então o sandbox do renderer continua desativado. Após avaliar a mudança, mantivemos a conexão IRC no preload por enquanto; uma separação futura exigirá tratar a passagem dos eventos e a reconexão entre processos.

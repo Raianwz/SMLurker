@@ -44,6 +44,7 @@ test('only settings can change the visual and open windows receive the update', 
             if (id === 'node:path') return path;
             if (id === 'electron') return fakeElectron;
             if (id === '@electron/remote/main') return { initialize() {}, enable() {} };
+            if (id === '../helpers/startupLogin') return require('../src/components/helpers/startupLogin');
             if (id === '../helpers/localData') return {
                 createLocalData: () => ({ preferences: {
                     get: () => ({ appearance }),

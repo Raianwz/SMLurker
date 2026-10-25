@@ -6,6 +6,7 @@ const env = (app) => app.isPackaged ? 'PRODUCTION' : 'DEV'
 const { SetUpTray } = require('./src/components/helpers/tray');
 const { startUpdateChecks } = require('./src/components/helpers/updateChecks');
 const { initConfigs } = require('./src/components/helpers/setupConfigs');
+const { repairTemporaryStartup, startupExecutable } = require('./src/components/helpers/startupLogin');
 const path = require('path');
 const gotTheLock = app.requestSingleInstanceLock();
 const { PROTOCOL, callbackFromArgs } = require('./src/components/twitch/webLogin');
@@ -36,6 +37,9 @@ checkFiles();
 
 if (process.defaultApp && process.argv.length >= 2) {
     app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [path.resolve(process.argv[1])]);
+} else if (isWin && app.isPackaged && process.env.PORTABLE_EXECUTABLE_FILE) {
+    const portableExecutable = startupExecutable({ isPackaged: true });
+    if (portableExecutable) app.setAsDefaultProtocolClient(PROTOCOL, portableExecutable);
 } else {
     app.setAsDefaultProtocolClient(PROTOCOL);
 }
@@ -115,6 +119,8 @@ app.on('open-url', (event, url) => {
 app.on('ready', () => {
     if (!gotTheLock) return;
     initConfigs();
+    try { repairTemporaryStartup(app); }
+    catch (error) { console.warn('Não foi possível corrigir a inicialização automática:', error); }
     CreateWindow();
     if (initialWebLoginUrl) void webLogin.handleCallback(initialWebLoginUrl);
     SetUpTray(app, mainWindow);

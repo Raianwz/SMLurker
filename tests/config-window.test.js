@@ -10,6 +10,7 @@ function createConfigWindow() {
     const elements = new Map();
     const actions = [];
     let saved = { ini: false, autologin: false, inimin: false, appearance: 'modern' };
+    let startupEnabled = false;
     const documentElement = { dataset: {} };
     const element = (selector) => {
         if (!elements.has(selector)) {
@@ -46,6 +47,12 @@ function createConfigWindow() {
             if (id === '@electron/remote') return remote;
             if (id === 'electron') return { ipcRenderer: {
                 invoke: async (channel, value) => {
+                    if (channel === 'startup:get') return { available: true, enabled: startupEnabled };
+                    if (channel === 'startup:set') {
+                        startupEnabled = value;
+                        actions.push(['startup', value]);
+                        return { available: true, enabled: startupEnabled };
+                    }
                     assert.equal(channel, 'appearance:set');
                     saved = { ...saved, appearance: value };
                     return value;
@@ -53,7 +60,6 @@ function createConfigWindow() {
             } };
             if (id === 'fs') return fakeFs;
             if (id === 'path') return path;
-            if (id === 'auto-launch') return class AutoLaunch {};
             if (id.endsWith('setupConfigs')) {
                 require.resolve(id, { paths: [context.__dirname] });
                 return { createConfigs() {} };
@@ -102,4 +108,22 @@ test('visual selection saves the appearance and applies it in the settings windo
 
     assert.equal(getSaved().appearance, 'classic');
     assert.equal(documentElement.dataset.appearance, 'classic');
+});
+
+test('startup switch saves only after Windows accepts the requested state', async () => {
+    const { actions, element, getSaved } = createConfigWindow();
+    await Promise.resolve();
+    const startup = element('#swt_ini');
+    assert.equal(startup.checked, false);
+    assert.equal(startup.disabled, false);
+
+    startup.checked = true;
+    await startup.click();
+    assert.deepEqual(actions, [['startup', true]]);
+    assert.equal(getSaved().ini, true);
+
+    startup.checked = false;
+    await startup.click();
+    assert.deepEqual(actions, [['startup', true], ['startup', false]]);
+    assert.equal(getSaved().ini, false);
 });
