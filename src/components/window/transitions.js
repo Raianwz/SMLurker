@@ -24,7 +24,9 @@ function changeButtonSide(destino) {
     const addClass = (ele, Class) => el(`${ele}`).classList.add(`${Class}`);
     const Notify = async () => appcore.sc.data.loadNotify();
     Notify()
+    document.querySelector('.menu-bar > section.selected')?.classList.remove('selected');
     if (destino == 1) {
+        addClass('#user_box', 'selected');
         rmClass('#user_box','none');
         rmClass('#conection_box','none');
         rmClass('#console_open','none');
@@ -36,6 +38,7 @@ function changeButtonSide(destino) {
         addClass('#login_box', 'none');
         addClass('#channels_box', 'none');
     } else {
+        addClass('#login_box', 'selected');
         addClass('#app_exit','none')
         addClass('.loginBox','actived')
         rmClass('.loginBox', 'none');

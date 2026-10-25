@@ -2,14 +2,10 @@ const { Menu, app, getCurrentWindow, ipcMain, dialog, shell } = require("@electr
 const { ipcRenderer } = require("electron");
 const { existsSync, readFileSync, writeFileSync } = require('fs')
 const { join, resolve } = require('path')
-const { WControls } = require('./controls')
-const { WMenubar } = require('../components/window/menubar')
 const { smcore } = require('./smcore');
 const { getChannelsFilePath, readChannelsFile } = require('../components/helpers/channelFile');
 
 
-WControls(getCurrentWindow)
-WMenubar(getCurrentWindow)
 const appcore = {
     clipmenu: {
         show: (obj, win) => Menu.buildFromTemplate(obj).popup(win)

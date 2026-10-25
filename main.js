@@ -15,6 +15,8 @@ const { registerLocalDataIpc } = require('./src/components/ipc/localData');
 const { registerChannelFilesIpc } = require('./src/components/ipc/channelFiles');
 const { registerLegacyCredentialsIpc } = require('./src/components/ipc/legacyCredentials');
 const { registerReloadIpc, attachReloadShortcut } = require('./src/components/ipc/reload');
+const { WControls } = require('./src/internal/controls');
+const { WMenubar } = require('./src/components/window/menubar');
 
 require('./src/components/ipc/configWindow');
 require('./src/components/ipc/eventPanel');
@@ -70,6 +72,8 @@ function CreateWindow() {
     })
     enable(mainWindow.webContents);
     attachReloadShortcut(mainWindow);
+    WControls(() => mainWindow);
+    WMenubar(() => mainWindow);
     mainWindow.loadFile('./src/app/index.html');
     mainWindow.webContents.on('did-finish-load', webLogin.flushResult);
 

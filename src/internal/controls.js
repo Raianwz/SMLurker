@@ -1,4 +1,3 @@
-const { WMenubar } = require('../components/window/menubar')
 module.exports.WControls = windowButtonsControls;
 
 function windowButtonsControls(app) {
