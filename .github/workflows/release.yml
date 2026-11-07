@@ -10,6 +10,7 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
+    environment: SMLurkerApp
 
     steps:
     - uses: actions/checkout@v7
@@ -30,6 +31,14 @@ jobs:
 
     - name: Run tests
       run: npm test
+
+    - name: Check Electron Twitch client ID
+      env:
+        SMELECTRON_CLIENT_ID: ${{ vars.SMELECTRON_CLIENT_ID }}
+      run: |
+        if ([string]::IsNullOrWhiteSpace($env:SMELECTRON_CLIENT_ID)) {
+          throw "SMELECTRON_CLIENT_ID is not configured in the SMLurkerApp environment"
+        }
 
     - name: Build and publish Windows release
       run: npm run release
