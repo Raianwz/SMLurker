@@ -1,5 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { createDirectLogin } = require('../src/components/twitch/directLogin');
 const { createDirectSession } = require('../src/components/twitch/directSession');
 
@@ -29,19 +32,15 @@ test('device login waits for Twitch authorization and uses only the public clien
     assert.equal(tokens.refresh_token, 'refresh-token-123');
 });
 
-test('saved direct session refreshes an invalid access token and persists the rotated refresh token', async () => {
-    let stored;
-    const files = {
-        existsSync: () => Boolean(stored), mkdirSync: () => {},
-        writeFileSync: (_path, data) => { stored = data; },
-        readFileSync: () => stored, unlinkSync: () => { stored = null; },
-    };
+test('saved direct session refreshes an invalid access token and persists the rotated refresh token', async (t) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'smlurker-device-'));
+    t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
     const safeStorage = {
         isEncryptionAvailable: () => true, getSelectedStorageBackend: () => 'dpapi',
         encryptString: (plain) => Buffer.from(plain).reverse(),
         decryptString: (encrypted) => Buffer.from(encrypted).reverse().toString(),
     };
-    const session = createDirectSession({ directory: 'test-config', safeStorage, fileSystem: files,
+    const session = createDirectSession({ directory, safeStorage,
         directLogin: {
             validate: async (token) => token === 'new-access-token' ? 'raianwz' : null,
             refresh: async (token) => {
@@ -51,25 +50,22 @@ test('saved direct session refreshes an invalid access token and persists the ro
         },
     });
     assert.equal(session.save({ username: 'raianwz', accessToken: 'old-access-token', refreshToken: 'old-refresh-token' }), true);
-    assert.equal(stored.includes('old-refresh-token'), false);
+    const stored = () => fs.readFileSync(path.join(directory, 'UserOAuth.bin'));
+    assert.equal(stored().includes('old-refresh-token'), false);
     assert.deepEqual(await session.restore(), { type: 'success', source: 'direct', username: 'raianwz', accessToken: 'new-access-token' });
-    assert.equal(safeStorage.decryptString(stored).includes('new-refresh-token'), true);
+    assert.equal(safeStorage.decryptString(stored()).includes('new-refresh-token'), true);
 });
 
-test('direct session can renew a still valid access token after IRC rejects it', async () => {
-    let stored;
-    const files = {
-        existsSync: () => Boolean(stored), mkdirSync: () => {},
-        writeFileSync: (_path, data) => { stored = data; },
-        readFileSync: () => stored, unlinkSync: () => { stored = null; },
-    };
+test('direct session can renew a still valid access token after IRC rejects it', async (t) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'smlurker-device-'));
+    t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
     const safeStorage = {
         isEncryptionAvailable: () => true, getSelectedStorageBackend: () => 'dpapi',
         encryptString: (plain) => Buffer.from(plain).reverse(),
         decryptString: (encrypted) => Buffer.from(encrypted).reverse().toString(),
     };
     let refreshed = false;
-    const session = createDirectSession({ directory: 'test-config', safeStorage, fileSystem: files,
+    const session = createDirectSession({ directory, safeStorage,
         directLogin: {
             validate: async () => 'raianwz',
             refresh: async (token) => {
@@ -83,5 +79,5 @@ test('direct session can renew a still valid access token after IRC rejects it',
     const result = await session.renew();
     assert.equal(refreshed, true);
     assert.equal(result.accessToken, 'new-access-token');
-    assert.match(safeStorage.decryptString(stored), /new-refresh-token/);
+    assert.match(safeStorage.decryptString(fs.readFileSync(path.join(directory, 'UserOAuth.bin'))), /new-refresh-token/);
 });

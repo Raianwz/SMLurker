@@ -21,7 +21,7 @@ Acompanhe chats da Twitch em segundo plano no Windows e receba avisos de mençõ
 
 ## Contas, configurações e dados
 
-O login clássico por token continua disponível para quem já o utiliza. Os tokens são protegidos pelo `safeStorage` do Electron em `Config/UserOAuth.bin`, `web-session.bin` ou `direct-session.bin`, conforme o método. Credenciais antigas em `credentials.json` são migradas quando a proteção do sistema está disponível; novas credenciais não são gravadas em texto puro.
+O login clássico por token continua disponível para quem já o utiliza. As credenciais dos três métodos ficam protegidas pelo `safeStorage` do Electron em `Config/UserOAuth.bin`. O aplicativo guarda o último método usado e preserva os dados dos demais. Credenciais antigas em `credentials.json`são migradas quando a proteção do sistema está disponível; novas credenciais não são gravadas em texto puro.
 
 A lista de canais, o perfil e as preferências ficam na pasta `Config`, acessível em **Configurações → Local dos arquivos**. Ao desinstalar, os dados são mantidos por padrão; marque **Apagar dados locais, configurações e lista de canais** para removê-los. Se mover o portátil após ativar **Iniciar com Windows**, desligue e ligue essa opção no novo local.
 

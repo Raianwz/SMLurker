@@ -118,7 +118,6 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                 try {
                     remembered = webSession.save(result);
                     if (!remembered) webSession.clear();
-                    directSession?.clear();
                 } catch {
                     try { webSession.clear(); } catch { /* A sessão atual ainda pode ser usada em memória. */ }
                 }
@@ -150,7 +149,6 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                 if (!username) throw new Error('A Twitch devolveu um token inválido para este aplicativo.');
                 const remembered = directSession.save({ username, accessToken: tokens.access_token, refreshToken: tokens.refresh_token });
                 if (!remembered) throw new Error('Não foi possível proteger a sessão direta neste sistema.');
-                webSession.clear();
                 queueResult({ type: 'success', source: 'direct', username, accessToken: tokens.access_token, remembered });
             }).catch((error) => {
                 if (directAttempt === controller && !controller.signal.aborted) queueResult({ type: 'error', source: 'direct', message: error.message });

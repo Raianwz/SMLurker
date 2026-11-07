@@ -1,49 +1,25 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const { createAuthStore } = require('./authStore');
 
-const SESSION_FILE = 'web-session.bin';
 const VALIDATE_URL = 'https://id.twitch.tv/oauth2/validate';
 
-function createWebSession({ directory, safeStorage, fileSystem = fs, fetchImpl = fetch }) {
-    const sessionPath = path.join(directory, SESSION_FILE);
-
-    function encryptionAvailable() {
-        return safeStorage.isEncryptionAvailable() &&
-            (process.platform !== 'linux' || safeStorage.getSelectedStorageBackend() !== 'basic_text');
-    }
-
-    function clear() {
-        if (fileSystem.existsSync(sessionPath)) fileSystem.unlinkSync(sessionPath);
-    }
+function createWebSession({ directory, safeStorage, fileSystem, fetchImpl = fetch }) {
+    const store = createAuthStore({ directory, safeStorage, fileSystem });
+    const clear = () => store.clear('web');
 
     function save({ username, accessToken }) {
-        if (!encryptionAvailable()) return false;
         if (typeof username !== 'string' || !/^[a-z0-9_]{1,25}$/i.test(username) ||
-            typeof accessToken !== 'string' || accessToken.length < 10 || accessToken.length > 4096 || /\s/.test(accessToken)) {
-            return false;
-        }
-        const encrypted = safeStorage.encryptString(JSON.stringify({ version: 1, username: username.toLowerCase(), accessToken }));
-        fileSystem.mkdirSync(directory, { recursive: true });
-        fileSystem.writeFileSync(sessionPath, encrypted, { mode: 0o600 });
-        return true;
+            typeof accessToken !== 'string' || accessToken.length < 10 || accessToken.length > 4096 || /\s/.test(accessToken)) return false;
+        return store.set('web', { username, accessToken });
     }
 
     async function restore() {
-        if (!fileSystem.existsSync(sessionPath)) return { type: 'none' };
-        if (!encryptionAvailable()) {
-            return { type: 'error', message: 'A proteção da sessão salva não está disponível neste sistema.' };
-        }
-
         let session;
         try {
-            session = JSON.parse(safeStorage.decryptString(fileSystem.readFileSync(sessionPath)));
-            if (session.version !== 1 || typeof session.username !== 'string' ||
-                !/^[a-z0-9_]{1,25}$/i.test(session.username) || typeof session.accessToken !== 'string' ||
-                session.accessToken.length < 10 || session.accessToken.length > 4096 || /\s/.test(session.accessToken)) {
-                throw new Error('Invalid saved session');
-            }
+            if (!store.available()) return { type: 'error', message: 'A proteção da sessão salva não está disponível neste sistema.' };
+            if (store.getActive() !== 'web') return { type: 'none' };
+            session = store.get('web');
+            if (!session) return { type: 'none' };
         } catch {
-            clear();
             return { type: 'error', requiresLogin: true, message: 'A sessão salva não pôde ser lida. Entre com a Twitch novamente.' };
         }
 
