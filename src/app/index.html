@@ -94,12 +94,20 @@
                     <p id="classicLoginError" class="classic-login-error" role="alert" hidden></p>
                     <input id="btnEntrar" onclick="entrarTwitch()" type="button" value="Entrar nos canais">
                     <div class="help"><button type="button" onclick="iniciarLoginWeb()">Entrar com a Twitch pelo navegador</button></div>
+                    <div class="help code-login-option" hidden><button type="button" onclick="iniciarLoginDireto()">Entrar com código</button></div>
                 </div>
                 <div id="newLoginPanel" class="none">
                     <span class="login-eyebrow">BEM-VINDO AO SMLURKER</span>
-                    <h2>Logar com Navegador</h2>
-                    <p class="login-description">Entre na sua conta Twitch pelo navegador.</p>
+                    <h2>Entrar na Twitch</h2>
+                    <p class="login-description">Escolha como autorizar sua conta Twitch.</p>
                     <input id="btnWebLogin" onclick="iniciarLoginWeb()" type="button" value="Entrar com a Twitch">
+                    <div class="help code-login-option" hidden><button id="btnDirectLogin" type="button" onclick="iniciarLoginDireto()">Entrar com código</button></div>
+                </div>
+                <div id="directLoginInstructions" class="direct-login-instructions" hidden>
+                    <p>Na Twitch, digite este código para autorizar o SMLurker:</p>
+                    <strong id="directLoginCode"></strong>
+                    <p><a id="directLoginLink" href="https://www.twitch.tv/activate">Abrir página de ativação</a></p>
+                    <button type="button" onclick="cancelarLoginDireto()">Cancelar login direto</button>
                 </div>
                 <div id="webReadyPanel" class="none">
                     <div class="web-ready-header">
@@ -113,6 +121,7 @@
                     <p class="login-description">Tudo pronto para acompanhar seus canais.</p>
                     <input id="btnConnectChannels" onclick="conectarCanaisWeb()" type="button" value="Entrar nos canais">
                     <div class="help web-ready-actions">
+                        <button class="code-login-option" type="button" onclick="iniciarLoginDireto()" hidden>Entrar com código</button>
                         <button id="btnUseLegacyLogin" class="none" type="button" onclick="voltarLoginLegado()">Login Clássico</button>
                     </div>
                 </div>

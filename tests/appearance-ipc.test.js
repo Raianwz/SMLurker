@@ -11,6 +11,7 @@ test('only settings can change the visual and open windows receive the update', 
     const listeners = new Map();
     const sent = [];
     let appearance = 'modern';
+    let showCodeLogin = false;
     let settingsWindow;
     const mainWindow = { webContents: { send: (...args) => sent.push(['main', ...args]) }, isDestroyed: () => false };
     const fakeElectron = {
@@ -47,8 +48,9 @@ test('only settings can change the visual and open windows receive the update', 
             if (id === '../helpers/startupLogin') return require('../src/components/helpers/startupLogin');
             if (id === '../helpers/localData') return {
                 createLocalData: () => ({ preferences: {
-                    get: () => ({ appearance }),
+                    get: () => ({ appearance, showCodeLogin }),
                     updateAppearance: (value) => ({ appearance: (appearance = value) }),
+                    updateCodeLogin: (value) => ({ showCodeLogin: (showCodeLogin = value) }),
                 } }),
             };
             throw new Error(`Unexpected module: ${id}`);
@@ -66,5 +68,12 @@ test('only settings can change the visual and open windows receive the update', 
     assert.deepEqual(sent, [
         ['main', 'appearance:changed', 'classic'],
         ['settings', 'appearance:changed', 'classic'],
+    ]);
+    assert.throws(() => handlers.get('login-code:set')({ sender: mainWindow.webContents }, true), /autorizada/);
+    assert.equal(handlers.get('login-code:set')({ sender: settingsWindow.webContents }, true), true);
+    assert.equal(showCodeLogin, true);
+    assert.deepEqual(sent.slice(-2), [
+        ['main', 'login-code:changed', true],
+        ['settings', 'login-code:changed', true],
     ]);
 });

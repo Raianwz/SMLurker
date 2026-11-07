@@ -20,6 +20,15 @@ ipcMain.handle('appearance:set', (event, value) => {
   return appearance;
 });
 
+ipcMain.handle('login-code:set', (event, enabled) => {
+  if (event.sender !== configWindow?.webContents) throw new Error('Janela não autorizada.');
+  const showCodeLogin = localData.preferences.updateCodeLogin(enabled).showCodeLogin;
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.send('login-code:changed', showCodeLogin);
+  }
+  return showCodeLogin;
+});
+
 ipcMain.handle('startup:get', (event) => {
   if (event.sender !== configWindow?.webContents) throw new Error('Janela não autorizada.');
   return getStartupState(app, startupExecutable({ isPackaged: app.isPackaged }));

@@ -605,6 +605,8 @@ a span:hover::after {
     gap: 12px;
 }
 
+.loginBox .code-login-option[hidden] { display: none; }
+
 .loginBox .help button {
     padding: 4px 0;
     color: #8fcbef;
@@ -702,6 +704,44 @@ a span:hover::after {
     border-color: #bf94ff;
     box-shadow: 0 4px 18px #9146ff55;
 }
+
+.loginBox #newLoginPanel .help #btnDirectLogin {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 16px;
+    color: #b983ff;
+    background: transparent;
+    border: 1px solid #9146ff;
+    border-radius: 11px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
+
+.loginBox #newLoginPanel .help #btnDirectLogin:hover,
+.loginBox #newLoginPanel .help #btnDirectLogin:focus-visible {
+    color: #fff;
+    background: #9146ff;
+    border-color: #b983ff;
+    text-decoration: none;
+}
+
+.loginBox .direct-login-instructions {
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid #52769a;
+    border-radius: 12px;
+    background: #102a43;
+    color: #d7e7ff;
+    text-align: center;
+}
+
+.loginBox .direct-login-instructions[hidden] { display: none; }
+.loginBox .direct-login-instructions p { margin: 5px 0; }
+.loginBox .direct-login-instructions strong { font-size: 24px; letter-spacing: .1em; user-select: all; }
+.loginBox .direct-login-instructions a { color: #91d0ff; }
+.loginBox .direct-login-instructions button { margin-top: 4px; color: #d7e7ff; }
 
 /* Msg Status & Barra de Count de Canais */
 #msgStatus {

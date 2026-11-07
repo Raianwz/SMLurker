@@ -9,6 +9,7 @@ const DEFAULT_PREFERENCES = {
     NotifyMe: false,
     NotifyGift: false,
     NotifyTray: false,
+    showCodeLogin: false,
     appearance: 'modern',
 };
 
@@ -48,6 +49,7 @@ function createLocalData(app, fileSystem = fs) {
         return {
             ...DEFAULT_PREFERENCES,
             ...stored,
+            showCodeLogin: stored.showCodeLogin === true,
             appearance: stored.appearance === 'classic' ? 'classic' : 'modern',
         };
     }
@@ -92,6 +94,14 @@ function createLocalData(app, fileSystem = fs) {
                     throw new TypeError('Visual inválido.');
                 }
                 const updated = { ...readPreferences(), appearance: value };
+                const filePath = preferencesPath();
+                fileSystem.mkdirSync(path.dirname(filePath), { recursive: true });
+                fileSystem.writeFileSync(filePath, JSON.stringify(updated));
+                return updated;
+            },
+            updateCodeLogin(value) {
+                if (typeof value !== 'boolean') throw new TypeError('Opção de login por código inválida.');
+                const updated = { ...readPreferences(), showCodeLogin: value };
                 const filePath = preferencesPath();
                 fileSystem.mkdirSync(path.dirname(filePath), { recursive: true });
                 fileSystem.writeFileSync(filePath, JSON.stringify(updated));

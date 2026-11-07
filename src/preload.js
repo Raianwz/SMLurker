@@ -17,6 +17,11 @@ const api = {
     preferences: {
         get: () => ipcRenderer.invoke('local:preferences:get'),
         updateNotifications: (values) => ipcRenderer.invoke('local:preferences:update-notifications', values),
+        onCodeLoginChanged: (callback) => {
+            const listener = (_event, enabled) => callback(enabled);
+            ipcRenderer.on('login-code:changed', listener);
+            return () => ipcRenderer.removeListener('login-code:changed', listener);
+        },
     },
     appearance: {
         get: () => ipcRenderer.invoke('appearance:get'),
@@ -41,6 +46,11 @@ const api = {
         restoreWebLogin: () => ipcRenderer.invoke('web-login:restore'),
         invalidateWebLogin: () => ipcRenderer.invoke('web-login:invalid'),
         logoutWebLogin: () => ipcRenderer.invoke('web-login:logout'),
+        startDirectLogin: () => ipcRenderer.invoke('direct-login:start'),
+        cancelDirectLogin: () => ipcRenderer.invoke('direct-login:cancel'),
+        invalidateDirectLogin: () => ipcRenderer.invoke('direct-login:invalid'),
+        refreshDirectLogin: () => ipcRenderer.invoke('direct-login:refresh'),
+        logoutDirectLogin: () => ipcRenderer.invoke('direct-login:logout'),
         onWebLoginResult: (callback) => {
             const listener = (_event, result, id) => {
                 Promise.resolve().then(() => callback(result)).then(() => {

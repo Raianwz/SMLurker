@@ -1,6 +1,7 @@
 releases
 .env
 .env.production
+src/components/twitch/directClientId.json
 node_modules
 .vscode
 devdata

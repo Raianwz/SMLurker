@@ -102,6 +102,7 @@ function createWebLogin({ isPackaged, openExternal, onResult, fetchImpl = fetch,
     let pending = null;
 
     return {
+        cancel() { pending = null; },
         async start() {
             let origin = webOrigin(isPackaged, configuredUrl);
             if (!isPackaged && !configuredUrl && origin === 'http://localhost:3000') {

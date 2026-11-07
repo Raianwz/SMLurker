@@ -19,6 +19,7 @@ function LoadConfigs() {
         getEl('#swt_autologin').checked = configs.autologin;
         getEl('#swt_inimin').checked = configs.inimin;
     } else createConfigs(configPath);
+    getEl('#swt_code_login').checked = configs.showCodeLogin === true;
     const startupSwitch = getEl('#swt_ini');
     startupSwitch.disabled = true;
     void ipcRenderer.invoke('startup:get').then(({ available, enabled }) => {
@@ -36,6 +37,19 @@ function LoadConfigs() {
     getEl('#swt_ini').addEventListener('click', () => changeIni())
     getEl('#swt_autologin').addEventListener('click', () => { changeConfigs() })
     getEl('#swt_inimin').addEventListener('click', () => { changeConfigs() })
+    getEl('#swt_code_login').addEventListener('change', async (event) => {
+        const toggle = event?.currentTarget || getEl('#swt_code_login');
+        const requested = toggle.checked;
+        toggle.disabled = true;
+        try {
+            toggle.checked = await ipcRenderer.invoke('login-code:set', requested);
+        } catch {
+            toggle.checked = !requested;
+            dialog.showMessageBoxSync({ type: 'error', message: 'Não foi possível salvar a opção de login por código.' });
+        } finally {
+            toggle.disabled = false;
+        }
+    });
     appearanceSelect.addEventListener('change', async () => {
         try {
             const selected = await ipcRenderer.invoke('appearance:set', appearanceSelect.value);

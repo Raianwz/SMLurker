@@ -6,13 +6,14 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../src/components/twitch/client.js'), 'utf8');
 
-function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro'], joinResult, storedValues = new Map()) {
+function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = false, savedSession = { type: 'none' }, connectError, dialogAnswer = 1, savedChannels = ['#raianwz', '#outro'], joinResult, storedValues = new Map(), directRefreshResult = { type: 'error', requiresLogin: true }) {
     const calls = [];
     const profileTokens = [];
     const trayStatuses = [];
     const joinedSelections = [];
     const clientHandlers = new Map();
     let onWebLoginResult;
+    let onCodeLoginChanged;
     let onAppActionRequested;
     const elements = new Map();
     const createNode = () => {
@@ -51,6 +52,7 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
     };
     element('#username').value = 'raianwz';
     element('#pass').value = 'oauth:legacy-token';
+    element('#directLoginInstructions').hidden = true;
     element('section#user_box').textContent = 'profile';
 
     const api = {
@@ -109,6 +111,15 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
             restoreWebLogin: async () => typeof savedSession === 'function' ? savedSession() : savedSession,
             invalidateWebLogin: async () => { calls.push('invalidate-web-login'); },
             logoutWebLogin: async () => { calls.push('logout-web-login'); return { ok: true }; },
+            startDirectLogin: async () => { calls.push('start-direct-login'); return { ok: true, userCode: 'ABCDEFGH', verificationUri: 'https://www.twitch.tv/activate?public=true', expiresIn: 1800 }; },
+            cancelDirectLogin: async () => { calls.push('cancel-direct-login'); return { ok: true }; },
+            logoutDirectLogin: async () => { calls.push('logout-direct-login'); return { ok: true }; },
+            invalidateDirectLogin: async () => { calls.push('invalidate-direct-login'); return { ok: true }; },
+            refreshDirectLogin: async () => { calls.push('refresh-direct-login'); return directRefreshResult; },
+        },
+        preferences: {
+            get: async () => ({ showCodeLogin: false }),
+            onCodeLoginChanged: (callback) => { onCodeLoginChanged = callback; },
         },
         reload: {
             onRequested: (callback) => { onAppActionRequested = callback; },
@@ -120,6 +131,9 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
         document: {
         getElementById: (id) => element(`#${id}`),
         querySelector: element,
+        querySelectorAll: (selector) => selector === '.code-login-option'
+            ? [element('#codeOptionLegacy'), element('#codeOptionNew'), element('#codeOptionReady')]
+            : [],
         createElement: (tagName) => Object.assign(createNode(), { tagName, style: {} }),
     } });
     vm.runInContext(source, context);
@@ -127,6 +141,7 @@ function createLoginFlow(joinError, hasLegacyCredentials = true, autoConnect = f
         context, element, calls, trayStatuses, profileTokens, joinedSelections, storedValues,
         emitClient: (name) => clientHandlers.get(name)?.(),
         webLoginResult: (result) => onWebLoginResult(result),
+        setCodeLogin: (enabled) => onCodeLoginChanged(enabled),
         requestAppAction: (action) => onAppActionRequested(action),
     };
 }
@@ -480,6 +495,41 @@ test('new users see browser login and Web return waits for an explicit channel c
     assert.equal(element('#pass').value, '');
 });
 
+test('direct login shows Twitch activation code and connects with its own saved session', async () => {
+    const flow = createLoginFlow(undefined, false);
+    await new Promise(setImmediate);
+    await flow.context.iniciarLoginDireto();
+    assert.equal(flow.calls.includes('start-direct-login'), true);
+    assert.equal(flow.element('#directLoginInstructions').hidden, false);
+    assert.equal(flow.element('#directLoginCode').textContent, 'ABCDEFGH');
+    assert.equal(flow.element('#directLoginLink').href, 'https://www.twitch.tv/activate?public=true');
+    await flow.webLoginResult({ type: 'success', source: 'direct', username: 'raianwz', accessToken: 'direct-token', remembered: true });
+    assert.equal(flow.element('#directLoginInstructions').hidden, true);
+    assert.equal(flow.element('#webReadyPanel').classList.contains('none'), false);
+    await flow.context.conectarCanaisWeb();
+    assert.equal(flow.calls.includes('connect'), true);
+    assert.equal(flow.calls.includes('save'), false);
+    await flow.context.sairTwitch();
+    await flow.context.sairDaContaWeb();
+    assert.equal(flow.calls.includes('logout-direct-login'), true);
+});
+
+test('code login buttons are hidden by default and follow settings changes', async () => {
+    const flow = createLoginFlow(undefined, false);
+    await new Promise(setImmediate);
+    for (const id of ['#codeOptionLegacy', '#codeOptionNew', '#codeOptionReady']) {
+        assert.equal(flow.element(id).hidden, true);
+    }
+    flow.setCodeLogin(true);
+    for (const id of ['#codeOptionLegacy', '#codeOptionNew', '#codeOptionReady']) {
+        assert.equal(flow.element(id).hidden, false);
+    }
+    flow.setCodeLogin(false);
+    for (const id of ['#codeOptionLegacy', '#codeOptionNew', '#codeOptionReady']) {
+        assert.equal(flow.element(id).hidden, true);
+    }
+});
+
 test('legacy users retain the manual login panel', async () => {
     const { element } = createLoginFlow();
     await new Promise(setImmediate);
@@ -576,4 +626,19 @@ test('IRC authentication failure clears the Web session and returns to login', a
     element('#retryConnection').handlers.click();
     await new Promise(setImmediate);
     assert.equal(calls.includes('start-web-login'), true);
+});
+
+test('IRC authentication failure renews a direct session once before reconnecting', async () => {
+    let attempts = 0;
+    const flow = createLoginFlow(undefined, false, false, { type: 'none' },
+        () => ++attempts === 1 ? new Error('Login authentication failed') : null,
+        1, ['#raianwz'], undefined, new Map(),
+        { type: 'success', source: 'direct', username: 'raianwz', accessToken: 'renewed-token' });
+    await new Promise(setImmediate);
+    await flow.webLoginResult({ type: 'success', source: 'direct', username: 'raianwz', accessToken: 'old-token' });
+    await flow.context.conectarCanaisWeb();
+    assert.equal(attempts, 2);
+    assert.equal(flow.calls.includes('refresh-direct-login'), true);
+    assert.equal(flow.calls.includes('invalidate-direct-login'), false);
+    assert.equal(flow.element('#msgStatus').attributes['data-state'], 'connected');
 });

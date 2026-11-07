@@ -51,6 +51,8 @@ function createController() {
                 save: () => true,
                 clear: () => {},
             }) };
+            if (id === '../twitch/directSession') return { createDirectSession: () => null };
+            if (id === '../twitch/directLogin') return { readClientId: () => '', createDirectLogin: () => null };
             throw new Error(`Unexpected import: ${id}`);
         },
     };

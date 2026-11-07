@@ -53,6 +53,10 @@ function createConfigWindow() {
                         actions.push(['startup', value]);
                         return { available: true, enabled: startupEnabled };
                     }
+                    if (channel === 'login-code:set') {
+                        saved = { ...saved, showCodeLogin: value };
+                        return value;
+                    }
                     assert.equal(channel, 'appearance:set');
                     saved = { ...saved, appearance: value };
                     return value;
@@ -108,6 +112,18 @@ test('visual selection saves the appearance and applies it in the settings windo
 
     assert.equal(getSaved().appearance, 'classic');
     assert.equal(documentElement.dataset.appearance, 'classic');
+});
+
+test('Twitch code login starts disabled and the settings switch saves its visibility', async () => {
+    const { element, getSaved } = createConfigWindow();
+    const toggle = element('#swt_code_login');
+    assert.equal(toggle.checked, false);
+    toggle.checked = true;
+    await toggle.change();
+    assert.equal(getSaved().showCodeLogin, true);
+    toggle.checked = false;
+    await toggle.change();
+    assert.equal(getSaved().showCodeLogin, false);
 });
 
 test('startup switch saves only after Windows accepts the requested state', async () => {

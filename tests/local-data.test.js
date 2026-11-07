@@ -52,3 +52,14 @@ test('appearance defaults to modern and preserves other preferences when changed
     assert.equal(JSON.parse(files.get(filename)).appearance, 'classic');
     assert.throws(() => data.preferences.updateAppearance('dark'), /Visual inválido/);
 });
+
+test('Twitch code login defaults off and only accepts a boolean setting', () => {
+    const { data, files, root } = fixture();
+    const filename = path.join(root, 'Config', 'configs.json');
+    assert.equal(data.preferences.get().showCodeLogin, false);
+    files.set(filename, JSON.stringify({ autologin: true }));
+    assert.equal(data.preferences.get().showCodeLogin, false);
+    assert.equal(data.preferences.updateCodeLogin(true).showCodeLogin, true);
+    assert.equal(JSON.parse(files.get(filename)).autologin, true);
+    assert.throws(() => data.preferences.updateCodeLogin('true'), /inválida/);
+});

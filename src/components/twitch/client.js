@@ -27,6 +27,26 @@ const MAX_CONNECTED_CHANNELS = 100;
 const CHANNEL_SELECTION_KEY = 'smlurker:selected-channels';
 const RESTORED_SESSION_NOTICE_KEY = 'smlurker:restored-session-notice:';
 
+let codeLoginPreferenceChanged = false;
+function showCodeLoginOption(enabled) {
+    for (const option of document.querySelectorAll('.code-login-option')) option.hidden = enabled !== true;
+    if (enabled !== true && !document.getElementById('directLoginInstructions').hidden) {
+        void api.auth.cancelDirectLogin();
+        document.getElementById('directLoginInstructions').hidden = true;
+        showLoginStatus('Login por código cancelado.');
+    }
+}
+
+api.preferences.onCodeLoginChanged((enabled) => {
+    codeLoginPreferenceChanged = true;
+    showCodeLoginOption(enabled);
+});
+void api.preferences.get().then((preferences) => {
+    if (!codeLoginPreferenceChanged) showCodeLoginOption(preferences.showCodeLogin);
+}).catch(() => {
+    if (!codeLoginPreferenceChanged) showCodeLoginOption(false);
+});
+
 function updateSessionUptime() {
     if (sessionStartedAt === null) return;
     const elapsed = Math.floor((Date.now() - sessionStartedAt) / 1000);
@@ -418,7 +438,7 @@ function resetLoginButton() {
     btnEntrar.onclick = entrarTwitch;
 }
 
-async function conectarCanais({ username, pass, fromWeb }) {
+async function conectarCanais({ username, pass, fromWeb, refreshAttempted = false }) {
     if (connectionPreparationInProgress || client) return;
     connectionPreparationInProgress = true;
     const btnEntrar = document.getElementById(fromWeb ? 'btnConnectChannels' : 'btnEntrar');
@@ -542,17 +562,33 @@ async function conectarCanais({ username, pass, fromWeb }) {
         }
         changeAppSide(0);
         updateTrayStatus('disconnected');
+        const invalidSource = webCredentials?.source;
+        if (invalidWebToken && invalidSource === 'direct' && !refreshAttempted) {
+            let renewed;
+            try { renewed = await api.auth.refreshDirectLogin(); }
+            catch { renewed = { type: 'error', message: 'Não foi possível renovar a sessão direta.' }; }
+            if (renewed.type === 'success') {
+                webCredentials.pass = `oauth:${renewed.accessToken}`;
+                setConnectionStatus('connecting', 'Sessão renovada. Reconectando aos canais...');
+                await conectarCanais({ ...webCredentials, fromWeb: true, refreshAttempted: true });
+                return;
+            }
+            if (!renewed.requiresLogin) {
+                setConnectionStatus('error', renewed.message, { retry: conectarCanaisWeb });
+                return;
+            }
+        }
         if (invalidWebToken) {
             webCredentials = null;
             document.getElementById('login_box').innerHTML = 'account_circle <p class="mb-tooltip">Login</p>';
             renderLoginMode();
-            try { await api.auth.invalidateWebLogin(); } catch { /* A mensagem de login já está visível. */ }
+            try { await (invalidSource === 'direct' ? api.auth.invalidateDirectLogin() : api.auth.invalidateWebLogin()); } catch { /* A mensagem de login já está visível. */ }
         }
         setConnectionStatus('error', invalidWebToken
             ? 'A sessão da Twitch não é mais válida. Entre com a Twitch novamente.'
             : errorMessage, {
             inlineMissingChannels: !fromWeb && errorMessage.startsWith('Nenhum canal adicionado'),
-            retry: invalidWebToken ? iniciarLoginWeb : fromWeb ? conectarCanaisWeb : entrarTwitch,
+            retry: invalidWebToken ? (invalidSource === 'direct' ? iniciarLoginDireto : iniciarLoginWeb) : fromWeb ? conectarCanaisWeb : entrarTwitch,
         });
     }
 }
@@ -578,6 +614,7 @@ async function conectarCanaisWeb() {
 }
 
 async function iniciarLoginWeb() {
+    document.getElementById('directLoginInstructions').hidden = true;
     if (useLegacyLogin && webCredentials) {
         useLegacyLogin = false;
         document.getElementById('username').value = webCredentials.username;
@@ -594,6 +631,31 @@ async function iniciarLoginWeb() {
     } catch {
         setConnectionStatus('error', 'Não foi possível abrir o login no navegador. Tente novamente.', { retry: iniciarLoginWeb });
     }
+}
+
+async function iniciarLoginDireto() {
+    if (client) return;
+    const instructions = document.getElementById('directLoginInstructions');
+    instructions.hidden = true;
+    try {
+        const result = await api.auth.startDirectLogin();
+        if (!result.ok) {
+            setConnectionStatus('error', result.message, { retry: iniciarLoginDireto });
+            return;
+        }
+        document.getElementById('directLoginCode').textContent = result.userCode;
+        document.getElementById('directLoginLink').href = result.verificationUri;
+        instructions.hidden = false;
+        setConnectionStatus('checking', 'Aguardando autorização na Twitch...');
+    } catch {
+        setConnectionStatus('error', 'Não foi possível iniciar o login direto.', { retry: iniciarLoginDireto });
+    }
+}
+
+async function cancelarLoginDireto() {
+    await api.auth.cancelDirectLogin();
+    document.getElementById('directLoginInstructions').hidden = true;
+    showLoginStatus('Login direto cancelado.');
 }
 
 async function voltarLoginLegado() {
@@ -618,7 +680,7 @@ async function voltarLoginLegado() {
 async function sairDaContaWeb() {
     if (client || !webCredentials) return;
     try {
-        const result = await api.auth.logoutWebLogin();
+        const result = await (webCredentials.source === 'direct' ? api.auth.logoutDirectLogin() : api.auth.logoutWebLogin());
         if (!result.ok) {
             showLoginStatus(result.message);
             return;
@@ -646,7 +708,8 @@ function applyWebLogin(result, restored = false) {
         setConnectionStatus('error', 'O login retornou dados incompletos. Tente novamente.', { retry: iniciarLoginWeb });
         return;
     }
-    webCredentials = { username: result.username, pass: `oauth:${result.accessToken}` };
+    webCredentials = { username: result.username, pass: `oauth:${result.accessToken}`, source: result.source || 'web' };
+    document.getElementById('directLoginInstructions').hidden = true;
     useLegacyLogin = false;
     document.getElementById('username').value = result.username;
     document.getElementById('pass').value = '';
@@ -673,8 +736,9 @@ function applyWebLogin(result, restored = false) {
 
 api.auth.onWebLoginResult(async (result) => {
     if (result.type === 'error') {
+        if (result.source === 'direct') document.getElementById('directLoginInstructions').hidden = true;
         if (client) document.getElementById('msgStatus').textContent = result.message;
-        else setConnectionStatus('error', result.message, { retry: iniciarLoginWeb });
+        else setConnectionStatus('error', result.message, { retry: result.source === 'direct' ? iniciarLoginDireto : iniciarLoginWeb });
         return;
     }
     if (result.type !== 'success') return;

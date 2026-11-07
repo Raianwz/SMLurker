@@ -1,9 +1,15 @@
 const path = require('node:path');
 const { createWebLogin } = require('../twitch/webLogin');
 const { createWebSession } = require('../twitch/webSession');
+const { createDirectSession } = require('../twitch/directSession');
+const { createDirectLogin, readClientId } = require('../twitch/directLogin');
 
 function createWebLoginController({ app, ipcMain, shell, Notification, safeStorage, getMainWindow, fromMainWindow }) {
     const webSession = createWebSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage });
+    const directClientId = readClientId({ isPackaged: app.isPackaged, appRoot: app.getAppPath?.() });
+    const directLogin = directClientId ? createDirectLogin({ clientId: directClientId }) : null;
+    const directSession = directLogin ? createDirectSession({ directory: path.join(app.getPath('userData'), 'Config'), safeStorage, directLogin }) : null;
+    let directAttempt = null;
     let queuedResult = null;
     let queuedResultId = 0;
     let rendererReady = false;
@@ -55,6 +61,8 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
 
     async function startWebLogin() {
         if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de trocar de conta.' };
+        directAttempt?.abort();
+        directAttempt = null;
         if (forceShowLogin) notificationLoginStarted = true;
         try {
             await webLogin.start();
@@ -110,6 +118,7 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
                 try {
                     remembered = webSession.save(result);
                     if (!remembered) webSession.clear();
+                    directSession?.clear();
                 } catch {
                     try { webSession.clear(); } catch { /* A sessão atual ainda pode ser usada em memória. */ }
                 }
@@ -122,7 +131,49 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
 
     ipcMain.handle('web-login:start', startWebLogin);
 
+    ipcMain.handle('direct-login:start', async (event) => {
+        fromMainWindow(event);
+        if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de trocar de conta.' };
+        if (!directLogin || !directSession) return { ok: false, message: 'CLIENT_ID do Electron não configurado.' };
+        if (directAttempt) return { ok: false, message: 'Um login direto já está em andamento.' };
+        webLogin.cancel?.();
+        const controller = new AbortController();
+        directAttempt = controller;
+        try {
+            const device = await directLogin.begin(controller.signal);
+            void shell.openExternal(device.verificationUri).catch(() => {
+                queueResult({ type: 'error', source: 'direct', message: 'Não foi possível abrir a Twitch. Abra twitch.tv/activate manualmente.' });
+            });
+            void directLogin.poll(device, controller.signal).then(async (tokens) => {
+                if (directAttempt !== controller || ircIsActive()) return;
+                const username = await directLogin.validate(tokens.access_token);
+                if (!username) throw new Error('A Twitch devolveu um token inválido para este aplicativo.');
+                const remembered = directSession.save({ username, accessToken: tokens.access_token, refreshToken: tokens.refresh_token });
+                if (!remembered) throw new Error('Não foi possível proteger a sessão direta neste sistema.');
+                webSession.clear();
+                queueResult({ type: 'success', source: 'direct', username, accessToken: tokens.access_token, remembered });
+            }).catch((error) => {
+                if (directAttempt === controller && !controller.signal.aborted) queueResult({ type: 'error', source: 'direct', message: error.message });
+            }).finally(() => { if (directAttempt === controller) directAttempt = null; });
+            return { ok: true, userCode: device.userCode, verificationUri: device.verificationUri, expiresIn: device.expiresIn };
+        } catch (error) {
+            directAttempt = null;
+            return { ok: false, message: error.message || 'Não foi possível iniciar o login direto.' };
+        }
+    });
+
+    ipcMain.handle('direct-login:cancel', (event) => {
+        fromMainWindow(event);
+        directAttempt?.abort();
+        directAttempt = null;
+        return { ok: true };
+    });
+
     ipcMain.handle('web-login:restore', async () => {
+        if (directSession) {
+            const direct = await directSession.restore();
+            if (direct.type !== 'none') return direct;
+        }
         const result = await webSession.restore();
         if (result.requiresLogin) requestLoginAgain();
         return result;
@@ -132,6 +183,17 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
         try { webSession.clear(); } catch { /* A interface ainda solicitará um novo login. */ }
         requestLoginAgain();
         return { ok: true };
+    });
+
+    ipcMain.handle('direct-login:invalid', (event) => {
+        fromMainWindow(event);
+        directSession?.clear();
+        return { ok: true };
+    });
+
+    ipcMain.handle('direct-login:refresh', async (event) => {
+        fromMainWindow(event);
+        return directSession ? directSession.renew() : { type: 'error', requiresLogin: true, message: 'Login direto indisponível.' };
     });
 
     ipcMain.handle('web-login:logout', (event) => {
@@ -150,8 +212,15 @@ function createWebLoginController({ app, ipcMain, shell, Notification, safeStora
         }
     });
 
+    ipcMain.handle('direct-login:logout', (event) => {
+        fromMainWindow(event);
+        if (ircIsActive()) return { ok: false, message: 'Desconecte-se dos canais antes de sair da conta.' };
+        try { directAttempt?.abort(); directAttempt = null; directSession?.clear(); queuedResult = null; return { ok: true }; }
+        catch { return { ok: false, message: 'Não foi possível apagar a sessão direta salva.' }; }
+    });
+
     return {
-        handleCallback: (url) => webLogin.handleCallback(url),
+        handleCallback: (url) => directAttempt ? false : webLogin.handleCallback(url),
         flushResult,
         rendererLoading: () => { rendererReady = false; },
         shouldForceShowLogin: () => forceShowLogin,
